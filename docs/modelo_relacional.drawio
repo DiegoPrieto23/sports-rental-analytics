@@ -1,0 +1,417 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Modelo relacional" id="modelo-relacional">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1"
+                  arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826"
+                  math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="rentals" value="rentals" style="shape=table;startSize=32;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;fillColor=#0082C3;fontColor=#FFFFFF;strokeColor=#0082C3;fontSize=14;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="300" height="500" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_rental_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="32" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_id" value="PK  rental_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#000000;" vertex="1" parent="row_rentals_rental_id">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_rental_id">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_customer_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="58" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__customer_id" value="FK  customer_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#B85C00;" vertex="1" parent="row_rentals_customer_id">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__customer_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_customer_id">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_product_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="84" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__product_id" value="FK  product_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#B85C00;" vertex="1" parent="row_rentals_product_id">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__product_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_product_id">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_store_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="110" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__store_id" value="FK  store_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#B85C00;" vertex="1" parent="row_rentals_store_id">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__store_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_store_id">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_rental_date" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="136" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_date" value="rental_date" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_rental_date">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_date_t" value="DATE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_rental_date">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_return_date" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="162" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__return_date" value="return_date" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_return_date">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__return_date_t" value="DATE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_return_date">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_reservation_date" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="188" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__reservation_date" value="reservation_date" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_reservation_date">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__reservation_date_t" value="DATE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_reservation_date">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_rental_days" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="214" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_days" value="rental_days" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_rental_days">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_days_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_rental_days">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_reservation_lead_time" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="240" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__reservation_lead_time" value="reservation_lead_time" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_reservation_lead_time">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__reservation_lead_time_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_reservation_lead_time">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_cancelled" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="266" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__cancelled" value="cancelled" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_cancelled">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__cancelled_t" value="BOOLEAN" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_cancelled">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_late_return" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="292" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__late_return" value="late_return" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_late_return">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__late_return_t" value="BOOLEAN" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_late_return">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_damage_reported" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="318" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__damage_reported" value="damage_reported" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_damage_reported">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__damage_reported_t" value="BOOLEAN" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_damage_reported">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_review_score" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="344" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__review_score" value="review_score" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_review_score">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__review_score_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_review_score">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_booking_channel" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="370" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__booking_channel" value="booking_channel" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_booking_channel">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__booking_channel_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_booking_channel">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_rental_price" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="396" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_price" value="rental_price" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_rental_price">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__rental_price_t" value="DOUBLE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_rental_price">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_maintenance_cost" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="422" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__maintenance_cost" value="maintenance_cost" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_maintenance_cost">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__maintenance_cost_t" value="DOUBLE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_maintenance_cost">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_weather" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="448" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__weather" value="weather" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_weather">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__weather_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_weather">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_rentals_season" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="rentals">
+          <mxGeometry y="474" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__season" value="season" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_rentals_season">
+          <mxGeometry width="210" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rentals__season_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_rentals_season">
+          <mxGeometry x="210" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers" value="customers" style="shape=table;startSize=32;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;fillColor=#00A17E;fontColor=#FFFFFF;strokeColor=#00A17E;fontSize=14;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="280" height="266" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_customer_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="32" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__customer_id" value="PK  customer_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#000000;" vertex="1" parent="row_customers_customer_id">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__customer_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_customer_id">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_age" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="58" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__age" value="age" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_age">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__age_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_age">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_gender" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="84" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__gender" value="gender" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_gender">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__gender_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_gender">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_country" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="110" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__country" value="country" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_country">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__country_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_country">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_city" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="136" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__city" value="city" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_city">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__city_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_city">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_customer_segment" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="162" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__customer_segment" value="customer_segment" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_customer_segment">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__customer_segment_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_customer_segment">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_membership_level" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="188" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__membership_level" value="membership_level" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_membership_level">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__membership_level_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_membership_level">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_signup_date" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="214" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__signup_date" value="signup_date" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_signup_date">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__signup_date_t" value="DATE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_signup_date">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_customers_total_previous_rentals" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="customers">
+          <mxGeometry y="240" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__total_previous_rentals" value="total_previous_rentals" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_customers_total_previous_rentals">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="customers__total_previous_rentals_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_customers_total_previous_rentals">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products" value="products" style="shape=table;startSize=32;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;fillColor=#00A17E;fontColor=#FFFFFF;strokeColor=#00A17E;fontSize=14;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="280" height="266" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_product_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="32" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_id" value="PK  product_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#000000;" vertex="1" parent="row_products_product_id">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_product_id">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_category" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="58" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__category" value="category" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_category">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__category_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_category">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_sport" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="84" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__sport" value="sport" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_sport">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__sport_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_sport">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_product_name" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="110" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_name" value="product_name" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_product_name">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_name_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_product_name">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_purchase_price" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="136" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__purchase_price" value="purchase_price" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_purchase_price">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__purchase_price_t" value="DOUBLE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_purchase_price">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_replacement_cost" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="162" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__replacement_cost" value="replacement_cost" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_replacement_cost">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__replacement_cost_t" value="DOUBLE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_replacement_cost">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_maintenance_interval" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="188" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__maintenance_interval" value="maintenance_interval" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_maintenance_interval">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__maintenance_interval_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_maintenance_interval">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_product_age" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="214" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_age" value="product_age" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_product_age">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__product_age_t" value="DOUBLE" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_product_age">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_products_inventory_units" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="products">
+          <mxGeometry y="240" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__inventory_units" value="inventory_units" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_products_inventory_units">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="products__inventory_units_t" value="INT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_products_inventory_units">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores" value="stores" style="shape=table;startSize=32;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;fillColor=#00A17E;fontColor=#FFFFFF;strokeColor=#00A17E;fontSize=14;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="790" y="210" width="280" height="188" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_store_id" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="32" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_id" value="PK  store_id" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;fontStyle=1;fontColor=#000000;" vertex="1" parent="row_stores_store_id">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_id_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_store_id">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_store_name" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="58" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_name" value="store_name" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_stores_store_name">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_name_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_store_name">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_city" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="84" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__city" value="city" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_stores_city">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__city_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_city">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_country" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="110" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__country" value="country" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_stores_country">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__country_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_country">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_store_size" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="136" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_size" value="store_size" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_stores_store_size">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__store_size_t" value="STRING" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_store_size">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_stores_annual_visitors" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" vertex="1" parent="stores">
+          <mxGeometry y="162" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__annual_visitors" value="annual_visitors" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=8;html=1;fontSize=12;" vertex="1" parent="row_stores_annual_visitors">
+          <mxGeometry width="190" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="stores__annual_visitors_t" value="BIGINT" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;html=1;fontSize=10;fontColor=#7A7A7A;" vertex="1" parent="row_stores_annual_visitors">
+          <mxGeometry x="190" width="90" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_0" value="1 : N" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;strokeColor=#33475B;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=11;" edge="1" parent="1" source="row_customers_customer_id" target="row_rentals_customer_id">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_1" value="1 : N" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;strokeColor=#33475B;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=11;" edge="1" parent="1" source="row_products_product_id" target="row_rentals_product_id">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_2" value="1 : N" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;strokeColor=#33475B;strokeWidth=2;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=11;" edge="1" parent="1" source="row_stores_store_id" target="row_rentals_store_id">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="titulo" value="Sports Rental — Modelo relacional (esquema estrella)" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#33475B;" vertex="1" parent="1">
+          <mxGeometry x="330" y="-40" width="520" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="leyenda" value="&lt;b&gt;Cómo se lee&lt;/b&gt;&lt;br&gt;&lt;br&gt;• &lt;b&gt;rentals&lt;/b&gt; es la tabla de hechos: una fila por alquiler.&lt;br&gt;• Las tres dimensiones describen el &lt;i&gt;quién&lt;/i&gt;, el &lt;i&gt;qué&lt;/i&gt; y el &lt;i&gt;dónde&lt;/i&gt; de cada alquiler.&lt;br&gt;• &lt;b&gt;1 : N&lt;/b&gt; — un cliente tiene muchos alquileres; un producto se alquila muchas veces; una tienda registra muchos alquileres.&lt;br&gt;• Las claves ajenas &lt;b&gt;FK&lt;/b&gt; de rentals apuntan a la &lt;b&gt;PK&lt;/b&gt; de su dimensión.&lt;br&gt;&lt;br&gt;&lt;i&gt;Nota: ~2 % de los alquileres llegan con store_id a NULL. No son huérfanos: el pipeline los conserva con LEFT JOIN porque el ingreso es real aunque se desconozca la tienda.&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;fontSize=12;spacing=10;fillColor=#F5F7FA;strokeColor=#CBD6E2;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="790" y="470" width="280" height="230" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

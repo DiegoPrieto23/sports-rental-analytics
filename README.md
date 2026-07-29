@@ -14,20 +14,72 @@ material deportivo (Rental)** de un retailer europeo. Consta de dos piezas:
 
 ---
 
+## 🔍 Vistazo al análisis
+
+**Primero la confianza en el dato.** Antes de decidir nada se auditan cuatro dimensiones de
+calidad y se condensan en un índice interpretable. El dato entra con un **90,7 % de
+completitud** (nulos inyectados a propósito) y una **consistencia del 95,9 %** por categorías
+mal escritas — problemas reales que el pipeline resuelve de forma documentada.
+
+<p align="center">
+  <img src="docs/img/data_trust_score.png" alt="Data Trust Score por dimensión de calidad" width="88%">
+</p>
+
+**La estacionalidad es el hallazgo estructural.** Esquí y snowboard concentran más de la
+mitad de su demanda en diciembre–febrero; camping, kayak y paddle surf en junio–agosto.
+Traducción de negocio: ese inventario está **parado medio año**, y ahí es donde se pierde
+margen que no se recupera.
+
+<p align="center">
+  <img src="docs/img/estacionalidad.png" alt="Heatmap de estacionalidad de la demanda por categoría y mes" width="92%">
+</p>
+
+**El envejecimiento tiene coste doble.** La tasa de averías pasa de ~5 % en producto nuevo a
+más del 30 % pasados 6 años, y el color muestra que el *maintenance ratio* sube con ella.
+Existe una **edad umbral** a partir de la cual mantener la unidad deja de compensar: es la
+base de una política de renovación de flota.
+
+<p align="center">
+  <img src="docs/img/antiguedad.png" alt="Antigüedad del producto frente a tasa de averías" width="92%">
+</p>
+
+**Las variables se comportan como debían.** El precio se construye por duración
+(`rental_days ~ rental_price` = **0,69**) y la satisfacción cae con la antigüedad
+(**−0,48**) y con el coste de mantenimiento (**−0,45**). Ninguna correlación espuria
+fuerte: el dataset es coherente y las variables están listas para modelar.
+
+<p align="center">
+  <img src="docs/img/correlacion.png" alt="Matriz de correlación de Pearson" width="72%">
+</p>
+
+---
+
 ## 📂 Estructura del proyecto
 
 ```
 sports-rental-analytics/
-├── generate_dataset.py              # Generador del dataset sintético
-├── rental_analysis.ipynb  # Notebook de análisis (Databricks / VSCode)
-├── requirements.txt                 # Dependencias del proyecto
-├── README.md                        # Este archivo
-└── output/                          # Salida del generador (se crea al ejecutar)
-    ├── customers.csv                # Dimensión de clientes
-    ├── products.csv                 # Dimensión de productos
-    ├── stores.csv                   # Dimensión de tiendas
-    ├── rentals.csv                  # Tabla de hechos de alquileres
-    └── README.md                    # Diccionario de datos + KPIs (detalle de las tablas)
+├── generate_dataset.py                  # Generador del dataset sintético
+├── rental_analysis.ipynb                # Notebook de análisis local (VSCode / Jupyter)
+├── requirements.txt                     # Dependencias del proyecto
+├── README.md                            # Este archivo
+│
+├── output/                              # Salida del generador (se crea al ejecutar)
+│   ├── customers.csv                    # Dimensión de clientes
+│   ├── products.csv                     # Dimensión de productos
+│   ├── stores.csv                       # Dimensión de tiendas
+│   ├── rentals.csv                      # Tabla de hechos de alquileres
+│   └── README.md                        # Diccionario de datos + KPIs (autogenerado)
+│
+├── docs/
+│   ├── modelo_relacional.drawio         # Diagrama editable del modelo de datos
+│   └── img/                             # Capturas del análisis
+│
+└── databricks/                          # Industrialización en el Lakehouse
+    ├── dbt/                             # 17 modelos + 46 tests (fuente de verdad)
+    ├── notebooks/                       # Notebooks SQL generados desde dbt
+    ├── analysis/                        # Análisis sobre las tablas Gold + queries del EDA
+    ├── resources/                       # Definición de los Jobs encadenados
+    └── README.md                        # Guía completa del pipeline
 ```
 
 ---
@@ -102,12 +154,80 @@ mayúsculas/espacios inconsistentes — **sin invalidar** el conjunto.
 > [`output/README.md`](output/README.md), generado automáticamente por el script.
 
 ### Modelo de datos (esquema estrella)
+
+`rentals` es la **tabla de hechos** —una fila por alquiler— y las otras tres son
+**dimensiones** que describen el *quién*, el *qué* y el *dónde* de cada operación.
+
+```mermaid
+erDiagram
+    CUSTOMERS ||--o{ RENTALS : "realiza"
+    PRODUCTS  ||--o{ RENTALS : "se alquila en"
+    STORES    ||--o{ RENTALS : "registra"
+
+    CUSTOMERS {
+        string customer_id PK
+        int    age
+        string gender
+        string country
+        string city
+        string customer_segment
+        string membership_level
+        date   signup_date
+        int    total_previous_rentals
+    }
+    PRODUCTS {
+        string product_id PK
+        string category
+        string sport
+        string product_name
+        double purchase_price
+        double replacement_cost
+        int    maintenance_interval
+        double product_age
+        int    inventory_units
+    }
+    STORES {
+        string store_id PK
+        string store_name
+        string city
+        string country
+        string store_size
+        bigint annual_visitors
+    }
+    RENTALS {
+        string  rental_id PK
+        string  customer_id FK
+        string  product_id FK
+        string  store_id FK
+        date    rental_date
+        date    return_date
+        date    reservation_date
+        int     rental_days
+        int     reservation_lead_time
+        boolean cancelled
+        boolean late_return
+        boolean damage_reported
+        int     review_score
+        string  booking_channel
+        double  rental_price
+        double  maintenance_cost
+        string  weather
+        string  season
+    }
 ```
-customers ─┐
-products  ─┼──<  rentals   (fact table)
-stores    ─┘
-```
-Cardinalidades: `customers 1—N rentals`, `products 1—N rentals`, `stores 1—N rentals`.
+
+**Cardinalidades:** `customers 1—N rentals` · `products 1—N rentals` · `stores 1—N rentals`.
+Un cliente tiene muchos alquileres, un producto se alquila muchas veces y una tienda
+registra muchos alquileres.
+
+> 🎨 **Diagrama editable:** [`docs/modelo_relacional.drawio`](docs/modelo_relacional.drawio).
+> Se abre en [app.diagrams.net](https://app.diagrams.net) (`File → Open from → Device`) o
+> directamente en VSCode con la extensión *Draw.io Integration*.
+
+> ℹ️ **Sobre los `store_id` nulos:** en torno al 2 % de los alquileres llegan sin tienda
+> asignada. **No son huérfanos** —cuando el `store_id` existe siempre apunta a una tienda
+> válida—, así que el pipeline los conserva con un `LEFT JOIN`: el ingreso es real aunque
+> se desconozca dónde se registró. Descartarlos sesgaría los ingresos a la baja.
 
 ---
 
