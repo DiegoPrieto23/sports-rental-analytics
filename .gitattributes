@@ -1,0 +1,15 @@
+# Normaliza los finales de linea: LF en el repositorio, nativo en disco.
+# Evita que un checkout en Windows genere un diff completo por CRLF.
+* text=auto eol=lf
+
+# Los scripts de PowerShell se sirven con CRLF.
+*.ps1 text eol=crlf
+
+# Los notebooks son JSON: se versionan como texto, pero sus diffs son ilegibles.
+# GitHub los renderiza igualmente con su visor nativo.
+*.ipynb text eol=lf linguist-language=Jupyter\ Notebook
+
+# El repositorio es de analytics engineering: que GitHub cuente SQL y Python,
+# no el JSON del notebook ni los CSV de datos sinteticos.
+*.csv linguist-generated=true
+databricks/notebooks/*.sql linguist-generated=true

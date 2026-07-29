@@ -1,0 +1,576 @@
+================================================================================
+ SPORTS RENTAL - CONSULTAS SQL DEL ANALISIS EXPLORATORIO (EDA)
+================================================================================
+
+ Una consulta por cada grafica de la seccion 6 del notebook de analisis.
+ Cada una devuelve EXACTAMENTE los datos que se pintan: se pueden pegar tal cual
+ en el editor SQL de Databricks, en una celda %sql, o usarlas como origen de un
+ dashboard sin tocar nada.
+
+ NOMBRES DE TABLA
+ ----------------
+ Se usan nombres cualificados (workspace.esquema.tabla) para que funcionen en
+ cualquier contexto. Dentro del notebook de analisis existen ademas las vistas
+ temporales cortas, asi que alli puedes sustituir:
+
+     workspace.intermediate.int_rentals_enriched  ->  fact
+     workspace.marts.mart_product_metrics         ->  product_metrics
+     workspace.marts.mart_store_metrics           ->  store_metrics
+     workspace.marts.mart_customer_metrics        ->  customer_metrics
+     workspace.marts.mart_category_performance    ->  category_performance
+     workspace.marts.mart_monthly_revenue         ->  monthly_revenue
+     workspace.marts.mart_pricing_by_season       ->  pricing_by_season
+     workspace.marts.mart_channel_performance     ->  channel_performance
+     workspace.marts.mart_cohort_retention        ->  cohort_retention
+
+ Si tu catalogo no es `workspace`, busca y reemplaza.
+
+ CRITERIO
+ --------
+ Cuando el dato ya existe en un Data Mart, la consulta LEE del mart: es la unica
+ forma de garantizar que el grafico y el dashboard muestren el mismo numero. En
+ esos casos se incluye ademas una variante "DESDE LA TABLA DE HECHOS" que
+ reproduce el calculo desde cero, como material de referencia.
+
+ Todas las consultas de este fichero se han ejecutado contra Databricks.
+
+================================================================================
+ 6.1  ESTACIONALIDAD DE LA DEMANDA POR CATEGORIA
+================================================================================
+ Pregunta: cuando se alquila cada categoria?
+ Grafico:  heatmap categoria x mes
+ Clave:    se normaliza por categoria (% sobre su propio total), no sobre el
+           total global. Sin eso el heatmap solo mostraria que categorias son
+           grandes, no CUANDO tienen su pico, que es lo que se quiere ver.
+
+-- 6.1.a  Formato largo: una fila por categoria y mes (ideal para BI)
+SELECT
+    category                                                       AS categoria,
+    MONTH(rental_date)                                             AS mes,
+    COUNT(*)                                                       AS alquileres,
+    ROUND(100.0 * COUNT(*)
+          / SUM(COUNT(*)) OVER (PARTITION BY category), 2)         AS pct_de_la_categoria
+FROM workspace.intermediate.int_rentals_enriched
+WHERE category IS NOT NULL
+  AND rental_date IS NOT NULL
+GROUP BY category, MONTH(rental_date)
+ORDER BY categoria, mes;
+
+
+-- 6.1.b  Formato matriz: 12 columnas de mes, con el % de la categoria.
+--        Es la forma exacta del heatmap del notebook.
+WITH mensual AS (
+    SELECT
+        category                                                   AS categoria,
+        MONTH(rental_date)                                         AS mes,
+        COUNT(*)                                                   AS alquileres
+    FROM workspace.intermediate.int_rentals_enriched
+    WHERE category IS NOT NULL AND rental_date IS NOT NULL
+    GROUP BY category, MONTH(rental_date)
+),
+porcentaje AS (
+    SELECT
+        categoria,
+        mes,
+        ROUND(100.0 * alquileres
+              / SUM(alquileres) OVER (PARTITION BY categoria), 1)  AS pct
+    FROM mensual
+)
+SELECT * FROM porcentaje
+PIVOT (
+    MAX(pct) FOR mes IN (1 AS ene, 2 AS feb, 3 AS mar, 4 AS abr,
+                         5 AS may, 6 AS jun, 7 AS jul, 8 AS ago,
+                         9 AS sep, 10 AS oct, 11 AS nov, 12 AS dic)
+)
+ORDER BY categoria;
+
+
+-- 6.1.c  Indice de estacionalidad: cuantifica en un solo numero lo que el
+--        heatmap muestra visualmente. Ratio pico/valle por categoria.
+WITH mensual AS (
+    SELECT category AS categoria, MONTH(rental_date) AS mes, COUNT(*) AS alquileres
+    FROM workspace.intermediate.int_rentals_enriched
+    WHERE category IS NOT NULL AND rental_date IS NOT NULL
+    GROUP BY category, MONTH(rental_date)
+)
+SELECT
+    categoria,
+    MAX(alquileres)                                                AS mes_pico,
+    MIN(alquileres)                                                AS mes_valle,
+    ROUND(MAX(alquileres) / NULLIF(MIN(alquileres), 0), 1)         AS indice_estacionalidad,
+    ROUND(100.0 * MAX(alquileres) / SUM(alquileres), 1)            AS pct_en_el_mes_pico
+FROM mensual
+GROUP BY categoria
+ORDER BY indice_estacionalidad DESC;
+
+
+================================================================================
+ 6.2  EVOLUCION MENSUAL DE INGRESOS (tendencia + media movil)
+================================================================================
+ Pregunta: como evoluciona el negocio y cual es la tendencia subyacente?
+ Grafico:  linea de ingresos + media movil 3M
+
+-- 6.2.a  Desde el mart (recomendado: media movil e interanual ya calculadas)
+SELECT
+    month                                                          AS mes,
+    rentals_completed                                              AS alquileres,
+    ROUND(revenue, 0)                                              AS ingresos_eur,
+    ROUND(revenue_rolling_3m, 0)                                   AS media_movil_3m,
+    ROUND(revenue_yoy_pct, 1)                                      AS var_interanual_pct
+FROM workspace.marts.mart_monthly_revenue
+ORDER BY mes;
+
+
+-- 6.2.b  DESDE LA TABLA DE HECHOS: como se calculan esas ventanas.
+--        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW = media de este mes y los 2
+--        anteriores. LAG(...,12) compara con el mismo mes del ano pasado.
+WITH mensual AS (
+    SELECT
+        DATE_TRUNC('MONTH', rental_date)                           AS mes,
+        COUNT(*)                                                   AS alquileres,
+        SUM(CASE WHEN completed THEN revenue END)                  AS ingresos
+    FROM workspace.intermediate.int_rentals_enriched
+    WHERE rental_date IS NOT NULL
+    GROUP BY DATE_TRUNC('MONTH', rental_date)
+)
+SELECT
+    mes,
+    alquileres,
+    ROUND(ingresos, 0)                                             AS ingresos_eur,
+    ROUND(AVG(ingresos) OVER (ORDER BY mes
+          ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0)            AS media_movil_3m,
+    ROUND(100.0 * (ingresos - LAG(ingresos, 12) OVER (ORDER BY mes))
+          / NULLIF(LAG(ingresos, 12) OVER (ORDER BY mes), 0), 1)   AS var_interanual_pct
+FROM mensual
+ORDER BY mes;
+
+
+================================================================================
+ 6.3  DISPERSION DEL PRECIO POR CATEGORIA (boxplot)
+================================================================================
+ Pregunta: que rango de precio tiene cada deporte?
+ Grafico:  boxplot
+ Clave:    un boxplot necesita los cinco numeros (min, Q1, mediana, Q3, max) y
+           los bigotes de Tukey (Q1 - 1.5*IQR, Q3 + 1.5*IQR). Se calculan aqui
+           en vez de traerse las 77k filas al cliente.
+
+WITH cuartiles AS (
+    SELECT
+        category                                                              AS categoria,
+        COUNT(*)                                                              AS n,
+        MIN(rental_price)                                                     AS minimo,
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY rental_price)            AS q1,
+        percentile_cont(0.50) WITHIN GROUP (ORDER BY rental_price)            AS mediana,
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY rental_price)            AS q3,
+        MAX(rental_price)                                                     AS maximo,
+        AVG(rental_price)                                                     AS media
+    FROM workspace.intermediate.int_rentals_enriched
+    WHERE rental_price IS NOT NULL AND category IS NOT NULL
+    GROUP BY category
+)
+SELECT
+    categoria,
+    n,
+    ROUND(minimo, 2)                                               AS minimo,
+    ROUND(q1, 2)                                                   AS q1,
+    ROUND(mediana, 2)                                              AS mediana,
+    ROUND(q3, 2)                                                   AS q3,
+    ROUND(maximo, 2)                                               AS maximo,
+    ROUND(media, 2)                                                AS media,
+    ROUND(q3 - q1, 2)                                              AS iqr,
+    ROUND(GREATEST(minimo, q1 - 1.5 * (q3 - q1)), 2)               AS bigote_inferior,
+    ROUND(LEAST(maximo, q3 + 1.5 * (q3 - q1)), 2)                  AS bigote_superior
+FROM cuartiles
+ORDER BY mediana DESC;
+
+
+================================================================================
+ 6.4  SATISFACCION POR NIVEL DE SOCIO (violin plot)
+================================================================================
+ Pregunta: los socios de pago puntuan mejor?
+ Grafico:  violin / distribucion de review_score
+ Clave:    el violin necesita la DISTRIBUCION completa, no la media. Como
+           review_score solo toma 5 valores, basta con el reparto porcentual.
+
+SELECT
+    membership_level                                               AS nivel_socio,
+    review_score                                                   AS puntuacion,
+    COUNT(*)                                                       AS n,
+    ROUND(100.0 * COUNT(*)
+          / SUM(COUNT(*)) OVER (PARTITION BY membership_level), 2) AS pct_del_nivel
+FROM workspace.intermediate.int_rentals_enriched
+WHERE review_score IS NOT NULL
+  AND membership_level IS NOT NULL
+GROUP BY membership_level, review_score
+ORDER BY
+    CASE membership_level WHEN 'Basic' THEN 1 WHEN 'Standard' THEN 2
+                          WHEN 'Premium' THEN 3 WHEN 'Gold' THEN 4 END,
+    puntuacion;
+
+
+-- 6.4.b  Resumen por nivel: media, mediana y % de resenas negativas (1-2).
+--        Es la version "para el comite": una fila por nivel.
+SELECT
+    membership_level                                                     AS nivel_socio,
+    COUNT(*)                                                             AS n_resenas,
+    ROUND(AVG(review_score), 3)                                          AS review_media,
+    percentile_cont(0.50) WITHIN GROUP (ORDER BY review_score)           AS mediana,
+    ROUND(100.0 * SUM(CASE WHEN review_score <= 2 THEN 1 ELSE 0 END)
+          / COUNT(*), 2)                                                 AS pct_negativas,
+    ROUND(100.0 * SUM(CASE WHEN review_score >= 4 THEN 1 ELSE 0 END)
+          / COUNT(*), 2)                                                 AS pct_positivas
+FROM workspace.intermediate.int_rentals_enriched
+WHERE review_score IS NOT NULL AND membership_level IS NOT NULL
+GROUP BY membership_level
+ORDER BY review_media DESC;
+
+
+================================================================================
+ 6.5  ENVEJECIMIENTO vs AVERIAS (scatter de burbujas)
+================================================================================
+ Pregunta: el producto viejo se rompe mas y cuesta mas mantenerlo?
+ Grafico:  scatter (x=antiguedad, y=tasa averia, tamano=inventario,
+           color=maintenance ratio)
+
+SELECT
+    product_id,
+    product_name                                                   AS producto,
+    category                                                       AS categoria,
+    product_age                                                    AS antiguedad_anios,
+    ROUND(damage_rate, 4)                                          AS tasa_averia,
+    inventory_units                                                AS unidades,
+    ROUND(maintenance_ratio, 4)                                    AS maintenance_ratio,
+    ROUND(revenue, 0)                                              AS ingresos_eur
+FROM workspace.marts.mart_product_metrics
+WHERE damage_rate IS NOT NULL
+ORDER BY antiguedad_anios;
+
+
+-- 6.5.b  La tendencia resumida en tramos de antiguedad: es la lectura que
+--        busca negocio (donde esta la edad umbral de retirada de flota).
+SELECT
+    CASE
+        WHEN product_age < 1 THEN '0-1 anios'
+        WHEN product_age < 2 THEN '1-2 anios'
+        WHEN product_age < 3 THEN '2-3 anios'
+        WHEN product_age < 4 THEN '3-4 anios'
+        ELSE '4+ anios'
+    END                                                            AS tramo_antiguedad,
+    COUNT(*)                                                       AS n_productos,
+    ROUND(AVG(damage_rate), 4)                                     AS tasa_averia_media,
+    ROUND(AVG(maintenance_ratio), 4)                               AS maintenance_ratio_medio,
+    ROUND(AVG(avg_review), 3)                                      AS review_media,
+    ROUND(AVG(margin), 3)                                          AS margen_medio
+FROM workspace.marts.mart_product_metrics
+WHERE product_age IS NOT NULL
+GROUP BY 1
+ORDER BY tramo_antiguedad;
+
+
+================================================================================
+ 6.6  CONCENTRACION DE INGRESOS POR PAIS Y CATEGORIA (treemap)
+================================================================================
+ Pregunta: donde se genera el negocio?
+ Grafico:  treemap jerarquico pais > categoria
+
+SELECT
+    store_country                                                  AS pais,
+    category                                                       AS categoria,
+    COUNT(*)                                                       AS alquileres,
+    ROUND(SUM(revenue), 0)                                         AS ingresos_eur,
+    ROUND(100.0 * SUM(revenue) / SUM(SUM(revenue)) OVER (), 2)     AS pct_del_total,
+    ROUND(100.0 * SUM(revenue)
+          / SUM(SUM(revenue)) OVER (PARTITION BY store_country), 2) AS pct_del_pais
+FROM workspace.intermediate.int_rentals_enriched
+WHERE completed
+  AND store_country IS NOT NULL
+  AND category IS NOT NULL
+GROUP BY store_country, category
+ORDER BY ingresos_eur DESC;
+
+
+================================================================================
+ 6.7  OCUPACION vs MARGEN POR CATEGORIA (bubble chart)
+================================================================================
+ Pregunta: en que categorias merece la pena ampliar inventario?
+ Grafico:  scatter de burbujas con lineas de media (cuatro cuadrantes)
+ Clave:    las columnas media_* replican las lineas punteadas del grafico, para
+           poder situar cada categoria en su cuadrante sin calculo externo.
+
+SELECT
+    category                                                       AS categoria,
+    ROUND(avg_occupancy_rate, 4)                                   AS ocupacion,
+    ROUND(avg_margin, 3)                                           AS margen,
+    ROUND(revenue, 0)                                              AS ingresos_eur,
+    inventory_units                                                AS unidades,
+    ROUND(avg_maintenance_ratio, 3)                                AS maintenance_ratio,
+    ROUND(AVG(avg_occupancy_rate) OVER (), 4)                      AS media_ocupacion,
+    ROUND(AVG(avg_margin) OVER (), 3)                              AS media_margen,
+    CASE
+        WHEN avg_occupancy_rate >= AVG(avg_occupancy_rate) OVER ()
+         AND avg_margin         >= AVG(avg_margin) OVER ()         THEN 'Ampliar stock'
+        WHEN avg_occupancy_rate >= AVG(avg_occupancy_rate) OVER ()
+         AND avg_margin         <  AVG(avg_margin) OVER ()         THEN 'Rota pero no deja margen'
+        WHEN avg_occupancy_rate <  AVG(avg_occupancy_rate) OVER ()
+         AND avg_margin         >= AVG(avg_margin) OVER ()         THEN 'Margen sin rotacion'
+        ELSE 'Reducir o reubicar'
+    END                                                            AS cuadrante
+FROM workspace.marts.mart_category_performance
+ORDER BY ingresos_eur DESC;
+
+
+================================================================================
+ 6.8  CORRELACIONES ENTRE VARIABLES NUMERICAS
+================================================================================
+ Pregunta: que variables se mueven juntas?
+ Grafico:  matriz de correlacion
+ Nota:     una matriz 10x10 completa en SQL exige 100 llamadas a corr() y se
+           vuelve ilegible. Para la matriz entera es mas practico pandas
+           (df.corr()). Aqui van los pares con lectura de negocio, en formato
+           largo, que es ademas lo que se lleva bien con un dashboard.
+
+SELECT 'rental_days ~ rental_price'            AS par, ROUND(corr(rental_days, rental_price), 3)            AS pearson FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'product_age ~ maintenance_cost',      ROUND(corr(product_age, maintenance_cost), 3)       FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'product_age ~ review_score',          ROUND(corr(product_age, review_score), 3)           FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'reservation_lead_time ~ review_score',ROUND(corr(reservation_lead_time, review_score), 3) FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'rental_days ~ maintenance_cost',      ROUND(corr(rental_days, maintenance_cost), 3)       FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'purchase_price ~ rental_price',       ROUND(corr(purchase_price, rental_price), 3)        FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'customer_age ~ rental_price',         ROUND(corr(customer_age, rental_price), 3)          FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'inventory_units ~ rental_price',      ROUND(corr(inventory_units, rental_price), 3)       FROM workspace.intermediate.int_rentals_enriched
+UNION ALL SELECT 'total_previous_rentals ~ rental_price',ROUND(corr(total_previous_rentals, rental_price),3) FROM workspace.intermediate.int_rentals_enriched
+ORDER BY ABS(pearson) DESC;
+
+
+================================================================================
+ 6.9  OMNICANALIDAD - MIX DE CANAL Y FRICCION
+================================================================================
+ Pregunta: por que canal llega el negocio y donde hay mas cancelacion?
+ Grafico:  doble barra (peso del canal | tasa de cancelacion)
+
+SELECT
+    booking_channel                                                AS canal,
+    CASE WHEN is_digital THEN 'Digital' ELSE 'Fisico' END          AS bloque,
+    rentals_total                                                  AS alquileres,
+    ROUND(share_pct, 1)                                            AS pct_mix,
+    ROUND(revenue, 0)                                              AS ingresos_eur,
+    ROUND(avg_ticket, 2)                                           AS ticket_medio,
+    ROUND(100.0 * cancellation_rate, 2)                            AS pct_cancelacion,
+    ROUND(avg_review_score, 2)                                     AS review_media,
+    ROUND(avg_lead_time_days, 1)                                   AS lead_time_dias
+FROM workspace.marts.mart_channel_performance
+ORDER BY alquileres DESC;
+
+
+-- 6.9.b  Agregado digital vs fisico: el titular de la lamina.
+SELECT
+    CASE WHEN is_digital THEN 'Digital (Online + App)' ELSE 'Fisico (Tienda + Telefono)' END AS bloque,
+    SUM(rentals_total)                                             AS alquileres,
+    ROUND(SUM(share_pct), 1)                                       AS pct_mix,
+    ROUND(SUM(revenue), 0)                                         AS ingresos_eur,
+    ROUND(100.0 * SUM(rentals_total * cancellation_rate)
+          / SUM(rentals_total), 2)                                 AS pct_cancelacion_ponderada
+FROM workspace.marts.mart_channel_performance
+GROUP BY is_digital
+ORDER BY alquileres DESC;
+
+
+================================================================================
+ 6.10  PRICING - PRECIO POR DIA POR CATEGORIA Y TEMPORADA
+================================================================================
+ Pregunta: hay pricing dinamico y donde queda recorrido?
+ Grafico:  heatmap categoria x temporada
+ Clave:    se usa la MEDIANA del precio POR DIA, no el ticket total. Neutraliza
+           el mix de duraciones y hace comparable una categoria que se alquila
+           2 dias con otra que se alquila 10.
+
+-- 6.10.a  Formato largo, desde el mart
+SELECT
+    category                                                       AS categoria,
+    season                                                         AS temporada,
+    rentals                                                        AS alquileres,
+    ROUND(median_price_per_day, 2)                                 AS mediana_eur_dia,
+    ROUND(avg_ticket, 2)                                           AS ticket_medio,
+    ROUND(season_volume_share_pct, 1)                              AS pct_volumen_temporada,
+    ROUND(seasonal_spread_pct, 0)                                  AS recorrido_estacional_pct
+FROM workspace.marts.mart_pricing_by_season
+ORDER BY categoria,
+         CASE temporada WHEN 'Winter' THEN 1 WHEN 'Spring' THEN 2
+                        WHEN 'Summer' THEN 3 WHEN 'Autumn' THEN 4 END;
+
+
+-- 6.10.b  Formato matriz: la forma exacta del heatmap.
+SELECT * FROM (
+    SELECT category AS categoria, season AS temporada,
+           ROUND(median_price_per_day, 1) AS eur_dia
+    FROM workspace.marts.mart_pricing_by_season
+)
+PIVOT (
+    MAX(eur_dia) FOR temporada IN ('Winter' AS invierno, 'Spring' AS primavera,
+                                   'Summer' AS verano,   'Autumn' AS otono)
+)
+ORDER BY categoria;
+
+
+-- 6.10.c  DESDE LA TABLA DE HECHOS: el calculo completo, incluido el recorrido
+--         estacional (max/min entre temporadas) con una ventana por categoria.
+WITH base AS (
+    SELECT category, season, rental_price / rental_days AS precio_dia
+    FROM workspace.intermediate.int_rentals_enriched
+    WHERE completed
+      AND rental_price IS NOT NULL
+      AND rental_days > 0
+      AND category IS NOT NULL
+      AND season IS NOT NULL
+),
+agregado AS (
+    SELECT
+        category                                                        AS categoria,
+        season                                                          AS temporada,
+        COUNT(*)                                                        AS alquileres,
+        percentile_cont(0.50) WITHIN GROUP (ORDER BY precio_dia)        AS mediana_eur_dia
+    FROM base
+    GROUP BY category, season
+)
+SELECT
+    categoria,
+    temporada,
+    alquileres,
+    ROUND(mediana_eur_dia, 2)                                           AS mediana_eur_dia,
+    ROUND(100.0 * (MAX(mediana_eur_dia) OVER (PARTITION BY categoria)
+          / NULLIF(MIN(mediana_eur_dia) OVER (PARTITION BY categoria), 0) - 1), 0)
+                                                                        AS recorrido_estacional_pct
+FROM agregado
+ORDER BY recorrido_estacional_pct DESC, categoria, temporada;
+
+
+================================================================================
+ 6.11  GESTION DE STOCK - PARETO (ABC) Y ROTACION
+================================================================================
+ Pregunta: que inventario sostiene el negocio y cual inmoviliza capital?
+ Grafico:  curva de Pareto + barras de rotacion
+
+-- 6.11.a  Curva de Pareto: una fila por producto con el acumulado de ingresos.
+SELECT
+    product_name                                                   AS producto,
+    category                                                       AS categoria,
+    abc_class                                                      AS clase_abc,
+    rotation_class                                                 AS rotacion,
+    ROUND(revenue, 0)                                              AS ingresos_eur,
+    ROUND(100.0 * cumulative_revenue_share, 2)                     AS pct_ingresos_acumulado,
+    ROUND(100.0 * ROW_NUMBER() OVER (ORDER BY revenue DESC)
+          / COUNT(*) OVER (), 2)                                   AS pct_productos_acumulado,
+    inventory_units                                                AS unidades,
+    ROUND(occupancy_rate, 4)                                       AS ocupacion
+FROM workspace.marts.mart_product_metrics
+ORDER BY ingresos_eur DESC;
+
+
+-- 6.11.b  Resumen ABC: el titular ("el X% del catalogo genera el 80%").
+SELECT
+    abc_class                                                      AS clase_abc,
+    COUNT(*)                                                       AS n_productos,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1)             AS pct_catalogo,
+    ROUND(SUM(revenue), 0)                                         AS ingresos_eur,
+    ROUND(100.0 * SUM(revenue) / SUM(SUM(revenue)) OVER (), 1)     AS pct_ingresos,
+    SUM(inventory_units)                                           AS unidades,
+    ROUND(AVG(occupancy_rate), 4)                                  AS ocupacion_media
+FROM workspace.marts.mart_product_metrics
+GROUP BY abc_class
+ORDER BY clase_abc;
+
+
+-- 6.11.c  Rotacion del inventario: cuanto capital hay parado.
+SELECT
+    rotation_class                                                 AS rotacion,
+    COUNT(*)                                                       AS n_productos,
+    SUM(inventory_units)                                           AS unidades,
+    ROUND(AVG(occupancy_rate), 4)                                  AS ocupacion_media,
+    ROUND(AVG(revenue_per_unit), 0)                                AS ingreso_por_unidad,
+    ROUND(SUM(revenue), 0)                                         AS ingresos_eur,
+    ROUND(SUM(inventory_units * purchase_price), 0)                AS capital_inmovilizado_eur
+FROM workspace.marts.mart_product_metrics
+GROUP BY rotation_class
+ORDER BY ocupacion_media;
+
+
+-- 6.11.d  Cruce ABC x rotacion: la matriz de decision de inventario.
+--         "Saturado + clase A" = ampliar stock ya. "Infrautilizado + clase C" =
+--         candidato a retirada o reubicacion.
+SELECT
+    abc_class                                                      AS clase_abc,
+    rotation_class                                                 AS rotacion,
+    COUNT(*)                                                       AS n_productos,
+    SUM(inventory_units)                                           AS unidades,
+    ROUND(SUM(revenue), 0)                                         AS ingresos_eur
+FROM workspace.marts.mart_product_metrics
+GROUP BY abc_class, rotation_class
+ORDER BY clase_abc, rotacion;
+
+
+================================================================================
+ 6.12  COMPORTAMIENTO DE CLIENTE - CLRV Y CONCENTRACION
+================================================================================
+ Pregunta: quien sostiene los ingresos?
+ Grafico:  doble barra (reparto de ingresos | CLRV medio por segmento)
+
+-- 6.12.a  Valor por segmento
+SELECT
+    customer_segment                                               AS segmento,
+    COUNT(*)                                                       AS clientes,
+    ROUND(SUM(clrv), 0)                                            AS clrv_total_eur,
+    ROUND(100.0 * SUM(clrv) / SUM(SUM(clrv)) OVER (), 1)           AS pct_ingresos,
+    ROUND(AVG(clrv), 0)                                            AS clrv_medio_eur,
+    ROUND(AVG(rentals), 1)                                         AS alquileres_medios,
+    ROUND(100.0 * AVG(cancellation_rate), 2)                       AS pct_cancelacion,
+    ROUND(AVG(recency_days), 0)                                    AS recencia_dias
+FROM workspace.marts.mart_customer_metrics
+WHERE clrv IS NOT NULL
+GROUP BY customer_segment
+ORDER BY clrv_total_eur DESC;
+
+
+-- 6.12.b  Concentracion del valor: cuanto aporta el 20% de clientes top?
+--         NTILE(5) parte la base en quintiles por CLRV.
+WITH quintiles AS (
+    SELECT
+        clrv,
+        NTILE(5) OVER (ORDER BY clrv DESC)                         AS quintil
+    FROM workspace.marts.mart_customer_metrics
+    WHERE clrv IS NOT NULL
+)
+SELECT
+    quintil,
+    CASE quintil WHEN 1 THEN 'Top 20%' WHEN 2 THEN '20-40%'
+                 WHEN 3 THEN '40-60%'  WHEN 4 THEN '60-80%'
+                 ELSE 'Bottom 20%' END                             AS tramo,
+    COUNT(*)                                                       AS clientes,
+    ROUND(SUM(clrv), 0)                                            AS clrv_total_eur,
+    ROUND(100.0 * SUM(clrv) / SUM(SUM(clrv)) OVER (), 1)           AS pct_ingresos,
+    ROUND(AVG(clrv), 0)                                            AS clrv_medio_eur
+FROM quintiles
+GROUP BY quintil
+ORDER BY quintil;
+
+
+-- 6.12.c  Matriz membresia x segmento: donde enfocar la campana de conversion
+--         a Premium/Gold (alto CLRV todavia en Basic/Standard).
+SELECT
+    membership_level                                               AS nivel_socio,
+    customer_segment                                               AS segmento,
+    COUNT(*)                                                       AS clientes,
+    ROUND(AVG(clrv), 0)                                            AS clrv_medio_eur,
+    ROUND(100.0 * AVG(cancellation_rate), 2)                       AS pct_cancelacion,
+    ROUND(AVG(avg_review), 2)                                      AS review_media
+FROM workspace.marts.mart_customer_metrics
+WHERE clrv IS NOT NULL
+GROUP BY membership_level, customer_segment
+ORDER BY
+    CASE membership_level WHEN 'Basic' THEN 1 WHEN 'Standard' THEN 2
+                          WHEN 'Premium' THEN 3 WHEN 'Gold' THEN 4 END,
+    CASE customer_segment WHEN 'Occasional' THEN 1 WHEN 'Regular' THEN 2
+                          WHEN 'Frequent' THEN 3 WHEN 'VIP' THEN 4 END;
+
+
+================================================================================
+ FIN
+================================================================================

@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: stg_rentals
+    description: Alquileres casteados y estandarizados, 1:1 con la fuente (aun con duplicados de PK).
+    columns:
+      - name: rental_id
+        description: Identificador del alquiler. NO es unico todavia -> se resuelve en intermediate.
+        tests:
+          - not_null
+      - name: rental_date
+        tests:
+          - not_null
+      - name: season
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Winter", "Spring", "Summer", "Autumn"]
+      - name: booking_channel
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Online", "App", "Store", "Phone"]
+              config:
+                # ~2% de nulos inyectados a proposito: avisamos, no rompemos.
+                severity: warn
+
+  - name: stg_products
+    description: Dimension de productos con la categoria normalizada al catalogo canonico.
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+      - name: category
+        description: Categoria canonica tras normalizar las erratas del origen.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Bicicletas", "Esquí", "Snowboard", "Paddle Surf", "Kayak",
+                         "Camping", "Escalada", "Running", "Fitness", "Raquetas"]
+      - name: inventory_units
+        tests:
+          - not_null
+
+  - name: stg_stores
+    description: Dimension de tiendas con el pais estandarizado.
+    columns:
+      - name: store_id
+        tests: [unique, not_null]
+      - name: annual_visitors
+        tests: [not_null]
+
+  - name: stg_customers
+    description: Dimension de clientes con pais y genero estandarizados.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: membership_level
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Basic", "Standard", "Premium", "Gold"]
+      - name: customer_segment
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Occasional", "Regular", "Frequent", "VIP"]

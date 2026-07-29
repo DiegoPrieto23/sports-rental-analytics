@@ -1,0 +1,89 @@
+{
+  "name": "sports_rental_pipeline",
+  "description": "Staging -> Intermediate -> Data Marts del negocio de alquiler. Cada tarea espera a la anterior via depends_on.",
+  "tags": {
+    "proyecto": "sports_rental",
+    "capa": "analytics_engineering"
+  },
+  "max_concurrent_runs": 1,
+  "queue": {
+    "enabled": true
+  },
+  "tasks": [
+    {
+      "task_key": "staging",
+      "description": "Casting, renombrado y estandarizacion. 1:1 con la fuente.",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/TU_EMAIL/sports_rental/01_staging",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800
+    },
+    {
+      "task_key": "intermediate",
+      "description": "Deduplicacion de PK, reglas de negocio y tabla de hechos enriquecida.",
+      "depends_on": [
+        {
+          "task_key": "staging"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/TU_EMAIL/sports_rental/02_intermediate",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800
+    },
+    {
+      "task_key": "data_quality_gate",
+      "description": "Puerta de calidad: si alguna regla de negocio sobrevive a la limpieza, el pipeline para aqui y los marts NO se publican.",
+      "depends_on": [
+        {
+          "task_key": "intermediate"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/TU_EMAIL/sports_rental/02b_quality_gate",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 900
+    },
+    {
+      "task_key": "marts",
+      "description": "Data Marts: metricas y KPIs listos para consumo.",
+      "depends_on": [
+        {
+          "task_key": "data_quality_gate"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/TU_EMAIL/sports_rental/03_marts",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800
+    },
+    {
+      "task_key": "tests_marts",
+      "description": "Reconciliacion entre capas: los ingresos de los marts deben cuadrar con los de la tabla de hechos.",
+      "depends_on": [
+        {
+          "task_key": "marts"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/TU_EMAIL/sports_rental/04_tests",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 900
+    }
+  ],
+  "schedule": {
+    "quartz_cron_expression": "0 0 5 * * ?",
+    "timezone_id": "Europe/Madrid",
+    "pause_status": "PAUSED"
+  },
+  "email_notifications": {
+    "on_failure": [
+      "TU_EMAIL"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: int_rentals_deduplicated
+    description: Una unica fila por rental_id (Caso A duplicado exacto + Caso B colision de PK).
+    columns:
+      - name: rental_id
+        description: Clave primaria. A partir de aqui SI es unica; el test lo garantiza.
+        tests: [unique, not_null]
+
+  - name: int_rentals_cleaned
+    description: Alquileres con las reglas de validez aplicadas (valores imposibles -> NULL).
+    columns:
+      - name: rental_id
+        tests: [unique, not_null]
+      - name: review_score
+        description: Solo 1-5; cualquier otro valor se anula en esta capa.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false
+      - name: completed
+        tests: [not_null]
+
+  - name: int_rentals_enriched
+    description: >
+      Tabla de hechos enriquecida (modelo estrella desnormalizado) con las metricas a
+      nivel de alquiler. Unica fuente de los Data Marts.
+    columns:
+      - name: rental_id
+        tests: [unique, not_null]
+      - name: customer_id
+        description: FK a clientes. Integridad referencial verificada.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: product_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: store_id
+        description: FK a tiendas. ~2% de nulos en origen (no huerfanos).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_stores')
+                field: store_id
+      - name: revenue
+        description: rental_price si el alquiler se completa, 0 si se cancela.

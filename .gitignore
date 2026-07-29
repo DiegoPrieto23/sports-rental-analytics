@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# CREDENCIALES — nunca deben salir de la maquina local
+# ---------------------------------------------------------------------------
+# Token de acceso personal a Databricks
+databricks/dbt/env.local.ps1
+# Perfil de conexion: contiene el host y el warehouse del workspace.
+# Se versiona `profiles.yml.example` con placeholders en su lugar.
+databricks/dbt/profiles.yml
+# Ajustes locales de Claude Code: registran los comandos ejecutados, que pueden
+# incluir credenciales pasadas por linea de comandos.
+.claude/settings.local.json
+.env
+*.pem
+*.key
+
+# ---------------------------------------------------------------------------
+# Artefactos de dbt
+# ---------------------------------------------------------------------------
+databricks/dbt/target/
+databricks/dbt/dbt_packages/
+databricks/dbt/logs/
+.user.yml
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# ---------------------------------------------------------------------------
+# Sistema operativo / editores
+# ---------------------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

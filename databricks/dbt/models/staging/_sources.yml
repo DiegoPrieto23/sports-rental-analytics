@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: rental_raw
+    description: >
+      Tablas crudas cargadas con la UI de Databricks (Data Ingestion > Upload files)
+      a partir de los CSV de `output/`. No se modifican nunca: son la fuente inmutable
+      del pipeline (capa Bronze).
+    database: workspace   # cambia a `main` si tu catalogo es otro
+    schema: staging
+    tables:
+      - name: rentals_raw
+        description: Tabla de hechos cruda de alquileres (~78k filas, con problemas de calidad).
+      - name: customers_raw
+        description: Dimension de clientes cruda (25k filas).
+      - name: products_raw
+        description: Dimension de productos alquilables cruda (320 filas).
+      - name: stores_raw
+        description: Dimension de tiendas europeas cruda (70 filas).

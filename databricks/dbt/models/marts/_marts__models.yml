@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: mart_product_metrics
+    description: >
+      Metricas por producto: ocupacion, utilizacion, rentabilidad, clasificacion de
+      rotacion (Infrautilizado/Normal/Saturado) y clase ABC de Pareto.
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+      - name: rotation_class
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Infrautilizado", "Normal", "Saturado"]
+      - name: abc_class
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["A", "B", "C"]
+      - name: occupancy_rate
+        description: dias alquilados / (unidades x dias del periodo).
+        tests: [not_null]
+
+  - name: mart_store_metrics
+    description: Metricas por tienda, incluyendo ingresos por visitante.
+    columns:
+      - name: store_id
+        tests: [unique, not_null]
+
+  - name: mart_customer_metrics
+    description: CLRV, frecuencia, recencia y cancelacion por cliente.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+
+  - name: mart_global_kpis
+    description: Cuadro de mando global. Una unica fila con todos los KPIs de cabecera.
+
+  - name: mart_monthly_revenue
+    description: Serie mensual de ingresos con media movil 3M y variacion interanual.
+    columns:
+      - name: month
+        tests: [unique, not_null]
+
+  - name: mart_category_performance
+    description: Rendimiento por categoria deportiva (transaccional + inventario).
+    columns:
+      - name: category
+        tests: [unique, not_null]
+
+  - name: mart_pricing_by_season
+    description: Mediana del precio por dia por categoria y temporada; recorrido de pricing dinamico.
+
+  - name: mart_channel_performance
+    description: Mix de canal, ticket y cancelacion por canal de reserva.
+    columns:
+      - name: booking_channel
+        tests: [unique, not_null]
+
+  - name: mart_cohort_retention
+    description: Matriz de retencion por cohorte de primer alquiler.
+
+  - name: mart_data_quality
+    description: Data Trust Score (0-100) sobre las tablas crudas, por dimension de calidad.
+    columns:
+      - name: dimension
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Completitud", "Unicidad", "Validez", "Consistencia"]

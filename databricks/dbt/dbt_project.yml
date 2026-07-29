@@ -1,0 +1,32 @@
+name: sports_rental
+version: "1.0.0"
+config-version: 2
+
+profile: sports_rental
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+# Arquitectura medallion en tres capas.
+#   staging      -> 1:1 con la fuente: casting, renombrado, estandarizacion de texto.
+#   intermediate -> reglas de negocio: deduplicacion, validacion, tabla de hechos enriquecida.
+#   marts        -> Data Marts: metricas y KPIs listos para consumo (BI / notebook).
+models:
+  sports_rental:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
+
+# Los tests fallan el pipeline (severity error) salvo los marcados como warn en los .yml.
+tests:
+  sports_rental:
+    +store_failures: false

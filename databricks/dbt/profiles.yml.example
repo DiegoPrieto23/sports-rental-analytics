@@ -1,0 +1,30 @@
+# Plantilla del perfil de conexion a Databricks.
+#
+# El fichero real (`profiles.yml`) esta en .gitignore porque identifica un
+# workspace concreto. Para reproducir el proyecto:
+#
+#     cp profiles.yml.example profiles.yml
+#     # rellena host y http_path con los tuyos
+#     cp env.local.ps1.example env.local.ps1
+#     # pega tu token
+#
+# Donde encontrar cada valor:
+#   host       -> URL del workspace, sin https:// ni barra final
+#   http_path  -> SQL Warehouse > Connection details > HTTP path
+#   token      -> Settings > Developer > Access tokens > Generate new token
+#                 Scope: "BI Tools" (acceso a SQL warehouses)
+#   catalog    -> `workspace` en Free Edition, `main` en trial premium
+
+sports_rental:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      host: dbc-xxxxxxxx-xxxx.cloud.databricks.com
+      http_path: /sql/1.0/warehouses/xxxxxxxxxxxxxxxx
+      token: "{{ env_var('DATABRICKS_TOKEN') }}"
+      catalog: workspace
+      schema: staging       # cada capa lo sobreescribe con +schema
+      threads: 4
+      connect_retries: 3
+      connect_timeout: 120
