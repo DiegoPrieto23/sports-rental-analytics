@@ -22,7 +22,7 @@ completitud** (nulos inyectados a propósito) y una **consistencia del 95,9 %** 
 mal escritas — problemas reales que el pipeline resuelve de forma documentada.
 
 <p align="center">
-  <img src="docs/img/data_trust_score.png" alt="Data Trust Score por dimensión de calidad" width="88%">
+  <img src="docs/img/data_trust_score.png" alt="Data Trust Score por dimensión de calidad" width="560">
 </p>
 
 **La estacionalidad es el hallazgo estructural.** Esquí y snowboard concentran más de la
@@ -31,7 +31,7 @@ Traducción de negocio: ese inventario está **parado medio año**, y ahí es do
 margen que no se recupera.
 
 <p align="center">
-  <img src="docs/img/estacionalidad.png" alt="Heatmap de estacionalidad de la demanda por categoría y mes" width="92%">
+  <img src="docs/img/estacionalidad.png" alt="Heatmap de estacionalidad de la demanda por categoría y mes" width="600">
 </p>
 
 **El envejecimiento tiene coste doble.** La tasa de averías pasa de ~5 % en producto nuevo a
@@ -40,7 +40,7 @@ Existe una **edad umbral** a partir de la cual mantener la unidad deja de compen
 base de una política de renovación de flota.
 
 <p align="center">
-  <img src="docs/img/antiguedad.png" alt="Antigüedad del producto frente a tasa de averías" width="92%">
+  <img src="docs/img/antiguedad.png" alt="Antigüedad del producto frente a tasa de averías" width="580">
 </p>
 
 **Las variables se comportan como debían.** El precio se construye por duración
@@ -49,7 +49,7 @@ base de una política de renovación de flota.
 fuerte: el dataset es coherente y las variables están listas para modelar.
 
 <p align="center">
-  <img src="docs/img/correlacion.png" alt="Matriz de correlación de Pearson" width="72%">
+  <img src="docs/img/correlacion.png" alt="Matriz de correlación de Pearson" width="420">
 </p>
 
 ---
