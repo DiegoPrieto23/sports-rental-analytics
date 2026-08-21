@@ -1,18 +1,18 @@
 product_id,category,sport,product_name,purchase_price,replacement_cost,maintenance_interval,product_age,inventory_units
 P00001,Bicicletas,Ciclismo,Btwin City 96,812.45,1081.65,90,2.1,31
 P00002,Bicicletas,Ciclismo,Elops Road 96,597.62,720.85,45,6.6,6
-P00003,Biciletas,Ciclismo,Rockrider City 53,1359.82,1485.03,45,5.4,10
+P00003,Bicicletas,Ciclismo,Rockrider City 53,1359.82,1485.03,45,5.4,10
 P00004,Bicicletas,Ciclismo,Van Rysel E-Bike 28,529.67,660.94,180,0.9,47
-P00005,Bicicletas,Ciclismo,Btwin MTB 71,1386.62,1551.72,30,3.0,35
+P00005,Biciletas,Ciclismo,Btwin MTB 71,1386.62,1551.72,30,3.0,35
 P00006,Bicicletas,Ciclismo,Elops Trail 01,1270.22,1641.73,45,2.3,57
 P00007,Bicicletas,Ciclismo,Elops Gravel 22,845.33,952.51,45,0.4,14
 P00008,Bicicletas,Ciclismo,Btwin Gravel 69,737.38,993.78,30,7.1,46
 P00009,Bicicletas,Ciclismo,Rockrider Trail 16,1356.15,1635.05,30,5.3,47
-P00010,Biciletas,Ciclismo,Van Rysel E-Bike 69,654.44,705.71,60,7.5,19
+P00010,Bicicletas,Ciclismo,Van Rysel E-Bike 69,654.44,705.71,60,7.5,19
 P00011,Bicicletas,Ciclismo,Btwin E-Bike 78,475.31,516.58,180,1.4,13
 P00012,Bicicletas,Ciclismo,Btwin Trail 48,959.17,1258.78,45,6.2,22
 P00013,Bicicletas,Ciclismo,Rockrider MTB 01,1461.97,1754.69,180,1.8,5
-P00014,Biciletas,Ciclismo,Elops MTB 84,327.96,411.03,45,5.6,32
+P00014,Bicicletas,Ciclismo,Elops MTB 84,327.96,411.03,45,5.6,32
 P00015,Bicicletas,Ciclismo,Elops E-Bike 51,934.51,1037.24,30,5.9,44
 P00016,Bicicletas,Ciclismo,Van Rysel Gravel 46,326.93,355.41,30,2.4,26
 P00017,Bicicletas,Ciclismo,Rockrider Gravel 27,809.59,1011.06,90,7.4,20
@@ -31,13 +31,13 @@ P00029,Bicicletas,Ciclismo,Btwin Trail 43,395.02,442.83,90,3.3,36
 P00030,Bicicletas,Ciclismo,Elops City 03,216.49,251.58,180,6.7,10
 P00031,Bicicletas,Ciclismo,Van Rysel MTB 91,220.15,292.24,180,7.2,51
 P00032,Bicicletas,Ciclismo,Van Rysel E-Bike 17,1472.42,1900.32,90,6.2,40
-P00033,Bicicletas,Ciclismo,Rockrider City 18,331.65,401.57,180,3.7,52
+P00033,Biciletas,Ciclismo,Rockrider City 18,331.65,401.57,180,3.7,52
 P00034,Bicicletas,Ciclismo,Btwin Trail 22,669.87,831.89,30,3.8,12
 P00035,Bicicletas,Ciclismo,Rockrider Road 78,712.8,798.17,90,2.6,25
 P00036,Bicicletas,Ciclismo,Btwin Trail 24,662.28,831.64,120,7.3,57
 P00037,Bicicletas,Ciclismo,Rockrider City 89,799.23,917.92,180,5.2,51
 P00038,Bicicletas,Ciclismo,Elops City 63,1235.93,1495.25,30,5.9,20
-P00039,Bicicletas,Ciclismo,Van Rysel Gravel 83,423.25,532.63,180,4.9,12
+P00039,Biciletas,Ciclismo,Van Rysel Gravel 83,423.25,532.63,180,4.9,12
 P00040,Esquí,Esquí Alpino,Wedze Boost 46,562.86,605.27,90,1.1,56
 P00041,Esquí,Esquí Alpino,Wedze Freeride 57,679.44,876.66,90,6.3,59
 P00042,Esquí,Esquí Alpino,Wedze Piste 87,673.01,757.82,120,0.8,37
@@ -45,7 +45,7 @@ P00043,Esquí,Esquí Alpino,Wedze Boost 13,508.08,559.59,90,4.6,31
 P00044,Esquí,Esquí Alpino,Wedze Freeride 31,461.32,590.11,180,3.9,48
 P00045,Esquí,Esquí Alpino,Wedze AllMountain 50,499.8,664.42,30,0.9,44
 P00046,Esquí,Esquí Alpino,Wedze Boost 98,528.93,621.8,180,5.4,47
-P00047,Esquí,Esquí Alpino,Wedze AllMountain 39,366.82,484.02,120,2.2,48
+P00047,esqui,Esquí Alpino,Wedze AllMountain 39,366.82,484.02,120,2.2,48
 P00048,Esquí,Esquí Alpino,Wedze Cross 30,357.22,391.97,180,7.5,13
 P00049,Esquí,Esquí Alpino,Wedze Boost 10,418.95,488.08,120,4.4,57
 P00050,Esquí,Esquí Alpino,Wedze AllMountain 31,590.15,704.53,30,7.9,25
@@ -55,7 +55,7 @@ P00053,Esquí,Esquí Alpino,Wedze Freeride 34,427.16,554.29,45,3.7,22
 P00054,Esquí,Esquí Alpino,Wedze Freeride 73,350.96,465.21,120,0.9,47
 P00055,Esquí,Esquí Alpino,Wedze Piste 82,698.52,917.69,45,6.7,7
 P00056,Esquí,Esquí Alpino,Wedze Boost 99,699.55,874.23,30,0.7,40
-P00057,Esquí,Esquí Alpino,Wedze Cross 73,648.52,686.59,45,1.1,51
+P00057,esqui,Esquí Alpino,Wedze Cross 73,648.52,686.59,45,1.1,51
 P00058,Esquí,Esquí Alpino,Wedze Piste 76,299.1,395.77,45,0.3,41
 P00059,Esquí,Esquí Alpino,Wedze AllMountain 31,202.71,215.99,90,6.4,57
 P00060,Esquí,Esquí Alpino,Wedze Cross 16,624.7,666.66,120,7.4,49
@@ -70,15 +70,15 @@ P00068,Esquí,Esquí Alpino,Wedze AllMountain 72,350.67,429.01,90,5.2,43
 P00069,Esquí,Esquí Alpino,Wedze Freeride 62,670.3,733.66,90,3.2,55
 P00070,Esquí,Esquí Alpino,Wedze Freeride 47,259.61,283.03,180,2.4,20
 P00071,Esquí,Esquí Alpino,Wedze Freeride 31,413.95,510.52,90,3.3,13
-P00072,esqui,Esquí Alpino,Wedze Freeride 78,308.81,378.75,90,0.3,22
+P00072,Esquí,Esquí Alpino,Wedze Freeride 78,308.81,378.75,90,0.3,22
 P00073,Esquí,Esquí Alpino,Wedze Boost 10,409.2,487.86,45,4.6,24
-P00074,esqui,Esquí Alpino,Wedze Freeride 80,551.0,685.66,90,2.5,40
+P00074,Esquí,Esquí Alpino,Wedze Freeride 80,551.0,685.66,90,2.5,40
 P00075,Snowboard,Snowboard,Dreamscape AllRound 13,447.11,527.33,90,2.9,39
 P00076,Snowboard,Snowboard,Dreamscape Powder 26,430.73,547.46,180,7.4,51
 P00077,Snowboard,Snowboard,Dreamscape Powder 77,434.12,560.0,45,6.7,22
 P00078,Snowboard,Snowboard,Dreamscape Endzone 36,422.36,458.16,30,6.7,50
-P00079,Snowboard,Snowboard,Dreamscape Endzone 02,326.28,375.3,60,2.5,14
-P00080,Snow Board,Snowboard,Dreamscape Park 60,534.21,563.27,120,6.9,27
+P00079,Snow Board,Snowboard,Dreamscape Endzone 02,326.28,375.3,60,2.5,14
+P00080,Snowboard,Snowboard,Dreamscape Park 60,534.21,563.27,120,6.9,27
 P00081,Snowboard,Snowboard,Dreamscape Park 64,269.13,331.1,120,2.9,11
 P00082,Snowboard,Snowboard,Dreamscape Park 74,631.29,851.38,120,2.5,47
 P00083,Snowboard,Snowboard,Dreamscape Powder 68,517.43,603.51,180,0.1,40
@@ -90,8 +90,8 @@ P00088,Snowboard,Snowboard,Dreamscape Powder 05,608.2,646.76,45,2.3,15
 P00089,Snowboard,Snowboard,Dreamscape Park 00,463.9,555.75,30,1.9,9
 P00090,Snowboard,Snowboard,Dreamscape Powder 97,579.61,719.46,90,5.4,48
 P00091,Snowboard,Snowboard,Dreamscape AllRound 88,226.15,262.33,120,2.7,34
-P00092,Snowboard,Snowboard,Dreamscape Powder 20,580.02,692.99,120,6.8,25
-P00093,Snow Board,Snowboard,Dreamscape Powder 81,609.3,747.09,30,2.7,51
+P00092,Snow Board,Snowboard,Dreamscape Powder 20,580.02,692.99,120,6.8,25
+P00093,Snowboard,Snowboard,Dreamscape Powder 81,609.3,747.09,30,2.7,51
 P00094,Snowboard,Snowboard,Dreamscape Powder 21,424.47,513.36,30,3.2,59
 P00095,Snowboard,Snowboard,Dreamscape AllRound 91,483.87,533.83,30,1.5,23
 P00096,Snowboard,Snowboard,Dreamscape Powder 36,211.17,280.48,60,2.5,12
@@ -124,15 +124,15 @@ P00122,Paddle Surf,Paddle Surf,Itiwit Compact 24,759.49,897.35,180,8.0,31
 P00123,Paddle Surf,Paddle Surf,Itiwit Inflatable 11,688.49,891.18,180,6.3,30
 P00124,Paddle Surf,Paddle Surf,Itiwit Touring 82,615.41,664.99,60,7.6,40
 P00125,Paddle Surf,Paddle Surf,Itiwit Touring 44,583.28,688.21,30,7.7,45
-P00126,Paddle Surf,Paddle Surf,Itiwit Touring 93,276.7,310.96,90,3.6,8
-P00127,Paddle surf ,Paddle Surf,Itiwit Touring 53,585.46,669.63,30,0.9,39
-P00128,Paddle surf ,Paddle Surf,Itiwit Race 48,289.34,364.41,60,2.4,16
+P00126,Paddle surf ,Paddle Surf,Itiwit Touring 93,276.7,310.96,90,3.6,8
+P00127,Paddle Surf,Paddle Surf,Itiwit Touring 53,585.46,669.63,30,0.9,39
+P00128,Paddle Surf,Paddle Surf,Itiwit Race 48,289.34,364.41,60,2.4,16
 P00129,Paddle Surf,Paddle Surf,Itiwit Touring 74,506.18,594.75,30,0.9,27
 P00130,Paddle Surf,Paddle Surf,Itiwit Compact 01,250.8,301.57,45,2.7,31
 P00131,Paddle Surf,Paddle Surf,Itiwit Race 64,530.36,681.07,180,2.1,17
 P00132,Paddle Surf,Paddle Surf,Itiwit Race 00,407.61,486.67,180,1.8,42
 P00133,Paddle Surf,Paddle Surf,Itiwit Race 52,464.98,618.01,30,3.7,52
-P00134,Paddle Surf,Paddle Surf,Itiwit Inflatable 42,347.8,370.13,45,7.4,12
+P00134,Paddle surf ,Paddle Surf,Itiwit Inflatable 42,347.8,370.13,45,7.4,12
 P00135,Paddle Surf,Paddle Surf,Itiwit Compact 78,256.02,283.29,30,0.9,43
 P00136,Paddle Surf,Paddle Surf,Itiwit Inflatable 68,407.07,496.94,45,6.8,37
 P00137,Kayak,Piragüismo,Itiwit Sit-On 01,1053.37,1301.69,60,6.2,13
@@ -223,18 +223,18 @@ P00221,Escalada,Escalada,Simond Rock 57,234.02,303.23,30,3.2,35
 P00222,Escalada,Escalada,Simond Vertika 98,132.68,169.26,45,6.0,32
 P00223,Running,Running,Kiprun Support 68,98.86,110.3,45,6.0,57
 P00224,Running,Running,Kiprun KD500 72,53.76,59.29,45,6.6,8
-P00225,Running,Running,Kiprun Comfort 77,198.46,216.55,90,3.6,55
+P00225,RUNNING,Running,Kiprun Comfort 77,198.46,216.55,90,3.6,55
 P00226,Running,Running,Kiprun Comfort 43,180.01,241.7,180,1.5,38
 P00227,Running,Running,Kiprun Run 48,144.97,164.79,120,4.5,46
 P00228,Running,Running,Kalenji Run 73,172.57,217.98,30,0.4,56
 P00229,Running,Running,Kalenji Run 47,117.79,132.87,60,6.1,10
 P00230,Running,Running,Kalenji Comfort 14,129.8,151.3,45,4.2,13
-P00231,RUNNING,Running,Kiprun Comfort 34,130.26,163.22,30,0.0,5
+P00231,Running,Running,Kiprun Comfort 34,130.26,163.22,30,0.0,5
 P00232,Running,Running,Kiprun Comfort 55,183.12,227.78,45,7.1,10
 P00233,Running,Running,Kiprun Run 81,116.17,154.58,30,1.7,31
 P00234,Running,Running,Kalenji KD500 22,71.28,89.38,45,0.8,27
 P00235,Running,Running,Kiprun KD500 36,107.64,118.71,30,6.9,14
-P00236,RUNNING,Running,Kiprun Support 23,97.72,104.23,60,2.1,56
+P00236,Running,Running,Kiprun Support 23,97.72,104.23,60,2.1,56
 P00237,Running,Running,Kalenji KD500 16,72.86,95.92,180,0.8,46
 P00238,Running,Running,Kiprun Run 65,58.45,72.24,30,6.8,57
 P00239,Running,Running,Kalenji KD500 87,171.17,206.74,180,0.4,16
@@ -243,13 +243,13 @@ P00241,Running,Running,Kiprun Support 36,196.58,235.82,60,7.8,57
 P00242,Running,Running,Kiprun Run 69,103.6,126.95,30,2.6,16
 P00243,Running,Running,Kiprun KD500 09,56.53,74.05,90,2.9,41
 P00244,Running,Running,Kiprun Run 67,109.04,135.2,180,7.5,45
-P00245,Running,Running,Kiprun Comfort 05,92.68,109.85,90,3.7,21
+P00245,RUNNING,Running,Kiprun Comfort 05,92.68,109.85,90,3.7,21
 P00246,Running,Running,Kalenji Comfort 46,128.7,147.52,60,3.0,34
 P00247,Running,Running,Kiprun Comfort 68,66.57,84.34,60,1.7,47
 P00248,Running,Running,Kalenji Support 89,160.89,181.36,120,7.4,14
-P00249,RUNNING,Running,Kalenji Support 37,147.03,156.7,180,3.1,10
+P00249,Running,Running,Kalenji Support 37,147.03,156.7,180,3.1,10
 P00250,Running,Running,Kalenji Support 34,132.64,139.46,30,5.4,55
-P00251,Running,Running,Kalenji KD500 67,44.25,56.33,180,4.0,16
+P00251,RUNNING,Running,Kalenji KD500 67,44.25,56.33,180,4.0,16
 P00252,Running,Running,Kiprun Comfort 06,40.88,52.57,45,7.0,59
 P00253,Running,Running,Kiprun Support 56,130.41,147.51,30,6.2,13
 P00254,Running,Running,Kiprun KD500 27,125.84,168.58,180,6.8,51

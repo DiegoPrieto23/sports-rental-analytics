@@ -458,6 +458,15 @@ function pageEstadistica(grid) {
     if (rowCountry[i] >= 0 && !couLv.includes(rowCountry[i])) couLv.push(rowCountry[i]);
   }
   catLv.sort((a, b) => a - b); seaLv.sort((a, b) => a - b); couLv.sort((a, b) => a - b);
+  /* Posicion de cada nivel dentro de su bloque de dummies. Resolverlo con
+     indexOf dentro del bucle de filas cuesta un escaneo lineal por fila, y el
+     ajuste recorre las filas enteras: con 172k filas se nota en el render. */
+  const catPos = new Int8Array(D.categories.length).fill(-1);
+  catLv.forEach((k, j) => { catPos[k] = j; });
+  const seaPos = new Int8Array(4).fill(-1);
+  seaLv.forEach((s, j) => { seaPos[s] = j; });
+  const couPos = new Int8Array(D.countries.length).fill(-1);
+  couLv.forEach((c, j) => { couPos[c] = j; });
   const names = ["Intercepto", "Días de alquiler"]
     .concat(catLv.slice(1).map(k => "Categoría: " + D.categories[k]))
     .concat(seaLv.slice(1).map(s => "Temporada: " + D.season_labels[s]))
@@ -470,10 +479,10 @@ function pageEstadistica(grid) {
       if (rowCat[i] < 0 || rowCountry[i] < 0) continue;
       x.fill(0);
       x[0] = 1; x[1] = F.days[i];
-      const ci = catLv.indexOf(rowCat[i]); if (ci > 0) x[1 + ci] = 1;
-      const si = seaLv.indexOf(monthSeason[F.month[i]]);
+      const ci = catPos[rowCat[i]]; if (ci > 0) x[1 + ci] = 1;
+      const si = seaPos[monthSeason[F.month[i]]];
       if (si > 0) x[1 + catLv.length - 1 + si] = 1;
-      const ki = couLv.indexOf(rowCountry[i]);
+      const ki = couPos[rowCountry[i]];
       if (ki > 0) x[1 + catLv.length - 1 + seaLv.length - 1 + ki] = 1;
       cb(x, F.price[i] / 100);
     }
@@ -513,6 +522,12 @@ function pageEstadistica(grid) {
     if (!chLv.includes(F.channel[i])) chLv.push(F.channel[i]);
   }
   memLv.sort((a, b) => a - b); chLv.sort((a, b) => a - b);
+  // Mismo motivo que en la OLS, agravado: el IRLS recorre las filas una vez por
+  // iteracion, asi que un indexOf por fila se paga ~8 veces.
+  const memPos = new Int8Array(D.members.length + 1).fill(-1);
+  memLv.forEach((m, j) => { memPos[m] = j; });
+  const chPos = new Int8Array(D.channels.length + 1).fill(-1);
+  chLv.forEach((c, j) => { chPos[c] = j; });
   const lnames = ["Intercepto", "Antelación (por día)", "Duración (por día)"]
     .concat(memLv.slice(1).map(m => "Socio: " + D.members[m - 1]))
     .concat(chLv.slice(1).map(c => "Canal: " + D.channel_labels[c - 1]));
@@ -523,8 +538,8 @@ function pageEstadistica(grid) {
       if (!MASK[i] || F.lead[i] === 255 || !hasDays(i) || !F.member[i] || !F.channel[i]) continue;
       x.fill(0);
       x[0] = 1; x[1] = F.lead[i]; x[2] = F.days[i];
-      const mi = memLv.indexOf(F.member[i]); if (mi > 0) x[2 + mi] = 1;
-      const ci = chLv.indexOf(F.channel[i]); if (ci > 0) x[2 + memLv.length - 1 + ci] = 1;
+      const mi = memPos[F.member[i]]; if (mi > 0) x[2 + mi] = 1;
+      const ci = chPos[F.channel[i]]; if (ci > 0) x[2 + memLv.length - 1 + ci] = 1;
       cb(x, F.flags[i] & 1);
     }
   };

@@ -3,7 +3,7 @@ S001,Decathlon Madrid OH,Madrid,ESPAÑA,Medium,406678
 S002,Decathlon Barcelona BV,Barcelona,España,Medium,236920
 S003,Decathlon Barcelona RP,Barcelona,España,Flagship,1846615
 S004,Decathlon Valencia OI,Valencia,España,Large,797316
-S005,Decathlon Valencia VG,Valencia,ESPAÑA,Medium,417303
+S005,Decathlon Valencia VG,Valencia,España ,Medium,417303
 S006,Decathlon Sevilla RV,Sevilla,España,Large,810634
 S007,Decathlon Sevilla IF,Sevilla,España,Large,878410
 S008,Decathlon Málaga LB,Málaga,España,Small,129184
@@ -21,7 +21,7 @@ S019,Decathlon Toulouse AW,Toulouse,Francia,Medium,296793
 S020,Decathlon Nice ZK,Nice,Francia,Medium,406093
 S021,Decathlon Nice SB,Nice,Francia,Large,632938
 S022,Decathlon Bordeaux VR,Bordeaux,Francia,Small,105045
-S023,Decathlon Chamonix JN,Chamonix,FRANCIA,Large,818889
+S023,Decathlon Chamonix JN,Chamonix,francia,Large,818889
 S024,Decathlon Chamonix WV,Chamonix,Francia,Small,142847
 S025,Decathlon Annecy GF,Annecy,Francia,Small,137451
 S026,Decathlon Annecy YG,Annecy,Francia,Small,127143
@@ -48,7 +48,7 @@ S046,Decathlon Garmisch QR,Garmisch,Alemania,Medium,399818
 S047,Decathlon Garmisch SR,Garmisch,Alemania,Medium,321588
 S048,Decathlon Lisboa PE,Lisboa,Portugal,Medium,249751
 S049,Decathlon Lisboa MO,Lisboa,Portugal,Small,92107
-S050,Decathlon Porto KI,Porto,PORTUGAL,Flagship,1949828
+S050,Decathlon Porto KI,Porto,Portugal,Flagship,1949828
 S051,Decathlon Porto UP,Porto,Portugal,Medium,324504
 S052,Decathlon Faro KD,Faro,Portugal,Flagship,1676207
 S053,Decathlon Faro YR,Faro,Portugal,Medium,290385

@@ -29,7 +29,10 @@ python generate_dataset.py
 
 # Validate the notebook end-to-end (this is the closest thing to a test suite):
 # executes every cell headless against the real CSVs, fails on any cell error.
-python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=300 rental_analysis.ipynb
+# NEVER set MPLBACKEND=Agg here: the notebook has no `%matplotlib inline`, so it
+# relies on the kernel's inline backend. Agg overrides it, the run still "passes"
+# with zero errors, and all 13 figures vanish from the committed notebook.
+python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=900 rental_analysis.ipynb
 
 # Rebuild the interactive HTML report and run its two test suites
 python docs/build_report.py
@@ -61,10 +64,32 @@ both commands above. To confirm the notebook has no error cells, read it back wi
 (`SEED = 42`, line ~47) plus seeded `random` and `Faker`. Two runs produce byte-identical
 CSVs. Consequences when editing the generator:
 
-- `N_RENTALS` is **drawn from `rng`** (`rng.integers(75_000, 100_001)`), not a constant.
+- `N_RENTALS` is **drawn from `rng`** (`rng.integers(170_000, 190_001)`), not a constant.
   Any change that adds/removes/reorders an earlier `rng` draw shifts the entire downstream
   stream and changes every file. Do not reorder random calls casually.
 - Keep all randomness flowing through `rng` (not `np.random.*` global) to preserve this.
+
+## Time window (`START_DATE` … `END_DATE`, currently 2022-01-01 → 2026-07-31, 55 months)
+
+Widening it touches more than the two constants. Everything below is coupled:
+
+- **`N_RENTALS` does not scale with the window.** Move the dates without moving the volume
+  and monthly demand silently halves — every monthly KPI drops with no cause in the domain.
+  Sized for ~3,250 rentals/month.
+- **`YEAR_GROWTH` must cover every year in range.** A missing year falls back to 1.0, which
+  is invisible in the code and very visible as a step in the report's monthly series.
+- **`build_holidays`'s `easter` dict must cover every year too**, or that year loses its
+  Easter peak and its seasonality quietly differs from the rest.
+- **`SNAPSHOT_DATE` must stay after `END_DATE`**, and customer tenure (`generate_customers`,
+  ~9 years) must reach comfortably before `START_DATE`: rentals can only be assigned to
+  customers already signed up, so a short tenure range starves the first months.
+- **`PERIODS` in `report/05_ui.js`** lists the year filters by hand — a year with data but
+  no entry there simply cannot be filtered.
+
+`generate_rentals` picks the customer by inverse-CDF over the *eligible prefix* (those whose
+`signup_date` ≤ the rental date), weighted by activity. Before that, customers were drawn
+from the whole roster and 21 % of rentals predated their own customer's signup. The
+`rental_date < signup_date del cliente` rule in `quality_report` exists to keep it at 0.
 
 ## Generator architecture (`generate_dataset.py`)
 
@@ -96,7 +121,7 @@ orchestrated by `main()`. Numbered section banners (`# 1.` … `# 8.`) mark the 
 
 `docs/build_report.py` concatenates the pieces in `docs/report/` into
 `docs/informe.html`: a self-contained 8-page dashboard (no CDN, no server, no build
-tooling, ~1.1 MB). **Edit the pieces, never `informe.html`** — it is generated.
+tooling, ~2.3 MB). **Edit the pieces, never `informe.html`** — it is generated.
 
 ```
 report/01_head.html   tokens + CSS          report/05_ui.js       cards, filters, render loop
@@ -113,7 +138,7 @@ Key invariants:
 - The builder **re-implements the notebook's cleaning pipeline and KPI definitions**
   (`clean_rentals`, `dedupe_rental_ids`, `data_trust_score`). Change a metric in the
   notebook and it must change here too; `verify_report.py` is what catches the drift.
-- The full 77k-row fact table is embedded as columnar binary → deflate → base64 (~960 KB),
+- The full 172k-row fact table is embedded as columnar binary → deflate → base64 (~2.1 MB),
   **not** pre-aggregated, so every filter cross-tabulates exactly and the regressions
   refit on the current slice. Only non-derivable columns are encoded; category, country,
   season and store size resolve via lookups in JS. Rows are sorted by product+month+day

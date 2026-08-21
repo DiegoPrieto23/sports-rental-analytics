@@ -129,11 +129,17 @@ function chips(el, items) {
 /* --------------------------------------------------------------------------
    Filtros
    -------------------------------------------------------------------------- */
+/* Un año que no esté aquí no se puede filtrar aunque haya datos suyos: al
+   ampliar la ventana del generador hay que añadirlo. `2026` es parcial
+   (enero-julio), así que comparar su total contra un año completo engaña. */
 const PERIODS = [
   { id: "all", label: "Todo el histórico" },
   { id: "last12", label: "Últimos 12 meses" },
+  { id: "2026", label: "2026 (parcial)" },
   { id: "2025", label: "2025" },
   { id: "2024", label: "2024" },
+  { id: "2023", label: "2023" },
+  { id: "2022", label: "2022" },
 ];
 
 function multiselect(hostId, label, options, store) {

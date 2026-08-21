@@ -81,9 +81,13 @@ jobs:
           fi
 
       # --- 2. El notebook ejecuta limpio -----------------------------------
+      # OJO: no fijar MPLBACKEND=Agg aqui. El notebook no llama a
+      # `%matplotlib inline`, asi que depende del backend inline que instala el
+      # propio kernel; forzar Agg lo anula y las 13 figuras dejan de generarse.
+      # No hace falta para el runner: el backend inline rasteriza en proceso y no
+      # necesita display.
       - name: Ejecutar el notebook de principio a fin
         env:
-          MPLBACKEND: Agg          # sin display en el runner
           PYTHONUTF8: '1'
         run: |
           python -m nbconvert --to notebook --execute \
@@ -91,7 +95,7 @@ jobs:
             --output-dir /tmp --output ejecutado.ipynb \
             rental_analysis.ipynb
 
-      - name: Ninguna celda termino en error
+      - name: Ninguna celda termino en error y las figuras se generaron
         run: |
           python - <<'PY'
           import json, sys
@@ -104,9 +108,17 @@ jobs:
           ]
           for i, name, val in errores:
               print(f"::error::celda {i}: {name}: {val}")
+
+          # Un notebook sin figuras ejecuta "sin errores" pero se publica vacio en
+          # GitHub, que es justo lo que pasa si alguien vuelve a fijar MPLBACKEND.
+          figuras = sum("image/png" in o.get("data", {})
+                        for c in nb["cells"] for o in c.get("outputs", []))
           print(f"celdas de codigo: {sum(c['cell_type'] == 'code' for c in nb['cells'])}")
           print(f"celdas en error : {len(errores)}")
-          sys.exit(1 if errores else 0)
+          print(f"figuras png     : {figuras}")
+          if figuras < 13:
+              print(f"::error::solo {figuras} figuras, se esperaban 13")
+          sys.exit(1 if errores or figuras < 13 else 0)
           PY
 
       # --- 3. El informe: cifras y renderizado ------------------------------

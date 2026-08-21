@@ -272,7 +272,7 @@ def customer_lifecycle(fact):
     }
 
 
-def quality_report(rentals_raw, products_raw, fact):
+def quality_report(rentals_raw, products_raw, fact, customers_raw):
     """Fotografia de calidad del dato CRUDO, antes de limpiar."""
     score, dims, weights = data_trust_score(rentals_raw, products_raw)
     miss = rentals_raw.isna().sum()
@@ -290,6 +290,13 @@ def quality_report(rentals_raw, products_raw, fact):
         "return_date < rental_date":
             rentals_raw["return_date"].notna() &
             (rentals_raw["return_date"] < rentals_raw["rental_date"]),
+        # Integridad temporal contra la dimension de cliente: nadie puede alquilar
+        # antes de darse de alta. Es la unica regla que cruza dos tablas, y por eso
+        # se escapaba: el generador sorteaba el cliente de todo el padron sin mirar
+        # signup_date. Se espera 0; si deja de serlo, el generador ha retrocedido.
+        "rental_date < signup_date del cliente":
+            rentals_raw["rental_date"] < rentals_raw["customer_id"].map(
+                customers_raw.set_index("customer_id")["signup_date"]),
     }
     invalid = [{"regla": k, "n": int(v.sum()), "pct": round(100 * v.mean(), 3)}
                for k, v in checks.items()]
@@ -387,7 +394,7 @@ def build_payload():
         "products": products_dim,
         "stores": stores_dim,
         "lifecycle": customer_lifecycle(fact),
-        "quality": quality_report(rentals, products, fact),
+        "quality": quality_report(rentals, products, fact, customers),
         "facts": {"schema": schema, "n": n_rows, "b64": b64},
     }
     return payload, fact

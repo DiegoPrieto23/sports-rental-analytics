@@ -8,10 +8,10 @@ un retailer europeo. Generado con `generate_dataset.py` (semilla `42`,
 
 | Tabla | Filas | Descripción |
 |-------|------:|-------------|
-| `customers.csv` | 25,000 | Dimensión de clientes |
+| `customers.csv` | 45,000 | Dimensión de clientes |
 | `products.csv`  | 320 | Dimensión de productos alquilables |
 | `stores.csv`    | 70 | Dimensión de tiendas europeas |
-| `rentals.csv`   | 78,003 | **Tabla de hechos** de alquileres |
+| `rentals.csv`   | 173,502 | **Tabla de hechos** de alquileres |
 
 ## Modelo de datos (esquema estrella)
 

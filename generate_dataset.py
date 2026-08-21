@@ -54,15 +54,25 @@ Faker.seed(SEED)
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
-# Ventana temporal del negocio (2 años de histórico de alquileres).
-START_DATE = date(2024, 1, 1)
-END_DATE = date(2025, 12, 31)
+# Ventana temporal del negocio (4 años y medio de histórico, 55 meses).
+START_DATE = date(2022, 1, 1)
+END_DATE = date(2026, 7, 31)
 # Fecha de corte "hoy" para snapshots de cliente (antigüedad, etc.).
-SNAPSHOT_DATE = date(2026, 7, 22)
+# Debe ser POSTERIOR a END_DATE: si cayera dentro de la ventana habría clientes
+# con alquileres registrados después de la foto que describe su antigüedad.
+SNAPSHOT_DATE = date(2026, 8, 1)
 
 # Volumen objetivo. Se sortea dentro del rango pedido de forma reproducible.
-N_RENTALS = int(rng.integers(75_000, 100_001))
-N_CUSTOMERS = 25_000
+# Dimensionado para mantener ~3.250 alquileres/mes al ampliar la ventana: si se
+# cambian las fechas sin tocar esto, el negocio "encoge" y todos los KPI
+# mensuales caen sin que haya pasado nada en el dominio.
+N_RENTALS = int(rng.integers(170_000, 190_001))
+N_CUSTOMERS = 45_000
+
+# Índice de demanda por año. Perfil de recuperación y madurez: 2022 sale del
+# bache, 2023-2024 crecen fuerte, 2025 modera y 2026 se estabiliza. Es lo que
+# hace que la comparación contra el periodo anterior del informe diga algo.
+YEAR_GROWTH = {2022: 0.80, 2023: 1.00, 2024: 1.20, 2025: 1.38, 2026: 1.52}
 
 SEASONS = ["Winter", "Spring", "Summer", "Autumn"]
 
@@ -272,7 +282,9 @@ def build_holidays(years: range) -> set[pd.Timestamp]:
     fixed = [(1, 1), (5, 1), (8, 15), (10, 12), (11, 1),
              (12, 6), (12, 8), (12, 25), (12, 26), (12, 31)]
     # Domingo de Pascua aproximado por año (motor de demanda de invierno/primavera).
-    easter = {2023: (4, 9), 2024: (3, 31), 2025: (4, 20), 2026: (4, 5)}
+    # Debe cubrir todos los años de la ventana: un año ausente no rompe nada, pero
+    # se queda sin su pico de Semana Santa y la estacionalidad cojea ese año.
+    easter = {2022: (4, 17), 2023: (4, 9), 2024: (3, 31), 2025: (4, 20), 2026: (4, 5)}
     holidays: set[pd.Timestamp] = set()
     for year in years:
         for month, day in fixed:
@@ -385,8 +397,11 @@ def generate_customers(n_customers: int) -> pd.DataFrame:
     city = np.array([CITY_CATALOG[i][0] for i in city_idx])
     country = np.array([CITY_CATALOG[i][1] for i in city_idx])
 
-    # Alta como socio en los últimos ~7 años.
-    tenure_days = rng.integers(30, 7 * 365, size=n_customers)
+    # Alta como socio en los últimos ~9 años. El rango tiene que cubrir con holgura
+    # la ventana de alquileres (55 meses): los alquileres solo pueden asignarse a
+    # clientes ya dados de alta, así que si casi nadie tuviera antigüedad anterior
+    # a START_DATE los primeros meses se repartirían entre cuatro clientes.
+    tenure_days = rng.integers(30, 9 * 365, size=n_customers)
     signup_date = np.array([SNAPSHOT_DATE - timedelta(days=int(d)) for d in tenure_days])
     tenure_years = tenure_days / 365.0
 
@@ -428,7 +443,11 @@ def _sample_rental_dates(n: int) -> pd.DatetimeIndex:
     month_factor_map = {1: 1.20, 2: 1.15, 3: 1.00, 4: 1.05, 5: 1.10, 6: 1.25,
                         7: 1.40, 8: 1.35, 9: 1.10, 10: 1.00, 11: 0.95, 12: 1.25}
     month_factor = all_days.month.map(month_factor_map).to_numpy()
-    year_factor = np.where(all_days.year == 2025, 1.12, 1.0)       # crecimiento YoY
+    # Crecimiento interanual: arranque flojo en 2022, recuperación fuerte en
+    # 2023-2024, moderación en 2025 y estabilización en 2026. Un año que falte
+    # aquí cae a 1.0, que es un escalón invisible en el dato pero muy visible en
+    # la serie mensual del informe.
+    year_factor = all_days.year.map(YEAR_GROWTH).to_numpy(dtype=float)
 
     weights = weekday_factor * holiday_factor * month_factor * year_factor
     probs = weights / weights.sum()
@@ -522,9 +541,28 @@ def generate_rentals(customers: pd.DataFrame,
     store_large = np.isin(stores["store_size"].to_numpy()[store_pos], ["Large", "Flagship"])
     store_country = stores["country"].to_numpy()[store_pos]
 
-    # Selección de cliente ponderada por actividad (frecuentes aparecen más).
-    cust_w = customers["_activity_weight"].to_numpy()
-    cust_pos = rng.choice(len(customers), size=n_rentals, p=cust_w / cust_w.sum())
+    # Selección de cliente ponderada por actividad (los frecuentes aparecen más)
+    # y restringida a quien YA ESTABA DADO DE ALTA ese día. Sin esa condición, el
+    # cliente se sorteaba de todo el padrón y un 21 % de los alquileres quedaba
+    # fechado antes del signup_date de su propio cliente; al ampliar la ventana a
+    # 55 meses habría pasado del tercio.
+    #
+    # Se hace por CDF inversa sobre el prefijo elegible: ordenando el padrón por
+    # fecha de alta, "los de alta anterior o igual al día X" es siempre un prefijo
+    # del array, así que basta con truncar la acumulada de pesos en ese punto.
+    # Vectorizado: dos searchsorted sobre 180k filas, frente a un muestreo por
+    # fila que tardaría minutos.
+    order = np.argsort(pd.to_datetime(customers["signup_date"]).to_numpy(), kind="stable")
+    signup_sorted = pd.to_datetime(customers["signup_date"]).to_numpy()[order]
+    cum_w = np.cumsum(customers["_activity_weight"].to_numpy()[order])
+
+    n_eligible = np.searchsorted(signup_sorted, rental_dates.to_numpy(), side="right")
+    if (n_eligible == 0).any():
+        raise ValueError(
+            "Hay alquileres anteriores al alta del cliente más antiguo: amplía el "
+            "rango de antigüedad en generate_customers o retrasa START_DATE.")
+    u = rng.random(n_rentals) * cum_w[n_eligible - 1]
+    cust_pos = order[np.searchsorted(cum_w, u, side="right").clip(max=len(order) - 1)]
     customer_ids = customers["customer_id"].to_numpy()[cust_pos]
     cust_age = customers["age"].to_numpy()[cust_pos]
     cust_segment = customers["customer_segment"].to_numpy()[cust_pos]

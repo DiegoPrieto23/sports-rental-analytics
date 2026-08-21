@@ -30,14 +30,14 @@ material deportivo (Rental)** de un retailer europeo. Consta de tres piezas:
 
 Publicado en **[GitHub Pages](https://diegoprieto23.github.io/sports-rental-analytics/)**, o
 descargable para abrirlo en local: `docs/informe.html` es un cuadro de mando autocontenido,
-**un solo fichero de 1,17 MB, sin servidor, sin CDN y sin dependencias**. Se abre con doble
+**un solo fichero de 2,33 MB, sin servidor, sin CDN y sin dependencias**. Se abre con doble
 clic, también sin conexión.
 
-Las **77.231 filas** de la tabla de hechos limpia viajan dentro del HTML en columnas
-binarias comprimidas (≈960 KB en base64), no preagregadas, de modo que **cualquier
-combinación de filtros se cruza de forma exacta** en el navegador y se puede bajar hasta el
-producto y la tienda concretos. Los gráficos son SVG escrito a mano; la paleta está
-validada para daltonismo y contraste en tema claro y oscuro.
+Las **171.785 filas** de la tabla de hechos limpia —55 meses, de enero de 2022 a julio de
+2026— viajan dentro del HTML en columnas binarias comprimidas (≈2,1 MB en base64), no
+preagregadas, de modo que **cualquier combinación de filtros se cruza de forma exacta** en
+el navegador y se puede bajar hasta el producto y la tienda concretos. Los gráficos son SVG
+escrito a mano; la paleta está validada para daltonismo y contraste en tema claro y oscuro.
 
 El **mapa de negocio** alterna entre **países y ciudades** y entre **importe y número de alquileres**, y el
 panel lateral da la cifra exacta que el color solo insinúa.
@@ -104,8 +104,8 @@ numpy, pandas y faker, así que el CI instala con `-c constraints.txt`, que las 
 que generaron los datos del repositorio. Si un día hay que subirlas, la secuencia es
 consciente: actualizar el pin, regenerar, revisar el diff y commitear ambas cosas.
 
-Las cifras del informe son las mismas que las del notebook: 5.420.621,79 € de ingresos,
-75,90 € de ticket medio, 5,525 % de cancelación y un Data Trust Score de 96,12.
+Las cifras del informe son las mismas que las del notebook: 12.111.837,37 € de ingresos,
+76,25 € de ticket medio, 5,528 % de cancelación y un Data Trust Score de 96,12.
 
 ---
 
@@ -129,8 +129,8 @@ margen que no se recupera.
   <img src="docs/img/estacionalidad.png" alt="Heatmap de estacionalidad de la demanda por categoría y mes" width="600">
 </p>
 
-**El envejecimiento tiene coste doble.** La tasa de averías pasa de ~5 % en producto nuevo a
-más del 30 % pasados 6 años, y el color muestra que el *maintenance ratio* sube con ella.
+**El envejecimiento tiene coste doble.** La tasa de averías pasa del 6 % en producto nuevo al
+23 % a los siete años, y el color muestra que el *maintenance ratio* sube con ella.
 Existe una **edad umbral** a partir de la cual mantener la unidad deja de compensar: es la
 base de una política de renovación de flota.
 
@@ -139,7 +139,7 @@ base de una política de renovación de flota.
 </p>
 
 **Las variables se comportan como debían.** El precio se construye por duración
-(`rental_days ~ rental_price` = **0,69**) y la satisfacción cae con la antigüedad
+(`rental_days ~ rental_price` = **0,68**) y la satisfacción cae con la antigüedad
 (**−0,48**) y con el coste de mantenimiento (**−0,45**). Ninguna correlación espuria
 fuerte: el dataset es coherente y las variables están listas para modelar.
 
@@ -230,10 +230,10 @@ más la inyección de calidad y la exportación.
 ### Volumen (por defecto)
 | Tabla | Filas aprox. | Rol |
 |-------|-------------:|-----|
-| `customers.csv` | 25.000 | Dimensión |
+| `customers.csv` | 45.000 | Dimensión |
 | `products.csv`  | ~320   | Dimensión |
 | `stores.csv`    | ~70    | Dimensión |
-| `rentals.csv`   | 75.000–100.000 | **Tabla de hechos** |
+| `rentals.csv`   | 170.000–190.000 | **Tabla de hechos** |
 
 10 categorías (Bicicletas, Esquí, Snowboard, Paddle Surf, Kayak, Camping, Escalada,
 Running, Fitness, Raquetas) y 7 países (España, Francia, Italia, Alemania, Portugal,
