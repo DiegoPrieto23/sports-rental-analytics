@@ -1,4 +1,4 @@
-# 🏷️ Sports Rental — Dataset sintético y análisis de negocio
+# Sports Rental — Dataset sintético y análisis de negocio
 
 Proyecto de **Analytics Engineering** que simula y analiza el negocio de **alquiler de
 material deportivo (Rental)** de un retailer europeo. Consta de dos piezas:
@@ -8,13 +8,82 @@ material deportivo (Rental)** de un retailer europeo. Consta de dos piezas:
 2. **Notebook de análisis** (`rental_analysis.ipynb`) — un análisis de negocio
    de principio a fin (calidad del dato → KPIs → SQL → EDA → estadística → recomendaciones),
    pensado para Databricks y ejecutable localmente en VSCode.
+3. **Informe interactivo** (`docs/informe.html`) — el análisis convertido en una herramienta
+   de exploración: seis filtros cruzados, ocho páginas y detalle hasta la referencia
+   concreta, en un único fichero HTML que se abre con doble clic.
 
-> ⚠️ Todos los datos son **100 % sintéticos**. No contienen información real de clientes,
+> Todos los datos son **100 % sintéticos**. No contienen información real de clientes,
 > productos ni tiendas reales.
 
 ---
 
-## 🔍 Vistazo al análisis
+## Informe interactivo
+
+<p align="center">
+  <img src="docs/img/informe.png" alt="Informe interactivo: mapa de negocio por país y ciudad, con filtros cruzados" width="900">
+</p>
+
+`docs/informe.html` es un cuadro de mando autocontenido: **un solo fichero de 1,17 MB, sin
+servidor, sin CDN y sin dependencias**. Se abre con doble clic, también sin conexión.
+
+Las **77.231 filas** de la tabla de hechos limpia viajan dentro del HTML en columnas
+binarias comprimidas (≈960 KB en base64), no preagregadas, de modo que **cualquier
+combinación de filtros se cruza de forma exacta** en el navegador y se puede bajar hasta el
+producto y la tienda concretos. Los gráficos son SVG escrito a mano; la paleta está
+validada para daltonismo y contraste en tema claro y oscuro.
+
+El **mapa de negocio** alterna entre **países y ciudades** y entre **importe y número de alquileres**, y el
+panel lateral da la cifra exacta que el color solo insinúa.
+
+Seis filtros —periodo, país, categoría, canal, membresía y segmento— se aplican a la vez a
+**ocho páginas**:
+
+| Página | Qué responde |
+|--------|--------------|
+| **Resumen ejecutivo** | 7 KPIs con variación contra el periodo anterior, evolución mensual con media móvil, mix por categoría y país |
+| **Calidad del dato** | Data Trust Score, nulos por columna, reglas de negocio incumplidas, duplicados y outliers por la regla de Tukey |
+| **Demanda y estacionalidad** | Heatmap categoría × mes, serie semanal con **detección de anomalías** (z robusto sobre MAD), día de la semana, duración, antelación de reserva y un **Sankey del ciclo de vida** del alquiler (reservado → cancelado / a tiempo / tardío / con avería) |
+| **Producto e inventario** | Curva de Pareto ABC, rotación por cuartiles, ocupación frente a margen, antigüedad frente a averías, saturados e infrautilizados por capital inmovilizado |
+| **Tiendas y geografía** | **Mapa coroplético** con conmutador país / ciudad e importe / alquileres, ranking de tiendas, ingreso por visitante, **treemap** país › categoría, formato de tienda y fricción operativa |
+| **Clientes y fidelización** | Segmentos, distribución de review por nivel de socio, cancelación por membresía, concentración de CLRV y **cohortes de retención** |
+| **Pricing y canal** | Precio/día por categoría y temporada, recorrido de pricing dinámico, **caja y bigotes** del precio, mix y fricción por canal |
+| **Estadística** | Matriz de correlación, correlaciones con significación, **regresión lineal del precio**, **logística de la cancelación**, intervalos de confianza y test A/B |
+
+Las regresiones **se recalculan sobre la selección**: no son tablas precocinadas. La lineal
+se resuelve por ecuaciones normales y la logística por IRLS, ambas escritas a mano en el
+propio informe.
+
+Cada gráfico tiene su tabla equivalente detrás del botón **Tabla**, así que ningún dato
+depende solo del color o del tooltip.
+
+### Regenerar y verificar
+
+```bash
+python docs/build_report.py     # regenera docs/informe.html desde output/*.csv
+python docs/verify_report.py    # contrasta sus cifras con pandas, scipy y statsmodels
+node    docs/test_render.js     # renderiza las 8 páginas × 4 filtros contra un DOM simulado
+```
+
+La verificación no es cosmética. `verify_report.py` decodifica el payload igual que el
+navegador y además **ejecuta el motor real del informe en Node** (`docs/test_report.js`,
+que carga el mismo `report/03_core.js`), comparando contra pandas, scipy y statsmodels:
+KPIs sin filtro y con filtros cruzados, correlaciones de Pearson, los 18 términos de la
+regresión lineal, la logística con su log-verosimilitud, el contraste de proporciones y los
+cuantiles. Todo cuadra a seis decimales.
+
+`test_render.js` monta un DOM mínimo y renderiza las 32 combinaciones de página y filtro
+para garantizar que ninguna lanza una excepción, incluida la selección sin resultados.
+
+`docs/make_geo.py` es lo único del proyecto que necesita conexión, y solo hay que
+ejecutarlo si cambia la ventana del mapa o la lista de países con negocio: su salida
+(`docs/report/03b_geo.js`) está versionada, de modo que el build funciona sin red.
+
+Las cifras del informe son las mismas que las del notebook: 5.420.621,79 € de ingresos,
+75,90 € de ticket medio, 5,525 % de cancelación y un Data Trust Score de 96,12.
+
+---
+
+## Vistazo al análisis
 
 **Primero la confianza en el dato.** Antes de decidir nada se auditan cuatro dimensiones de
 calidad y se condensan en un índice interpretable. El dato entra con un **90,7 % de
@@ -54,7 +123,7 @@ fuerte: el dataset es coherente y las variables están listas para modelar.
 
 ---
 
-## 📂 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 sports-rental-analytics/
@@ -71,6 +140,13 @@ sports-rental-analytics/
 │   └── README.md                        # Diccionario de datos + KPIs (autogenerado)
 │
 ├── docs/
+│   ├── informe.html                     # Informe interactivo (se abre con doble clic)
+│   ├── build_report.py                  # Ensambla el informe desde los CSV y report/
+│   ├── verify_report.py                 # Contrasta sus cifras con pandas y statsmodels
+│   ├── test_report.js                   # Ejecuta el motor del informe en Node
+│   ├── test_render.js                   # Renderiza las 8 páginas contra un DOM simulado
+│   ├── make_geo.py                      # Extrae las fronteras del mapa (Natural Earth)
+│   ├── report/                          # Piezas del informe (estilos, motor, geo, gráficos, páginas)
 │   ├── modelo_relacional.drawio         # Diagrama editable del modelo de datos
 │   └── img/                             # Capturas del análisis
 │
@@ -84,7 +160,7 @@ sports-rental-analytics/
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Requisitos
 - Python 3.10+ (probado en 3.13)
@@ -114,7 +190,7 @@ entorno virtual y pulsa **Run All**. El notebook lee los CSV de `output/`.
 
 ---
 
-## 🧩 Parte 1 · Generador del dataset (`generate_dataset.py`)
+## Parte 1 · Generador del dataset (`generate_dataset.py`)
 
 Simula el negocio: cada **alquiler** pertenece a un **cliente** que alquila un
 **producto** en una **tienda**. El script está organizado en funciones separadas por
@@ -150,7 +226,7 @@ Para practicar limpieza real: ~1 % duplicados, ~2 % de nulos por columna, fechas
 inconsistentes, reviews imposibles, outliers, categorías mal escritas y texto con
 mayúsculas/espacios inconsistentes — **sin invalidar** el conjunto.
 
-> 📖 El **diccionario de datos completo** (columnas, tipos, cardinalidades y KPIs) está en
+> El **diccionario de datos completo** (columnas, tipos, cardinalidades y KPIs) está en
 > [`output/README.md`](output/README.md), generado automáticamente por el script.
 
 ### Modelo de datos (esquema estrella)
@@ -220,18 +296,18 @@ erDiagram
 Un cliente tiene muchos alquileres, un producto se alquila muchas veces y una tienda
 registra muchos alquileres.
 
-> 🎨 **Diagrama editable:** [`docs/modelo_relacional.drawio`](docs/modelo_relacional.drawio).
+> **Diagrama editable:** [`docs/modelo_relacional.drawio`](docs/modelo_relacional.drawio).
 > Se abre en [app.diagrams.net](https://app.diagrams.net) (`File → Open from → Device`) o
 > directamente en VSCode con la extensión *Draw.io Integration*.
 
-> ℹ️ **Sobre los `store_id` nulos:** en torno al 2 % de los alquileres llegan sin tienda
+> **Sobre los `store_id` nulos:** en torno al 2 % de los alquileres llegan sin tienda
 > asignada. **No son huérfanos** —cuando el `store_id` existe siempre apunta a una tienda
 > válida—, así que el pipeline los conserva con un `LEFT JOIN`: el ingreso es real aunque
 > se desconozca dónde se registró. Descartarlos sesgaría los ingresos a la baja.
 
 ---
 
-## 📊 Parte 2 · Notebook de análisis (`rental_analysis.ipynb`)
+## Parte 2 · Notebook de análisis (`rental_analysis.ipynb`)
 
 Un análisis orientado a **negocio y producto**: encuentra oportunidades de mejora y las
 prioriza por impacto. Alterna **SQL** (celdas `%%sql`) y **Python** para el análisis
@@ -266,7 +342,7 @@ un runtime Spark local).
 
 ---
 
-## 🛠️ Stack tecnológico
+## Stack tecnológico
 
 | Uso | Librerías |
 |-----|-----------|
@@ -281,14 +357,14 @@ Versiones fijadas en [`requirements.txt`](requirements.txt).
 
 ---
 
-## 🔁 Reproducibilidad
+## Reproducibilidad
 El generador usa un `numpy.random.Generator` con semilla fija (`SEED = 42`) propagada a
 NumPy, `random` y Faker. El notebook se apoya en esos datos deterministas, por lo que los
 resultados (KPIs, modelos, Data Trust Score) son estables entre ejecuciones.
 
 ---
 
-## 🎯 KPIs principales
+## KPIs principales
 Occupancy Rate · Utilization · Revenue per Inventory Unit · Gross Profit · Margin ·
 Maintenance Ratio · Cancellation Rate · Late Return Rate · Damage Rate ·
 Customer Lifetime Rental Value (CLRV). Definiciones detalladas en el notebook (sección 4)

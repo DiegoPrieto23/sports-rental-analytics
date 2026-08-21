@@ -6,12 +6,22 @@ databricks/dbt/env.local.ps1
 # Perfil de conexion: contiene el host y el warehouse del workspace.
 # Se versiona `profiles.yml.example` con placeholders en su lugar.
 databricks/dbt/profiles.yml
-# Ajustes locales de Claude Code: registran los comandos ejecutados, que pueden
-# incluir credenciales pasadas por linea de comandos.
+# Ajustes locales de herramientas de desarrollo: registran comandos ejecutados,
+# que pueden incluir credenciales pasadas por linea de comandos.
 .claude/settings.local.json
 .env
 *.pem
 *.key
+
+# ---------------------------------------------------------------------------
+# Artefactos de build
+# ---------------------------------------------------------------------------
+# Misma pagina que docs/informe.html pero sin <html>/<head>/<body>, solo para
+# publicarla. Se regenera con docs/build_report.py.
+docs/_informe_fragment.html
+# Fuente de 3 MB que docs/make_geo.py descarga para recortar las fronteras.
+# Lo que se versiona es su salida ya simplificada, docs/report/03b_geo.js.
+docs/ne50.geojson
 
 # ---------------------------------------------------------------------------
 # Artefactos de dbt

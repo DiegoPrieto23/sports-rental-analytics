@@ -1,0 +1,56 @@
+<div class="app">
+  <header>
+    <div>
+      <h1>Sports Rental · Informe de negocio</h1>
+      <div class="sub">Alquiler de material deportivo · 7 mercados europeos · datos sintéticos</div>
+    </div>
+    <div class="spacer"></div>
+    <span class="badge" id="badge-rows">—</span>
+    <span class="badge" id="badge-trust">—</span>
+    <button class="icon-btn" id="theme-toggle" type="button">Tema</button>
+  </header>
+
+  <div id="boot">Descomprimiendo la tabla de hechos…</div>
+
+  <div id="ui" class="hidden">
+    <div class="filterbar">
+      <span class="label">Filtros</span>
+      <select class="plain" id="f-period" aria-label="Periodo"></select>
+      <div class="ms" id="f-country"></div>
+      <div class="ms" id="f-cat"></div>
+      <div class="ms" id="f-channel"></div>
+      <div class="ms" id="f-member"></div>
+      <div class="ms" id="f-segment"></div>
+      <button class="icon-btn" id="f-reset" type="button">Limpiar</button>
+      <span class="count" id="f-count"></span>
+    </div>
+
+    <nav class="pages" role="tablist" id="pages"></nav>
+    <div class="pagehead" id="pagehead"></div>
+    <main id="panels"></main>
+
+    <footer>
+      <p><b>Fuente:</b> los cuatro CSV de <code>output/</code>, generados por <code>generate_dataset.py</code>
+         con semilla fija. <b>Datos 100 % sintéticos</b>: ninguna cifra corresponde a clientes,
+         productos o tiendas reales.</p>
+      <p><b>Método:</b> mismo pipeline de limpieza y mismas definiciones de KPI que
+         <code>rental_analysis.ipynb</code> (deduplicación por regla de negocio, anulación de valores
+         imposibles, normalización de categorías y texto). Los ingresos cuentan solo alquileres
+         <b>completados</b>; la cancelación se calcula sobre el total. El ticket y la duración media
+         excluyen del denominador los alquileres que llegan sin precio o sin duración.</p>
+      <p><b>Cómo leer la ocupación:</b> es días alquilados / (unidades × días del periodo). Las unidades
+         de inventario son globales por referencia, no están repartidas por tienda, así que al filtrar
+         por país o formato el denominador sigue siendo la flota completa: esa ocupación filtrada es una
+         <b>cota inferior</b>, no la ocupación real de ese mercado. Sin filtro geográfico la cifra es exacta.</p>
+      <p><b>Alcance de los filtros:</b> todo se recalcula sobre la selección salvo lo marcado como
+         <span class="tag">histórico completo</span> (calidad del dato crudo, CLRV y cohortes), que se
+         define sobre el dato de origen o sobre la vida entera del cliente y perdería su significado al
+         filtrarlo.</p>
+      <p><b>Estadística:</b> la regresión lineal se resuelve por ecuaciones normales y la logística por
+         mínimos cuadrados reponderados iterativamente (IRLS), ambas recalculadas sobre la selección.
+         Los p-valores usan la aproximación normal, válida con estos tamaños muestrales.</p>
+      <p id="footer-meta"></p>
+    </footer>
+  </div>
+</div>
+<div id="tip" role="tooltip"></div>

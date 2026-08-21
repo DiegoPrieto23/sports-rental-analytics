@@ -27,7 +27,7 @@ CSV  ──►  staging.*_raw                                    (crudo, subido 
 |------|--------|
 | `dbt/` | **Proyecto dbt: la única fuente de verdad de la lógica.** 17 modelos + 46 tests |
 | `dbt/profiles.yml` | Conexión a Databricks (host, warehouse, catálogo). **Sin secretos** |
-| `dbt/env.local.ps1` | Token de acceso. **Ignorado por git — no lo subas** |
+| `dbt/env.local.ps1` | Token de acceso. Ignorado por git |
 | `notebooks/` | Notebooks SQL de Databricks **generados** desde `dbt/` — no editar a mano |
 | `build_databricks_notebooks.py` | Traduce los modelos dbt a SQL puro de Databricks |
 | `resources/job_pipeline_notebooks.json` | Definición del Job encadenado (opción SQL) |
@@ -41,7 +41,7 @@ no hay dos copias del código: cambias el modelo, regeneras, y ambas rutas queda
 
 ---
 
-## Paso 0 · Cargar los CSV (ya lo estás haciendo)
+## Paso 0 · Cargar los CSV
 
 `Data Ingestion` → `Create or modify table` → sube los cuatro ficheros de `output/`.
 Destino: **`Catalog` › `My organization` › `workspace` › `staging`**, y los nombres de
@@ -63,7 +63,7 @@ distinguen de un vistazo en el Catalog Explorer.
 > *"First row contains header"*. Da igual si el asistente infiere los tipos o si deja
 > todo como `STRING`: la capa staging usa `try_cast`, que funciona en ambos casos.
 
-> ⚠️ **Sube los ficheros de uno en uno, en cuatro pasadas.** Si seleccionas los cuatro
+> **Sube los ficheros de uno en uno, en cuatro pasadas.** Si seleccionas los cuatro
 > a la vez con un único nombre de tabla destino, Databricks los **une en una sola tabla**
 > haciendo *schema merge*: acabas con una tabla de 37 columnas y 103.393 filas
 > (78.003 + 25.000 + 320 + 70) en lugar de las cuatro tablas del modelo estrella.
@@ -90,7 +90,7 @@ UNION ALL SELECT 'products_raw',  count(*) FROM workspace.staging.products_raw
 UNION ALL SELECT 'stores_raw',    count(*) FROM workspace.staging.stores_raw;
 ```
 
-> **¿Ya las habías cargado sin el sufijo?** No hace falta volver a subir los ficheros:
+> Si las tablas ya estaban cargadas sin el sufijo, no hace falta volver a subir los ficheros:
 > ```sql
 > ALTER TABLE workspace.staging.rentals   RENAME TO workspace.staging.rentals_raw;
 > ALTER TABLE workspace.staging.customers RENAME TO workspace.staging.customers_raw;
@@ -100,7 +100,7 @@ UNION ALL SELECT 'stores_raw',    count(*) FROM workspace.staging.stores_raw;
 
 ---
 
-## Opción A · SQL puro (recomendada para empezar hoy)
+## Opción A · SQL puro
 
 ### A.1 · Subir los notebooks
 
@@ -159,44 +159,36 @@ Misma lógica, con lo que dbt aporta encima: **el orden de las capas lo resuelve
 propio DAG** (no hay que declarar dependencias en ningún sitio), 46 tests automáticos,
 documentación y linaje navegable.
 
-### B.1 · dbt Core desde tu máquina contra Databricks
+### B.1 · dbt Core en local contra Databricks
 
-Es la ruta recomendada: dbt corre en tu portátil, pero **todas las tablas se crean en
-Databricks**. El SQL se ejecuta en tu SQL Warehouse; por tu red solo viaja el texto de
-las consultas, nunca los datos.
+dbt se ejecuta en la máquina local, pero **todas las tablas se crean en Databricks**: el
+SQL corre en el SQL Warehouse y por la red solo viaja el texto de las consultas, nunca
+los datos.
 
-#### Estado actual del proyecto
-
-Ya está todo montado y validado. Lo único que falta es un token válido:
-
-| Pieza | Estado |
-|-------|--------|
-| `dbt-core` 1.12 + `dbt-databricks` 1.10 | ✅ instalados |
-| `dbt/profiles.yml` con host, http_path y catálogo | ✅ creado |
-| `dbt/env.local.ps1` con el token (ignorado por git) | ⚠️ **token inválido, hay que regenerarlo** |
-| `dbt parse` — 17 modelos, 4 sources, 46 tests | ✅ sin errores |
+Requisitos: `dbt-core` 1.12 y `dbt-databricks` 1.10 instalados, un `dbt/profiles.yml` con
+host, http_path y catálogo, y un token válido en `dbt/env.local.ps1` (fichero ignorado por
+git). Con eso, `dbt parse` resuelve los 17 modelos, 4 sources y 46 tests del proyecto.
 
 #### Paso 1 · Generar un Personal Access Token
 
-El token que hay en `env.local.ps1` devuelve **HTTP 401** contra la API. Un PAT de
-Databricks tiene **36 caracteres y empieza por `dapi`** (p.ej.
-`dapi1a2b3c4d5e6f...`); un valor de 64 caracteres hexadecimales sin prefijo es otra
-cosa —normalmente el *client secret* de un service principal OAuth—, y no sirve para
-este flujo.
+Un PAT de Databricks tiene **36 caracteres y empieza por `dapi`** (p. ej.
+`dapi1a2b3c4d5e6f...`). Un valor de 64 caracteres hexadecimales sin prefijo es otra
+cosa —normalmente el *client secret* de un service principal OAuth— y no sirve para
+este flujo: la API responde **HTTP 401**.
 
-En tu workspace: **avatar (arriba a la derecha) → `Settings` → `Developer` →
-`Access tokens` → `Manage` → `Generate new token`**. Cópialo entero: solo se muestra
+Ruta en el workspace: **avatar (arriba a la derecha) → `Settings` → `Developer` →
+`Access tokens` → `Manage` → `Generate new token`**. El token completo solo se muestra
 una vez.
 
-> Si en tu cuenta no aparece la opción de PAT, hay una alternativa OAuth: crea un
+> Si la cuenta no ofrece la opción de PAT, hay una alternativa OAuth: crear un
 > service principal (`Settings` → `Identity and access` → `Service principals`),
-> genera un secret y sustituye en `profiles.yml` la línea `token:` por
+> generar un secret y sustituir en `profiles.yml` la línea `token:` por
 > `auth_type: oauth`, `client_id: <Application ID>` y
 > `client_secret: "{{ env_var('DATABRICKS_CLIENT_SECRET') }}"`.
 
 #### Paso 2 · Guardar el token
 
-Abre `databricks\dbt\env.local.ps1` y pega el nuevo token. Ese fichero está en
+El token va en `databricks\dbt\env.local.ps1`. Ese fichero está en
 `.gitignore`: **el token nunca entra en el repo**. `profiles.yml`, en cambio, sí se
 commitea porque solo contiene host y ruta, que no son secretos.
 
@@ -213,7 +205,8 @@ dbt build   --profiles-dir .    # construye las 3 capas EN ORDEN + los 46 tests
 
 > **El `--profiles-dir .` no es opcional.** Por defecto dbt busca el perfil en
 > `~/.dbt/profiles.yml`; aquí vive dentro del proyecto para que la configuración viaje
-> con el repo. Si te cansa escribirlo: `$env:DBT_PROFILES_DIR = "."`.
+> con el repo. Alternativa para no repetirlo en cada comando:
+> `$env:DBT_PROFILES_DIR = "."`.
 
 Salida esperada de `dbt build`: 4 vistas en `staging`, 3 tablas en `intermediate`,
 10 tablas en `marts` y `PASS=46 WARN=0 ERROR=0`.
@@ -225,21 +218,20 @@ dbt docs generate --profiles-dir .
 dbt docs serve    --profiles-dir .    # abre http://localhost:8080
 ```
 
-Te da el **grafo de linaje navegable** (`staging → intermediate → marts`) con las
-descripciones de cada modelo y columna que están en los `.yml`. Es la pieza que mejor
-demuestra el trabajo de analytics engineering.
+Genera el **grafo de linaje navegable** (`staging → intermediate → marts`) con las
+descripciones de cada modelo y columna que están en los `.yml`.
 
 #### Comandos del día a día
 
 | Comando | Qué hace |
 |---------|----------|
-| `dbt build` | Modelos + tests, en orden de dependencias. **El que usarás casi siempre** |
+| `dbt build` | Modelos + tests, en orden de dependencias. El comando habitual |
 | `dbt run` | Solo materializa modelos, sin tests |
 | `dbt test` | Solo los 46 tests, sin reconstruir nada |
 | `dbt build --select staging` | Solo esa capa |
 | `dbt build --select +mart_product_metrics` | Ese modelo **y todo lo que necesita** aguas arriba |
 | `dbt build --select int_rentals_enriched+` | Ese modelo **y todo lo que depende de él** |
-| `dbt build --select state:modified+` | Solo lo que cambiaste y sus descendientes (CI) |
+| `dbt build --select state:modified+` | Solo los modelos modificados y sus descendientes (CI) |
 | `dbt compile --select <modelo>` | Escribe el SQL final en `target/compiled/` sin ejecutarlo |
 | `dbt source freshness` | Antigüedad de las tablas `*_raw` (requiere `loaded_at_field`) |
 
@@ -248,11 +240,11 @@ demuestra el trabajo de analytics engineering.
 | Síntoma | Causa y arreglo |
 |---------|-----------------|
 | `Credential was not sent or was of an unsupported type` (401) | Token inválido o caducado → regenera el PAT (Paso 1) |
-| `Env var required but not provided: 'DATABRICKS_TOKEN'` | Olvidaste el punto: `. .\env.local.ps1`, no `.\env.local.ps1` |
+| `Env var required but not provided: 'DATABRICKS_TOKEN'` | Falta el punto inicial: `. .\env.local.ps1`, no `.\env.local.ps1` |
 | `Could not find profile named 'sports_rental'` | Falta `--profiles-dir .` |
 | `Table or view not found: workspace.staging.rentals_raw` | Las tablas base no están cargadas o no llevan el sufijo `_raw` → Paso 0 |
 | La ejecución se queda parada al arrancar | El SQL Warehouse estaba dormido; tarda ~1-2 min en despertar |
-| `PERMISSION_DENIED` al crear schema | Tu usuario no tiene `CREATE SCHEMA` en el catálogo → créalos a mano con `CREATE SCHEMA workspace.intermediate;` y `CREATE SCHEMA workspace.marts;` |
+| `PERMISSION_DENIED` al crear schema | El usuario no tiene `CREATE SCHEMA` en el catálogo → crearlos a mano con `CREATE SCHEMA workspace.intermediate;` y `CREATE SCHEMA workspace.marts;` |
 
 ### B.2 · dbt dentro de Databricks Workflows
 
@@ -272,13 +264,13 @@ funcionaría; se separa por legibilidad operativa.
 
 > **Aquí no se usa `profiles.yml`.** El JSON no declara `profiles_directory` a
 > propósito: en un task dbt, Databricks **genera el perfil solo** a partir de
-> `warehouse_id`, `catalog` y `schema`, y se autentica con la identidad del Job. Si le
-> pasaras nuestro `profiles.yml`, buscaría `DATABRICKS_TOKEN` en el entorno del cluster
-> y fallaría. Ese fichero es solo para la ruta B.1 (dbt desde tu máquina).
+> `warehouse_id`, `catalog` y `schema`, y se autentica con la identidad del Job. Con el
+> `profiles.yml` del proyecto buscaría `DATABRICKS_TOKEN` en el entorno del cluster y
+> fallaría. Ese fichero es solo para la ruta B.1 (dbt en local).
 
-> **Free Edition:** el task type `dbt` puede no estar disponible según la cuenta. Si no
-> lo ves en el desplegable, usa B.1 (dbt desde tu máquina) — el resultado en el
-> Lakehouse es exactamente el mismo — y deja la Opción A como pipeline programado.
+> **Free Edition:** el task type `dbt` puede no estar disponible según la cuenta. En ese
+> caso queda B.1 (dbt en local) — el resultado en el Lakehouse es exactamente el mismo —
+> con la Opción A como pipeline programado.
 
 ---
 
@@ -344,10 +336,10 @@ devuelve filas, la celda lanza un error y el Job se detiene.
 
 ---
 
-## Verificación
+## Contraste con el notebook local
 
-El pipeline se ha ejecutado **de verdad en Databricks** (`dbt build` → `PASS=63
-WARN=0 ERROR=0`) y sus resultados se han comparado con la lógica pandas del notebook:
+`dbt build` sobre Databricks termina en `PASS=63 WARN=0 ERROR=0`. Sus resultados frente a
+los que calcula la lógica pandas del notebook:
 
 | KPI | Notebook (pandas) | Pipeline en Databricks |
 |-----|------------------:|-----------------------:|
@@ -365,8 +357,7 @@ WARN=0 ERROR=0`) y sus resultados se han comparado con la lógica pandas del not
 
 ### Los 68 € de diferencia en ingresos
 
-No es un error: es el **único punto donde SQL no puede replicar a pandas**, y conviene
-entenderlo porque es un caso de manual.
+No es un error: es el **único punto donde SQL no puede replicar a pandas**.
 
 De los `rental_id` con PK duplicada, **14 empatan en los dos criterios de la regla de
 negocio** (mismo número de nulos *y* misma `rental_date`). Hay que elegir una fila de
@@ -380,16 +371,15 @@ cada par, y ambas son igual de válidas según la regla:
 Elegir la otra fila de esos 14 pares mueve el total 68 € sobre 5,42 M — un **0,001 %**,
 sin efecto en ninguna decisión de negocio.
 
-Lo que sí era inaceptable, y está corregido, es que la elección fuera **aleatoria**: sin
-un desempate final, cada `dbt build` devolvía un número distinto. `int_rentals_deduplicated`
-ordena ahora por todas las columnas, de modo que el orden es total y el resultado
-reproducible. Verificado ejecutando el pipeline en **dos motores independientes**
-(DuckDB en local y Databricks) y comparando el hash MD5 del contenido de
-`int_rentals_cleaned`: **`841aaa54d4dd45e2b72759004c70556d` en ambos**.
+Sin un desempate final la elección era además **aleatoria**: cada `dbt build` devolvía un
+número distinto. `int_rentals_deduplicated` ordena por todas las columnas, de modo que el
+orden es total y el resultado reproducible. El mismo pipeline en **dos motores
+independientes** (DuckDB en local y Databricks) produce el mismo hash MD5 de
+`int_rentals_cleaned`: `841aaa54d4dd45e2b72759004c70556d`.
 
-Los agregados en coma flotante todavía bailan en el **décimo dígito significativo**
+Los agregados en coma flotante siguen variando en el **décimo dígito significativo**
 (`5420689.930000043` vs `...052`) porque el motor suma en paralelo y el orden de sumación
-varía. Es inevitable en cualquier motor distribuido y no afecta a nada.
+cambia. Es inevitable en cualquier motor distribuido y no afecta a los resultados.
 
 Para reproducirlo:
 
@@ -408,11 +398,11 @@ solo consume, visualiza y contrasta.
 
 ### Cómo importarlo
 
-`Workspace` → tu carpeta → `Import` → `File` → arrastra el `.py`. Databricks reconoce la
+`Workspace` → carpeta de usuario → `Import` → `File` → el `.py`. Databricks reconoce la
 cabecera `# Databricks notebook source` y lo convierte en notebook con sus 102 celdas
-(59 markdown, 30 Python, 12 SQL, 1 `%pip`). Conecta a **Serverless** y `Run all`.
+(59 markdown, 30 Python, 12 SQL, 1 `%pip`). Conectar a **Serverless** y `Run all`.
 
-Si tu catálogo no es `workspace`, cámbialo en el **widget** que aparece arriba del
+Con un catálogo distinto de `workspace`, se cambia en el **widget** que aparece arriba del
 notebook al ejecutar la primera celda. No hay que tocar código.
 
 ### Cómo alterna PySpark y SQL
@@ -441,12 +431,8 @@ que MLlib obligaría a calcular a mano.
 | 5–7 · SQL, EDA, estadística | Igual | Igual, sobre las tablas Gold |
 | 10 · Productivización | Plan a futuro | **Estado real**: qué está hecho y qué falta |
 
-### Verificación
-
-- Las **12 celdas SQL se han ejecutado contra tu workspace**: todas OK.
-- **Todas las referencias a columnas** de las celdas PySpark/pandas se han cruzado con
-  los esquemas reales de las 11 tablas: cero ausencias.
-- Sintaxis Python de las 30 celdas de código: sin errores.
+Las 12 celdas SQL están contrastadas contra el workspace y las referencias a columnas de
+las celdas PySpark/pandas, cruzadas con los esquemas reales de las 11 tablas.
 
 ---
 
@@ -455,8 +441,8 @@ que MLlib obligaría a calcular a mano.
 La regla es una sola: **se edita el modelo dbt, nunca el notebook generado.**
 
 ```powershell
-# 1. editas databricks/dbt/models/.../<modelo>.sql
-# 2. regeneras los notebooks SQL
+# 1. editar databricks/dbt/models/.../<modelo>.sql
+# 2. regenerar los notebooks SQL
 python databricks\build_databricks_notebooks.py
-# 3. vuelves a importar los .sql en Databricks (o haces push si usas Git + dbt)
+# 3. reimportar los .sql en Databricks (o push, con Git + dbt)
 ```

@@ -30,6 +30,11 @@ python generate_dataset.py
 # Validate the notebook end-to-end (this is the closest thing to a test suite):
 # executes every cell headless against the real CSVs, fails on any cell error.
 python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=300 rental_analysis.ipynb
+
+# Rebuild the interactive HTML report and run its two test suites
+python docs/build_report.py
+python docs/verify_report.py    # numbers: vs pandas/scipy/statsmodels (runs Node internally)
+node    docs/test_render.js     # pages: 8 pages x 4 filter scenarios, must not throw
 ```
 
 There is **no lint config and no test framework**. "Passing" means: the generator runs
@@ -73,6 +78,55 @@ orchestrated by `main()`. Numbered section banners (`# 1.` … `# 8.`) mark the 
   the function, never the output file by hand.
 - `membership_level` uses the literal `"Basic"` (never `"None"`) on purpose: pandas
   `read_csv` parses the string `"None"` as `NaN`, which would silently drop that group.
+
+## Interactive report (`docs/`)
+
+`docs/build_report.py` concatenates the pieces in `docs/report/` into
+`docs/informe.html`: a self-contained 8-page dashboard (no CDN, no server, no build
+tooling, ~1.1 MB). **Edit the pieces, never `informe.html`** — it is generated.
+
+```
+report/01_head.html   tokens + CSS          report/05_ui.js       cards, filters, render loop
+report/02_body.html   markup shell          report/06_pages_a.js  pages 1-4
+report/03_core.js     engine (no DOM)       report/07_pages_b.js  pages 5-8 + PAGES index
+report/03b_geo.js     country outlines      report/04_charts.js   SVG chart library
+```
+
+Key invariants:
+
+- **`03_core.js` must stay DOM-free.** `docs/test_report.js` loads that exact file in Node
+  to check the engine against pandas/scipy/statsmodels. One `document.` reference there
+  and the whole numeric test suite stops running.
+- The builder **re-implements the notebook's cleaning pipeline and KPI definitions**
+  (`clean_rentals`, `dedupe_rental_ids`, `data_trust_score`). Change a metric in the
+  notebook and it must change here too; `verify_report.py` is what catches the drift.
+- The full 77k-row fact table is embedded as columnar binary → deflate → base64 (~960 KB),
+  **not** pre-aggregated, so every filter cross-tabulates exactly and the regressions
+  refit on the current slice. Only non-derivable columns are encoded; category, country,
+  season and store size resolve via lookups in JS. Rows are sorted by product+month+day
+  before compressing (saves ~200 KB).
+- **Denominator trap:** ticket medio and duración media divide by the count of rentals that
+  actually have a price/duration, not by all completed rentals — matching `global_kpis`.
+  Getting this wrong shifts the ticket by ~1.6 € and silently desyncs the report.
+- `"use strict"` is injected by `assemble()` as the script's first statement. Inside the
+  concatenated pieces it would just be a stray string literal with no effect.
+- `docs/_informe_fragment.html` is the same page without `<html>/<head>/<body>`, for
+  publishing as an Artifact. Gitignored — a build byproduct, not a source.
+- Charts are hand-written SVG. The palette is the dataviz reference palette with `#0082C3`
+  in slot 1, validated in light and dark; re-run the validator if you change any hue.
+- **The map uses no mapping library and no tiles, on purpose.** Leaflet/MapLibre need a tile
+  server, and the Artifact CSP blocks every external host — tiles would silently never load
+  there. Borders are embedded in `report/03b_geo.js`, generated once by `docs/make_geo.py`
+  from Natural Earth 50m (public domain) and versioned; the build stays offline. Regenerate
+  only if the map window or the business-country list changes.
+- **Mercator needs both axes in the same unit.** `mercY` returns *degrees*
+  (`ln(tan(…)) · 180/π`); the x axis is degrees of longitude. Returning raw radians squashes
+  the map vertically by ~57× — it still renders, still passes `test_render.js`, and looks
+  like a thin band of bubbles. Cross-check with `cities inside their own country polygon`,
+  never by re-deriving the same formula in the test.
+- No browser is available in this environment, so `test_render.js` stubs a minimal DOM and
+  renders all 8 pages under 4 filter scenarios. It proves nothing about *looks* — only that
+  the page code runs. Visual regressions still need a human to open the file.
 
 ## Data model
 

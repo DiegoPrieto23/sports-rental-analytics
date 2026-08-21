@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # 🏷️ Sports Rental — Análisis de negocio del alquiler deportivo
+# MAGIC # Sports Rental — Análisis de negocio del alquiler deportivo
 # MAGIC
 # MAGIC **Equipo de Datos e IA · Analytics Engineering**
 # MAGIC _Notebook de análisis sobre el Lakehouse. Consume las tablas Gold publicadas por el pipeline dbt._
@@ -188,7 +188,7 @@ print(f"\nTabla de hechos: {fact.count():,} filas × {len(fact.columns)} columna
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Lectura:** `rental_id` es único y no hay ninguna FK huérfana: cuando el
+# MAGIC > **Lectura:** `rental_id` es único y no hay ninguna FK huérfana: cuando el
 # MAGIC > `store_id` existe, siempre apunta a una tienda válida. Los `store_id` nulos que
 # MAGIC > quedan son **nulos de origen** (~2 % de los alquileres llegan sin tienda asignada),
 # MAGIC > no un fallo de integridad: el alquiler y su ingreso son reales aunque no sepamos
@@ -370,7 +370,7 @@ ax.axvline(95, color="grey", ls="--", lw=1)
 plt.tight_layout()
 plt.show()
 
-print(f"\n🔎 Data Trust Score = {score:.2f}/100")
+print(f"\nData Trust Score = {score:.2f}/100")
 display(dq[["dimension", "score_pct", "weight", "weighted_contribution"]])
 
 # COMMAND ----------
@@ -431,7 +431,7 @@ resumen = pd.Series({
     "Ventana observada": f"{kpis['first_rental_date']} → {kpis['last_rental_date']} "
                          f"({kpis['period_days']:,.0f} días)",
 })
-print("📊 Cuadro de mando global (KPIs):")
+print("Cuadro de mando global (KPIs):")
 display(resumen.to_frame("valor"))
 
 # COMMAND ----------
@@ -474,7 +474,7 @@ display(spark.table(TABLES["category_performance"])
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight (KPIs globales):** el negocio muestra una **cancelación en torno al 5–6 %**
+# MAGIC > **Insight (KPIs globales):** el negocio muestra una **cancelación en torno al 5–6 %**
 # MAGIC > y un **Maintenance Ratio** que, aun siendo alto, es un coste *variable y gestionable*.
 # MAGIC > La palanca crítica no es el coste unitario de mantenimiento sino la **ocupación del
 # MAGIC > inventario**: cada día que un producto no se alquila es margen perdido que no se
@@ -627,7 +627,7 @@ display(spark.table(TABLES["category_performance"])
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight (SQL):** los ingresos se concentran en **tiendas grandes/flagship** y en
+# MAGIC > **Insight (SQL):** los ingresos se concentran en **tiendas grandes/flagship** y en
 # MAGIC > unos pocos **países de mayor ticket** (efecto del factor de precio por país). En
 # MAGIC > producto aparece un **patrón Pareto claro**: el segmento "Saturado" rota mucho con
 # MAGIC > poco stock (oportunidad de **ampliar unidades**), mientras el "Infrautilizado"
@@ -673,7 +673,7 @@ plt.tight_layout(); plt.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** esquí y snowboard son **casi 100 % invierno**; camping, kayak y paddle
+# MAGIC > **Insight:** esquí y snowboard son **casi 100 % invierno**; camping, kayak y paddle
 # MAGIC > surf, **verano**. Estas categorías tienen inventario **estructuralmente ocioso** medio
 # MAGIC > año → oportunidad de **alquiler cruzado estacional** (mover stock entre mercados de
 # MAGIC > montaña y costa) y de **pricing dinámico** en el pico.
@@ -704,7 +704,7 @@ if len(yoy):
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** los ingresos muestran **doble pico** (invierno y verano) y crecimiento
+# MAGIC > **Insight:** los ingresos muestran **doble pico** (invierno y verano) y crecimiento
 # MAGIC > interanual. La media móvil confirma **tendencia positiva**; la planificación de
 # MAGIC > inventario y campañas debe anticiparse ~1–2 meses a cada pico.
 
@@ -732,7 +732,7 @@ plt.xticks(rotation=30, ha="right"); plt.tight_layout(); plt.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** esquí/snowboard tienen el **ticket más alto y mayor dispersión**
+# MAGIC > **Insight:** esquí/snowboard tienen el **ticket más alto y mayor dispersión**
 # MAGIC > (duración + factor estacional), mientras running/raquetas son productos de **ticket
 # MAGIC > bajo y alta rotación**. Sugiere estrategias de precio distintas por categoría.
 
@@ -756,7 +756,7 @@ plt.tight_layout(); plt.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** los socios **Premium/Gold** puntúan algo mejor y con menos cola baja.
+# MAGIC > **Insight:** los socios **Premium/Gold** puntúan algo mejor y con menos cola baja.
 # MAGIC > La fidelización no solo retiene: **mejora la percepción de calidad**, un argumento para
 # MAGIC > invertir en el programa de membresía.
 
@@ -781,7 +781,7 @@ plt.tight_layout(); plt.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** relación **positiva y clara** entre antigüedad y averías, acompañada de
+# MAGIC > **Insight:** relación **positiva y clara** entre antigüedad y averías, acompañada de
 # MAGIC > mayor *maintenance ratio*. Existe una **edad umbral** a partir de la cual el producto
 # MAGIC > deja de ser rentable de mantener → política de **renovación/retirada de flota**.
 
@@ -825,7 +825,7 @@ fig.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** el cuadrante **arriba-derecha** (alta ocupación + alto margen) es donde
+# MAGIC > **Insight:** el cuadrante **arriba-derecha** (alta ocupación + alto margen) es donde
 # MAGIC > **ampliar stock** genera retorno inmediato; el cuadrante **abajo-izquierda** concentra
 # MAGIC > inventario que **no rota ni deja margen** → candidato a reducir o reubicar.
 
@@ -851,7 +851,7 @@ plt.tight_layout(); plt.show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight:** `rental_price` correlaciona sobre todo con `rental_days` (el precio se
+# MAGIC > **Insight:** `rental_price` correlaciona sobre todo con `rental_days` (el precio se
 # MAGIC > construye por duración); `maintenance_cost` con `product_age`; y `review_score`
 # MAGIC > negativamente con averías/retrasos. Ninguna correlación espuria fuerte → variables
 # MAGIC > listas para modelar.
@@ -921,7 +921,7 @@ display(spread.round(0))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Lectura (Pricing):** el precio/día **no es plano**: se mueve con la temporada y el mapa dibuja **tres perfiles** claros.
+# MAGIC > **Lectura (Pricing):** el precio/día **no es plano**: se mueve con la temporada y el mapa dibuja **tres perfiles** claros.
 # MAGIC >
 # MAGIC > | Perfil | Categorías | Variación estacional |
 # MAGIC > |--------|-----------|----------------------|
@@ -1097,7 +1097,7 @@ display(coefs.loc[["rental_days"] +
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight (OLS):** cada **día adicional** de alquiler añade un incremento de precio
+# MAGIC > **Insight (OLS):** cada **día adicional** de alquiler añade un incremento de precio
 # MAGIC > estable y muy significativo, y las categorías de **nieve** llevan el mayor *premium*
 # MAGIC > respecto a la base. El modelo explica una parte alta de la varianza → el pricing actual
 # MAGIC > es **coherente y predecible**, buena base para automatizarlo.
@@ -1130,7 +1130,7 @@ display(odds.round(3))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight (Logit):** ser socio **Premium/Gold** reduce de forma significativa la
+# MAGIC > **Insight (Logit):** ser socio **Premium/Gold** reduce de forma significativa la
 # MAGIC > probabilidad de cancelar (odds ratio < 1), mientras un **lead time largo** la aumenta
 # MAGIC > (más margen para arrepentirse). Palancas claras: **empujar membresía** y **acortar la
 # MAGIC > ventana reserva–uso** (recordatorios, prepago parcial).
@@ -1158,7 +1158,7 @@ print(f"\nDiferencia de proporciones: z = {z:.2f}, p-value = {pval:.2e}")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC > **💡 Insight (IC):** la diferencia es **estadísticamente significativa** y los intervalos
+# MAGIC > **Insight (IC):** la diferencia es **estadísticamente significativa** y los intervalos
 # MAGIC > de confianza **no se solapan**: convertir a un cliente a Premium/Gold reduce su
 # MAGIC > cancelación de forma real, no por azar. Esto **cuantifica el ROI** de la membresía en
 # MAGIC > términos de ingresos protegidos.
@@ -1329,21 +1329,21 @@ display(flagged.loc[flagged["is_anomaly"], ["product_name", "category"] + feats]
 # MAGIC
 # MAGIC | Pieza | Estado | Dónde |
 # MAGIC |-------|--------|-------|
-# MAGIC | **Arquitectura medallion** | ✅ Hecho | `staging` → `intermediate` → `marts` en Unity Catalog |
-# MAGIC | **Transformación en dbt** | ✅ Hecho | 17 modelos versionados en `databricks/dbt` |
-# MAGIC | **Tests de calidad** | ✅ Hecho | 46 tests: `unique`, `not_null`, `relationships`, `accepted_values` + 3 singulares de negocio |
-# MAGIC | **Catálogo de métricas** | ✅ Hecho | Cada KPI definido una sola vez en un modelo; este notebook los consume |
-# MAGIC | **Orquestación** | ✅ Hecho | Job de Databricks con dependencias entre capas y puerta de calidad |
-# MAGIC | **Documentación y linaje** | ✅ Hecho | `dbt docs generate` → DAG navegable |
-# MAGIC | **Reproducibilidad** | ✅ Hecho | Orden total en la deduplicación: dos ejecuciones dan tablas idénticas (verificado con hash MD5 en dos motores) |
-# MAGIC | **Data Contracts** | ⬜ Pendiente | Esquema + expectativas + SLA acordados con el equipo productor |
-# MAGIC | **CI/CD** | ⬜ Pendiente | `dbt build` en cada PR, despliegue por entornos (dev/pre/prod) |
-# MAGIC | **Alertas automáticas** | ⬜ Pendiente | Notificar si el Data Trust Score baja del umbral; *freshness checks* |
-# MAGIC | **Consumo en BI** | ⬜ Pendiente | Dashboards sobre las tablas Gold (Databricks SQL / Tableau) |
+# MAGIC | **Arquitectura medallion** | Hecho | `staging` → `intermediate` → `marts` en Unity Catalog |
+# MAGIC | **Transformación en dbt** | Hecho | 17 modelos versionados en `databricks/dbt` |
+# MAGIC | **Tests de calidad** | Hecho | 46 tests: `unique`, `not_null`, `relationships`, `accepted_values` + 3 singulares de negocio |
+# MAGIC | **Catálogo de métricas** | Hecho | Cada KPI definido una sola vez en un modelo; este notebook los consume |
+# MAGIC | **Orquestación** | Hecho | Job de Databricks con dependencias entre capas y puerta de calidad |
+# MAGIC | **Documentación y linaje** | Hecho | `dbt docs generate` → DAG navegable |
+# MAGIC | **Reproducibilidad** | Hecho | Orden total en la deduplicación: dos ejecuciones dan tablas idénticas (verificado con hash MD5 en dos motores) |
+# MAGIC | **Data Contracts** | Pendiente | Esquema + expectativas + SLA acordados con el equipo productor |
+# MAGIC | **CI/CD** | Pendiente | `dbt build` en cada PR, despliegue por entornos (dev/pre/prod) |
+# MAGIC | **Alertas automáticas** | Pendiente | Notificar si el Data Trust Score baja del umbral; *freshness checks* |
+# MAGIC | **Consumo en BI** | Pendiente | Dashboards sobre las tablas Gold (Databricks SQL / Tableau) |
 # MAGIC
 # MAGIC ### Lo que este notebook demuestra sobre la arquitectura
 # MAGIC
-# MAGIC Fíjate en lo que **no** hay en estas celdas: ni una sola regla de limpieza, ni una
+# MAGIC Lo relevante es lo que **no** hay en estas celdas: ni una sola regla de limpieza, ni una
 # MAGIC definición de KPI, ni un `CASE WHEN` de negocio. Todo eso vive aguas arriba, testeado y
 # MAGIC versionado. El notebook es una **capa de consumo**: si mañana cambia la definición de
 # MAGIC *Occupancy*, se cambia en un modelo dbt y este análisis, el dashboard y cualquier query
