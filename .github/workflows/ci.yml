@@ -44,6 +44,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt -c constraints.txt
+          # nbconvert solo hace falta para validar el notebook, por eso no esta en
+          # requirements.txt. Ojo: constraints.txt fija su version pero NO lo
+          # instala; un fichero de constraints limita, no anade.
+          python -m pip install nbconvert -c constraints.txt
+          # El notebook declara el kernel "python3": hay que registrarlo para que
+          # jupyter_client lo encuentre al ejecutarlo headless.
+          python -m ipykernel install --user --name python3 --display-name "Python 3"
+
+      - name: Comprobar el entorno
+        run: |
+          python -m nbconvert --version
+          jupyter kernelspec list
 
       # --- 1. Reproducibilidad del generador -------------------------------
       # Dos pasadas tienen que dar ficheros identicos (contrato de la semilla),
