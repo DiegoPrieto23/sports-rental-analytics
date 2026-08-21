@@ -42,6 +42,19 @@ clean and the notebook executes with zero error outputs. After any code change, 
 both commands above. To confirm the notebook has no error cells, read it back with
 `nbformat` and count outputs where `output_type == "error"` (should be 0).
 
+`.github/workflows/ci.yml` runs exactly those checks on every push. Two things it relies on:
+
+- **`constraints.txt` pins the versions that produced the committed CSVs.** Byte-identical
+  regeneration only holds within the same numpy/pandas/faker. CI installs with
+  `pip install -r requirements.txt -c constraints.txt`. Bumping a pin is a deliberate act:
+  update it, regenerate, review the diff, commit data and pin together.
+- **`docs/` is the GitHub Pages root, so Pages serves the *committed* HTML.** Editing
+  `docs/report/*` without re-running `build_report.py` silently ships a stale dashboard;
+  CI compares a fresh build against the committed one to catch it. That comparison
+  normalizes `meta.generated` (the `datetime.now()` at
+  `build_report.py`, ~line 363) — the only non-deterministic byte in the build. If you add
+  another wall-clock or random value to the payload, that check starts failing daily.
+
 ## Reproducibility contract (critical)
 
 `generate_dataset.py` is fully deterministic via a single `numpy.random.Generator`

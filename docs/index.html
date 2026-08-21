@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sports Rental · Analytics Engineering</title>
+<meta name="description" content="Dataset sintético y análisis de negocio del alquiler de material deportivo de un retailer europeo: generador determinista, notebook, pipeline dbt e informe interactivo.">
+
+<!-- Tarjeta al compartir el enlace (LinkedIn, Slack, X). Las URL deben ser
+     absolutas: un enlace relativo no se resuelve en el previsualizador. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sports Rental · Analytics Engineering">
+<meta property="og:description" content="77.231 alquileres sintéticos, de la generación del dato al informe interactivo. Ocho páginas, seis filtros cruzados y regresiones que se recalculan sobre la selección.">
+<meta property="og:url" content="https://diegoprieto23.github.io/sports-rental-analytics/">
+<meta property="og:image" content="https://diegoprieto23.github.io/sports-rental-analytics/img/informe.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+/* Mismos tokens que el informe: la portada y el cuadro de mando tienen que
+   leerse como la misma pieza. Paleta claro/oscuro por `prefers-color-scheme`. */
+:root {
+  color-scheme: light;
+  --plane: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e;
+  --muted: #898781; --grid: #e1e0d9; --hairline: rgba(11,11,11,0.10);
+  --s1: #0082C3;
+  --shadow: 0 1px 2px rgba(11,11,11,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+    --muted: #898781; --grid: #2c2c2a; --hairline: rgba(255,255,255,0.10);
+    --s1: #1f9fdb;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 56px 20px 72px; }
+
+h1 { margin: 0; font-size: 30px; font-weight: 650; letter-spacing: -.015em; text-wrap: balance; }
+.sub { margin: 10px 0 0; color: var(--ink-2); font-size: 16px; max-width: 62ch; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px;
+  padding: 3px 10px; border: 1px solid var(--hairline); border-radius: 999px;
+  font-size: 12px; color: var(--ink-2); background: var(--surface);
+}
+
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 34px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  border-radius: 9px; padding: 10px 18px; font-size: 14.5px; font-weight: 550;
+  border: 1px solid var(--hairline); background: var(--surface); color: var(--ink);
+  transition: border-color .15s, transform .15s;
+}
+.btn:hover { border-color: var(--s1); transform: translateY(-1px); }
+.btn.primary { background: var(--s1); border-color: var(--s1); color: #fff; }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+.shot { display: block; margin: 0 0 40px; border-radius: 12px; overflow: hidden;
+        border: 1px solid var(--hairline); box-shadow: var(--shadow); }
+.shot img { display: block; width: 100%; height: auto; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 11px; padding: 16px 17px;
+}
+.card h2 { margin: 0 0 6px; font-size: 14.5px; font-weight: 620; }
+.card p { margin: 0; font-size: 13.3px; color: var(--ink-2); }
+
+.facts { display: flex; flex-wrap: wrap; gap: 30px; margin: 40px 0 8px;
+         padding-top: 26px; border-top: 1px solid var(--grid); }
+.fact .k { font-size: 22px; font-weight: 620; letter-spacing: -.01em;
+           font-variant-numeric: tabular-nums; }
+.fact .v { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--grid);
+         font-size: 13px; color: var(--muted); }
+footer a { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="badge">Datos 100 % sintéticos</span>
+  <h1>Sports Rental — Analytics Engineering</h1>
+  <p class="sub">
+    Simulación y análisis del negocio de alquiler de material deportivo de un retailer
+    europeo: del generador de datos al cuadro de mando, pasando por la calidad del dato,
+    el modelado en dbt y la estadística.
+  </p>
+
+  <div class="cta">
+    <a class="btn primary" href="informe.html">Abrir el informe interactivo →</a>
+    <a class="btn" href="https://github.com/DiegoPrieto23/sports-rental-analytics">Ver el repositorio</a>
+  </div>
+
+  <a class="shot" href="informe.html" aria-label="Abrir el informe interactivo">
+    <img src="img/informe.png"
+         alt="Informe interactivo: mapa de negocio por país y ciudad, con filtros cruzados y panel de ranking">
+  </a>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Generador determinista</h2>
+      <p>Cuatro CSV con relaciones causales entre variables y problemas de calidad
+         inyectados a propósito. Semilla fija: dos ejecuciones dan ficheros idénticos.</p>
+    </div>
+    <div class="card">
+      <h2>Análisis de principio a fin</h2>
+      <p>Calidad del dato → KPIs → SQL → EDA → estadística → recomendaciones, en un
+         notebook que ejecuta sin errores de arriba abajo.</p>
+    </div>
+    <div class="card">
+      <h2>Industrialización en dbt</h2>
+      <p>17 modelos en capas staging → intermediate → marts, con 46 tests y los jobs
+         encadenados sobre Databricks.</p>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><div class="k">77.231</div><div class="v">alquileres analizados</div></div>
+    <div class="fact"><div class="k">8</div><div class="v">páginas del informe</div></div>
+    <div class="fact"><div class="k">6</div><div class="v">filtros cruzados</div></div>
+    <div class="fact"><div class="k">1</div><div class="v">fichero, sin servidor ni CDN</div></div>
+  </div>
+
+  <footer>
+    Proyecto de portfolio de <a href="https://github.com/DiegoPrieto23">Diego Prieto</a>.
+    Ningún dato corresponde a clientes, productos o tiendas reales.
+  </footer>
+
+</div>
+</body>
+</html>

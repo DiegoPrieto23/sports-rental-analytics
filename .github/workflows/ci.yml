@@ -1,0 +1,134 @@
+# Verifica de punta a punta las tres promesas del proyecto:
+#   1. el generador es reproducible byte a byte y el dataset commiteado sale de el;
+#   2. el notebook ejecuta entero sin una sola celda en error;
+#   3. las cifras del informe cuadran con pandas/scipy/statsmodels y sus 8 paginas
+#      renderizan bajo cualquier filtro.
+#
+# No hay framework de tests: "pasar" significa exactamente lo de arriba, que es lo
+# que se comprueba aqui igual que se comprobaria a mano.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: Dataset, notebook e informe
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -c constraints.txt
+
+      # --- 1. Reproducibilidad del generador -------------------------------
+      # Dos pasadas tienen que dar ficheros identicos (contrato de la semilla),
+      # y el resultado tiene que coincidir con los CSV que hay en el repositorio.
+      - name: Generar el dataset
+        run: python generate_dataset.py
+
+      - name: Huellas de la primera pasada
+        run: sha256sum output/*.csv output/README.md | tee /tmp/huellas.txt
+
+      - name: Regenerar y comprobar que es determinista
+        run: |
+          python generate_dataset.py
+          sha256sum -c /tmp/huellas.txt
+
+      - name: El dataset commiteado coincide con el generador
+        run: |
+          if ! git diff --exit-code --stat -- output/; then
+            echo "::error::output/ no coincide con lo que produce generate_dataset.py."
+            echo "Suele ser una subida de numpy/pandas/faker: regenera, revisa el diff"
+            echo "y sube los CSV junto con el pin nuevo en constraints.txt."
+            exit 1
+          fi
+
+      # --- 2. El notebook ejecuta limpio -----------------------------------
+      - name: Ejecutar el notebook de principio a fin
+        env:
+          MPLBACKEND: Agg          # sin display en el runner
+          PYTHONUTF8: '1'
+        run: |
+          python -m nbconvert --to notebook --execute \
+            --ExecutePreprocessor.timeout=600 \
+            --output-dir /tmp --output ejecutado.ipynb \
+            rental_analysis.ipynb
+
+      - name: Ninguna celda termino en error
+        run: |
+          python - <<'PY'
+          import json, sys
+          nb = json.load(open("/tmp/ejecutado.ipynb", encoding="utf-8"))
+          errores = [
+              (i, o.get("ename"), o.get("evalue"))
+              for i, c in enumerate(nb["cells"])
+              for o in c.get("outputs", [])
+              if o.get("output_type") == "error"
+          ]
+          for i, name, val in errores:
+              print(f"::error::celda {i}: {name}: {val}")
+          print(f"celdas de codigo: {sum(c['cell_type'] == 'code' for c in nb['cells'])}")
+          print(f"celdas en error : {len(errores)}")
+          sys.exit(1 if errores else 0)
+          PY
+
+      # --- 3. El informe: cifras y renderizado ------------------------------
+      - name: Reconstruir el informe
+        run: python docs/build_report.py
+
+      # GitHub Pages sirve el HTML COMMITEADO, no el que se acaba de construir:
+      # si alguien toca docs/report/* y no reconstruye, la web se queda vieja sin
+      # que nada chille. Esto lo detecta.
+      - name: El informe commiteado esta al dia
+        run: |
+          python - <<'PY'
+          import re, subprocess, sys
+
+          # El payload lleva la fecha de compilacion, lo unico no determinista del
+          # build. Cambia cada dia y no dice nada sobre si el informe esta al dia
+          # con sus fuentes, asi que se normaliza en ambos lados antes de comparar.
+          norm = lambda s: re.sub(r'"generated":"[^"]*"', '"generated":"-"',
+                                  s.replace("\r\n", "\n"))
+
+          nuevo = open("docs/informe.html", encoding="utf-8").read()
+          viejo = subprocess.run(
+              ["git", "show", "HEAD:docs/informe.html"],
+              capture_output=True, text=True, encoding="utf-8", check=True).stdout
+
+          if norm(nuevo) != norm(viejo):
+              print("::error::docs/informe.html no coincide con docs/report/*. "
+                    "Ejecuta 'python docs/build_report.py' y sube el resultado.")
+              sys.exit(1)
+          print("El informe commiteado coincide con sus fuentes.")
+          PY
+
+      - name: Contrastar las cifras con pandas, scipy y statsmodels
+        run: python docs/verify_report.py
+
+      - name: Renderizar las 8 paginas bajo 4 escenarios de filtro
+        run: node docs/test_render.js

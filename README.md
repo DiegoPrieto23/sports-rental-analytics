@@ -1,7 +1,12 @@
 # Sports Rental — Dataset sintético y análisis de negocio
 
+[![CI](https://github.com/DiegoPrieto23/sports-rental-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/DiegoPrieto23/sports-rental-analytics/actions/workflows/ci.yml)
+[![Informe en vivo](https://img.shields.io/badge/informe-en%20vivo-0082C3)](https://diegoprieto23.github.io/sports-rental-analytics/informe.html)
+
+### 👉 [Abrir el informe interactivo](https://diegoprieto23.github.io/sports-rental-analytics/informe.html)
+
 Proyecto de **Analytics Engineering** que simula y analiza el negocio de **alquiler de
-material deportivo (Rental)** de un retailer europeo. Consta de dos piezas:
+material deportivo (Rental)** de un retailer europeo. Consta de tres piezas:
 
 1. **Generador de datos** (`generate_dataset.py`) — crea un dataset sintético realista,
    con relaciones lógicas entre variables y problemas de calidad introducidos a propósito.
@@ -23,8 +28,10 @@ material deportivo (Rental)** de un retailer europeo. Consta de dos piezas:
   <img src="docs/img/informe.png" alt="Informe interactivo: mapa de negocio por país y ciudad, con filtros cruzados" width="900">
 </p>
 
-`docs/informe.html` es un cuadro de mando autocontenido: **un solo fichero de 1,17 MB, sin
-servidor, sin CDN y sin dependencias**. Se abre con doble clic, también sin conexión.
+Publicado en **[GitHub Pages](https://diegoprieto23.github.io/sports-rental-analytics/)**, o
+descargable para abrirlo en local: `docs/informe.html` es un cuadro de mando autocontenido,
+**un solo fichero de 1,17 MB, sin servidor, sin CDN y sin dependencias**. Se abre con doble
+clic, también sin conexión.
 
 Las **77.231 filas** de la tabla de hechos limpia viajan dentro del HTML en columnas
 binarias comprimidas (≈960 KB en base64), no preagregadas, de modo que **cualquier
@@ -78,6 +85,25 @@ para garantizar que ninguna lanza una excepción, incluida la selección sin res
 ejecutarlo si cambia la ventana del mapa o la lista de países con negocio: su salida
 (`docs/report/03b_geo.js`) está versionada, de modo que el build funciona sin red.
 
+### Integración continua
+
+En cada push, [GitHub Actions](.github/workflows/ci.yml) reproduce el proyecto entero y
+falla si alguna de sus tres promesas deja de cumplirse:
+
+| Se comprueba | Cómo |
+|---|---|
+| El generador es determinista | Dos pasadas seguidas producen ficheros con el mismo SHA-256 |
+| Los CSV del repo salen de ese generador | `git diff` sobre `output/` después de regenerar |
+| El notebook ejecuta limpio | `nbconvert --execute` y recuento de celdas con `output_type == "error"` |
+| El informe publicado está al día | Se reconstruye y se compara con el commiteado (Pages sirve el fichero versionado, no el recién construido) |
+| Las cifras siguen cuadrando | `verify_report.py` contra pandas, scipy y statsmodels |
+| Las 8 páginas renderizan | `test_render.js` sobre 4 escenarios de filtro |
+
+La reproducibilidad byte a byte solo se sostiene **dentro de las mismas versiones** de
+numpy, pandas y faker, así que el CI instala con `-c constraints.txt`, que las clava a las
+que generaron los datos del repositorio. Si un día hay que subirlas, la secuencia es
+consciente: actualizar el pin, regenerar, revisar el diff y commitear ambas cosas.
+
 Las cifras del informe son las mismas que las del notebook: 5.420.621,79 € de ingresos,
 75,90 € de ticket medio, 5,525 % de cancelación y un Data Trust Score de 96,12.
 
@@ -130,7 +156,10 @@ sports-rental-analytics/
 ├── generate_dataset.py                  # Generador del dataset sintético
 ├── rental_analysis.ipynb                # Notebook de análisis local (VSCode / Jupyter)
 ├── requirements.txt                     # Dependencias del proyecto
+├── constraints.txt                      # Versiones exactas que fijan la reproducibilidad
 ├── README.md                            # Este archivo
+│
+├── .github/workflows/ci.yml             # CI: dataset, notebook e informe en cada push
 │
 ├── output/                              # Salida del generador (se crea al ejecutar)
 │   ├── customers.csv                    # Dimensión de clientes
@@ -139,7 +168,8 @@ sports-rental-analytics/
 │   ├── rentals.csv                      # Tabla de hechos de alquileres
 │   └── README.md                        # Diccionario de datos + KPIs (autogenerado)
 │
-├── docs/
+├── docs/                                # Raíz de GitHub Pages
+│   ├── index.html                       # Portada publicada del proyecto
 │   ├── informe.html                     # Informe interactivo (se abre con doble clic)
 │   ├── build_report.py                  # Ensambla el informe desde los CSV y report/
 │   ├── verify_report.py                 # Contrasta sus cifras con pandas y statsmodels

@@ -1,0 +1,27 @@
+# Versiones EXACTAS con las que se generaron los CSV versionados en output/ y el
+# informe de docs/. `requirements.txt` deja rangos abiertos para el uso diario;
+# este fichero los clava para la integracion continua.
+#
+#     python -m pip install -r requirements.txt -c constraints.txt
+#
+# Por que hace falta: `generate_dataset.py` es reproducible byte a byte con una
+# semilla fija, pero esa garantia solo vale DENTRO de las mismas versiones de
+# numpy, pandas y faker. Una subida de faker cambia las cadenas generadas y el
+# dataset deja de coincidir con el que esta commiteado. Si eso pasa, la decision
+# es consciente: regenerar, revisar el diff y subir tanto los CSV como el pin.
+
+numpy==2.2.0
+pandas==2.2.3
+faker==40.32.0
+
+scipy==1.14.1
+statsmodels==0.14.6
+duckdb==1.5.5
+matplotlib==3.10.0
+seaborn==0.13.2
+plotly==6.9.0
+scikit-learn==1.6.0
+
+# Ejecucion headless del notebook en CI (no la usa el proyecto en local salvo
+# para validar, por eso no esta en requirements.txt).
+nbconvert==7.17.1
