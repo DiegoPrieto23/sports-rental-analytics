@@ -1,8 +1,5 @@
 # Sports Rental — Dataset sintético y análisis de negocio
 
-[![CI](https://github.com/DiegoPrieto23/sports-rental-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/DiegoPrieto23/sports-rental-analytics/actions/workflows/ci.yml)
-[![Informe en vivo](https://img.shields.io/badge/informe-en%20vivo-0082C3)](https://diegoprieto23.github.io/sports-rental-analytics/informe.html)
-
 ### 👉 [Abrir el informe interactivo](https://diegoprieto23.github.io/sports-rental-analytics/informe.html)
 
 Proyecto de **Analytics Engineering** que simula y analiza el negocio de **alquiler de
