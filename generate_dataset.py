@@ -82,7 +82,7 @@ SEASONS = ["Winter", "Spring", "Summer", "Autumn"]
 # Cada categoría concentra en un único diccionario todos los parámetros que
 # gobiernan su comportamiento: estacionalidad, precio base/día, rango de
 # precio de compra, duración típica de alquiler, intensidad de desgaste,
-# lead time medio de reserva, submarcas del retailer y vocabulario de modelo.
+# lead time medio de reserva, submarcas propias y vocabulario de modelo.
 #
 # `seasonal_weights` son pesos relativos de demanda por estación; se
 # normalizan al muestrear y también derivan el factor estacional de precio.
@@ -96,7 +96,7 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 2,
         "damage_intensity": 0.80,
         "lead_time_mean": 4,
-        "brands": ["Btwin", "Rockrider", "Van Rysel", "Elops"],
+        "brands": ["Veloq", "Terrano", "Corsa", "Urbano"],
         "models": ["MTB", "Trail", "Road", "City", "E-Bike", "Gravel"],
     },
     "Esquí": {
@@ -107,7 +107,7 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 4,
         "damage_intensity": 0.70,
         "lead_time_mean": 22,
-        "brands": ["Wedze"],
+        "brands": ["Nevado"],
         "models": ["Boost", "Cross", "Freeride", "Piste", "AllMountain"],
     },
     "Snowboard": {
@@ -118,8 +118,8 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 4,
         "damage_intensity": 0.90,
         "lead_time_mean": 18,
-        "brands": ["Dreamscape"],
-        "models": ["Endzone", "Park", "Powder", "AllRound"],
+        "brands": ["Driftline"],
+        "models": ["Carve", "Park", "Powder", "AllRound"],
     },
     "Paddle Surf": {
         "sport": "Paddle Surf",
@@ -129,7 +129,7 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 2,
         "damage_intensity": 0.40,
         "lead_time_mean": 6,
-        "brands": ["Itiwit"],
+        "brands": ["Aquia"],
         "models": ["Touring", "Race", "Inflatable", "Compact"],
     },
     "Kayak": {
@@ -140,7 +140,7 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 2,
         "damage_intensity": 0.50,
         "lead_time_mean": 7,
-        "brands": ["Itiwit"],
+        "brands": ["Aquia"],
         "models": ["Sit-On", "Touring", "Whitewater", "Tandem"],
     },
     "Camping": {
@@ -151,8 +151,8 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 4,
         "damage_intensity": 0.50,
         "lead_time_mean": 12,
-        "brands": ["Quechua", "Forclaz"],
-        "models": ["2Seconds", "MH100", "Trek900", "Arpenaz", "Base"],
+        "brands": ["Bivac", "Nomada"],
+        "models": ["QuickTent", "CT100", "Trail900", "Sendero", "Base"],
     },
     "Escalada": {
         "sport": "Escalada",
@@ -162,8 +162,8 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 2,
         "damage_intensity": 0.60,
         "lead_time_mean": 5,
-        "brands": ["Simond"],
-        "models": ["Rock", "Edge", "Vertika", "Cliff"],
+        "brands": ["Granit"],
+        "models": ["Rock", "Edge", "Ascent", "Cliff"],
     },
     "Running": {
         "sport": "Running",
@@ -173,8 +173,8 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 1,
         "damage_intensity": 0.20,
         "lead_time_mean": 2,
-        "brands": ["Kiprun", "Kalenji"],
-        "models": ["KD500", "Run", "Support", "Comfort"],
+        "brands": ["Zancada", "Pulso"],
+        "models": ["RN500", "Run", "Support", "Comfort"],
     },
     "Fitness": {
         "sport": "Fitness",
@@ -184,7 +184,7 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 6,
         "damage_intensity": 0.30,
         "lead_time_mean": 5,
-        "brands": ["Domyos", "Corength"],
+        "brands": ["Corpus", "Ferra"],
         "models": ["Home", "Bench", "Rower", "Elliptical", "Weights"],
     },
     "Raquetas": {
@@ -195,8 +195,8 @@ CATEGORY_CONFIG = {
         "avg_rental_days": 2,
         "damage_intensity": 0.30,
         "lead_time_mean": 3,
-        "brands": ["Artengo", "Perfly"],
-        "models": ["TR160", "Feel", "Control", "Power"],
+        "brands": ["Volea", "Smashly"],
+        "models": ["RQ160", "Feel", "Control", "Power"],
     },
 }
 
@@ -321,7 +321,7 @@ def generate_stores() -> pd.DataFrame:
             visitors = int(base_visitors * rng.lognormal(mean=0.0, sigma=0.20))
             records.append({
                 "store_id": f"S{store_seq:03d}",
-                "store_name": f"Decathlon {city} {fake.bothify('??').upper()}",
+                "store_name": f"Sportia {city} {fake.bothify('??').upper()}",
                 "city": city,
                 "country": country,
                 "store_size": size,

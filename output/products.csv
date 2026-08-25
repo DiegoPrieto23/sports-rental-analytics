@@ -1,321 +1,321 @@
 product_id,category,sport,product_name,purchase_price,replacement_cost,maintenance_interval,product_age,inventory_units
-P00001,Bicicletas,Ciclismo,Btwin City 96,812.45,1081.65,90,2.1,31
-P00002,Bicicletas,Ciclismo,Elops Road 96,597.62,720.85,45,6.6,6
-P00003,Bicicletas,Ciclismo,Rockrider City 53,1359.82,1485.03,45,5.4,10
-P00004,Bicicletas,Ciclismo,Van Rysel E-Bike 28,529.67,660.94,180,0.9,47
-P00005,Biciletas,Ciclismo,Btwin MTB 71,1386.62,1551.72,30,3.0,35
-P00006,Bicicletas,Ciclismo,Elops Trail 01,1270.22,1641.73,45,2.3,57
-P00007,Bicicletas,Ciclismo,Elops Gravel 22,845.33,952.51,45,0.4,14
-P00008,Bicicletas,Ciclismo,Btwin Gravel 69,737.38,993.78,30,7.1,46
-P00009,Bicicletas,Ciclismo,Rockrider Trail 16,1356.15,1635.05,30,5.3,47
-P00010,Bicicletas,Ciclismo,Van Rysel E-Bike 69,654.44,705.71,60,7.5,19
-P00011,Bicicletas,Ciclismo,Btwin E-Bike 78,475.31,516.58,180,1.4,13
-P00012,Bicicletas,Ciclismo,Btwin Trail 48,959.17,1258.78,45,6.2,22
-P00013,Bicicletas,Ciclismo,Rockrider MTB 01,1461.97,1754.69,180,1.8,5
-P00014,Bicicletas,Ciclismo,Elops MTB 84,327.96,411.03,45,5.6,32
-P00015,Bicicletas,Ciclismo,Elops E-Bike 51,934.51,1037.24,30,5.9,44
-P00016,Bicicletas,Ciclismo,Van Rysel Gravel 46,326.93,355.41,30,2.4,26
-P00017,Bicicletas,Ciclismo,Rockrider Gravel 27,809.59,1011.06,90,7.4,20
-P00018,Bicicletas,Ciclismo,Btwin City 04,183.56,223.31,180,1.1,10
-P00019,Bicicletas,Ciclismo,Btwin City 82,715.8,959.08,45,6.4,56
-P00020,Bicicletas,Ciclismo,Elops MTB 81,780.97,1003.88,90,6.6,11
-P00021,Bicicletas,Ciclismo,Rockrider City 48,1225.7,1372.53,120,6.9,38
-P00022,Bicicletas,Ciclismo,Btwin Road 93,964.19,1131.74,180,5.2,28
-P00023,Bicicletas,Ciclismo,Van Rysel Trail 25,1321.11,1567.06,45,6.0,18
-P00024,Bicicletas,Ciclismo,Elops MTB 28,1252.37,1354.54,60,1.2,37
-P00025,Bicicletas,Ciclismo,Elops MTB 80,1263.3,1444.08,180,1.3,55
-P00026,Bicicletas,Ciclismo,Rockrider MTB 95,534.37,585.71,90,0.4,6
-P00027,Bicicletas,Ciclismo,Rockrider City 70,385.77,411.24,90,3.1,42
-P00028,Bicicletas,Ciclismo,Van Rysel Gravel 15,579.29,695.93,120,0.3,51
-P00029,Bicicletas,Ciclismo,Btwin Trail 43,395.02,442.83,90,3.3,36
-P00030,Bicicletas,Ciclismo,Elops City 03,216.49,251.58,180,6.7,10
-P00031,Bicicletas,Ciclismo,Van Rysel MTB 91,220.15,292.24,180,7.2,51
-P00032,Bicicletas,Ciclismo,Van Rysel E-Bike 17,1472.42,1900.32,90,6.2,40
-P00033,Biciletas,Ciclismo,Rockrider City 18,331.65,401.57,180,3.7,52
-P00034,Bicicletas,Ciclismo,Btwin Trail 22,669.87,831.89,30,3.8,12
-P00035,Bicicletas,Ciclismo,Rockrider Road 78,712.8,798.17,90,2.6,25
-P00036,Bicicletas,Ciclismo,Btwin Trail 24,662.28,831.64,120,7.3,57
-P00037,Bicicletas,Ciclismo,Rockrider City 89,799.23,917.92,180,5.2,51
-P00038,Bicicletas,Ciclismo,Elops City 63,1235.93,1495.25,30,5.9,20
-P00039,Biciletas,Ciclismo,Van Rysel Gravel 83,423.25,532.63,180,4.9,12
-P00040,Esquí,Esquí Alpino,Wedze Boost 46,562.86,605.27,90,1.1,56
-P00041,Esquí,Esquí Alpino,Wedze Freeride 57,679.44,876.66,90,6.3,59
-P00042,Esquí,Esquí Alpino,Wedze Piste 87,673.01,757.82,120,0.8,37
-P00043,Esquí,Esquí Alpino,Wedze Boost 13,508.08,559.59,90,4.6,31
-P00044,Esquí,Esquí Alpino,Wedze Freeride 31,461.32,590.11,180,3.9,48
-P00045,Esquí,Esquí Alpino,Wedze AllMountain 50,499.8,664.42,30,0.9,44
-P00046,Esquí,Esquí Alpino,Wedze Boost 98,528.93,621.8,180,5.4,47
-P00047,esqui,Esquí Alpino,Wedze AllMountain 39,366.82,484.02,120,2.2,48
-P00048,Esquí,Esquí Alpino,Wedze Cross 30,357.22,391.97,180,7.5,13
-P00049,Esquí,Esquí Alpino,Wedze Boost 10,418.95,488.08,120,4.4,57
-P00050,Esquí,Esquí Alpino,Wedze AllMountain 31,590.15,704.53,30,7.9,25
-P00051,Esquí,Esquí Alpino,Wedze Freeride 05,558.88,746.31,30,6.8,53
-P00052,Esquí,Esquí Alpino,Wedze Piste 18,260.96,320.06,30,0.1,42
-P00053,Esquí,Esquí Alpino,Wedze Freeride 34,427.16,554.29,45,3.7,22
-P00054,Esquí,Esquí Alpino,Wedze Freeride 73,350.96,465.21,120,0.9,47
-P00055,Esquí,Esquí Alpino,Wedze Piste 82,698.52,917.69,45,6.7,7
-P00056,Esquí,Esquí Alpino,Wedze Boost 99,699.55,874.23,30,0.7,40
-P00057,esqui,Esquí Alpino,Wedze Cross 73,648.52,686.59,45,1.1,51
-P00058,Esquí,Esquí Alpino,Wedze Piste 76,299.1,395.77,45,0.3,41
-P00059,Esquí,Esquí Alpino,Wedze AllMountain 31,202.71,215.99,90,6.4,57
-P00060,Esquí,Esquí Alpino,Wedze Cross 16,624.7,666.66,120,7.4,49
-P00061,Esquí,Esquí Alpino,Wedze AllMountain 56,586.05,738.09,180,0.3,30
-P00062,Esquí,Esquí Alpino,Wedze Cross 67,262.46,315.31,90,5.0,45
-P00063,Esquí,Esquí Alpino,Wedze AllMountain 01,625.57,685.98,120,1.5,5
-P00064,Esquí,Esquí Alpino,Wedze Cross 06,554.95,745.89,120,0.4,38
-P00065,Esquí,Esquí Alpino,Wedze Cross 51,508.15,540.01,180,5.7,27
-P00066,Esquí,Esquí Alpino,Wedze Boost 33,245.86,271.69,60,3.7,58
-P00067,Esquí,Esquí Alpino,Wedze AllMountain 38,592.04,734.68,90,1.2,18
-P00068,Esquí,Esquí Alpino,Wedze AllMountain 72,350.67,429.01,90,5.2,43
-P00069,Esquí,Esquí Alpino,Wedze Freeride 62,670.3,733.66,90,3.2,55
-P00070,Esquí,Esquí Alpino,Wedze Freeride 47,259.61,283.03,180,2.4,20
-P00071,Esquí,Esquí Alpino,Wedze Freeride 31,413.95,510.52,90,3.3,13
-P00072,Esquí,Esquí Alpino,Wedze Freeride 78,308.81,378.75,90,0.3,22
-P00073,Esquí,Esquí Alpino,Wedze Boost 10,409.2,487.86,45,4.6,24
-P00074,Esquí,Esquí Alpino,Wedze Freeride 80,551.0,685.66,90,2.5,40
-P00075,Snowboard,Snowboard,Dreamscape AllRound 13,447.11,527.33,90,2.9,39
-P00076,Snowboard,Snowboard,Dreamscape Powder 26,430.73,547.46,180,7.4,51
-P00077,Snowboard,Snowboard,Dreamscape Powder 77,434.12,560.0,45,6.7,22
-P00078,Snowboard,Snowboard,Dreamscape Endzone 36,422.36,458.16,30,6.7,50
-P00079,Snow Board,Snowboard,Dreamscape Endzone 02,326.28,375.3,60,2.5,14
-P00080,Snowboard,Snowboard,Dreamscape Park 60,534.21,563.27,120,6.9,27
-P00081,Snowboard,Snowboard,Dreamscape Park 64,269.13,331.1,120,2.9,11
-P00082,Snowboard,Snowboard,Dreamscape Park 74,631.29,851.38,120,2.5,47
-P00083,Snowboard,Snowboard,Dreamscape Powder 68,517.43,603.51,180,0.1,40
-P00084,Snowboard,Snowboard,Dreamscape Park 72,294.08,355.11,30,1.3,27
-P00085,Snowboard,Snowboard,Dreamscape AllRound 34,645.11,784.96,45,7.9,51
-P00086,Snowboard,Snowboard,Dreamscape AllRound 30,263.72,312.37,60,0.6,50
-P00087,Snowboard,Snowboard,Dreamscape AllRound 98,395.2,470.6,180,1.4,13
-P00088,Snowboard,Snowboard,Dreamscape Powder 05,608.2,646.76,45,2.3,15
-P00089,Snowboard,Snowboard,Dreamscape Park 00,463.9,555.75,30,1.9,9
-P00090,Snowboard,Snowboard,Dreamscape Powder 97,579.61,719.46,90,5.4,48
-P00091,Snowboard,Snowboard,Dreamscape AllRound 88,226.15,262.33,120,2.7,34
-P00092,Snow Board,Snowboard,Dreamscape Powder 20,580.02,692.99,120,6.8,25
-P00093,Snowboard,Snowboard,Dreamscape Powder 81,609.3,747.09,30,2.7,51
-P00094,Snowboard,Snowboard,Dreamscape Powder 21,424.47,513.36,30,3.2,59
-P00095,Snowboard,Snowboard,Dreamscape AllRound 91,483.87,533.83,30,1.5,23
-P00096,Snowboard,Snowboard,Dreamscape Powder 36,211.17,280.48,60,2.5,12
-P00097,Snowboard,Snowboard,Dreamscape Powder 19,203.29,230.41,45,5.1,43
-P00098,Snowboard,Snowboard,Dreamscape AllRound 39,641.81,793.35,60,6.1,40
-P00099,Snowboard,Snowboard,Dreamscape AllRound 90,524.31,702.03,90,6.9,48
-P00100,Snowboard,Snowboard,Dreamscape AllRound 91,251.35,319.15,60,4.4,57
-P00101,Paddle Surf,Paddle Surf,Itiwit Touring 69,880.38,1184.44,45,5.9,58
-P00102,Paddle Surf,Paddle Surf,Itiwit Inflatable 98,475.22,516.64,45,6.2,7
-P00103,Paddle Surf,Paddle Surf,Itiwit Compact 54,568.3,764.74,60,7.8,18
-P00104,Paddle Surf,Paddle Surf,Itiwit Race 35,765.89,823.67,45,6.4,35
-P00105,Paddle Surf,Paddle Surf,Itiwit Touring 34,851.06,1103.63,30,3.0,57
-P00106,Paddle Surf,Paddle Surf,Itiwit Touring 62,321.03,402.12,120,6.2,44
-P00107,Paddle Surf,Paddle Surf,Itiwit Race 47,812.55,1033.43,120,0.4,54
-P00108,Paddle Surf,Paddle Surf,Itiwit Touring 51,654.23,855.36,60,4.1,5
-P00109,Paddle Surf,Paddle Surf,Itiwit Compact 07,690.24,730.88,60,7.2,38
-P00110,Paddle Surf,Paddle Surf,Itiwit Inflatable 99,404.48,528.18,90,6.8,24
-P00111,Paddle Surf,Paddle Surf,Itiwit Race 11,444.31,545.21,60,2.2,35
-P00112,Paddle Surf,Paddle Surf,Itiwit Compact 83,371.94,400.0,120,5.7,23
-P00113,Paddle Surf,Paddle Surf,Itiwit Inflatable 84,774.83,1045.73,45,3.3,34
-P00114,Paddle Surf,Paddle Surf,Itiwit Touring 25,623.67,841.5,180,4.8,43
-P00115,Paddle Surf,Paddle Surf,Itiwit Touring 13,505.04,668.97,60,1.1,10
-P00116,Paddle Surf,Paddle Surf,Itiwit Race 54,293.66,326.14,90,3.6,5
-P00117,Paddle Surf,Paddle Surf,Itiwit Race 27,662.45,763.8,60,7.7,57
-P00118,Paddle Surf,Paddle Surf,Itiwit Compact 84,601.56,682.99,60,1.9,54
-P00119,Paddle surf ,Paddle Surf,Itiwit Race 98,461.47,610.4,90,5.9,16
-P00120,Paddle Surf,Paddle Surf,Itiwit Inflatable 08,674.74,769.08,180,2.6,18
-P00121,Paddle Surf,Paddle Surf,Itiwit Touring 41,351.04,460.67,45,4.5,18
-P00122,Paddle Surf,Paddle Surf,Itiwit Compact 24,759.49,897.35,180,8.0,31
-P00123,Paddle Surf,Paddle Surf,Itiwit Inflatable 11,688.49,891.18,180,6.3,30
-P00124,Paddle Surf,Paddle Surf,Itiwit Touring 82,615.41,664.99,60,7.6,40
-P00125,Paddle Surf,Paddle Surf,Itiwit Touring 44,583.28,688.21,30,7.7,45
-P00126,Paddle surf ,Paddle Surf,Itiwit Touring 93,276.7,310.96,90,3.6,8
-P00127,Paddle Surf,Paddle Surf,Itiwit Touring 53,585.46,669.63,30,0.9,39
-P00128,Paddle Surf,Paddle Surf,Itiwit Race 48,289.34,364.41,60,2.4,16
-P00129,Paddle Surf,Paddle Surf,Itiwit Touring 74,506.18,594.75,30,0.9,27
-P00130,Paddle Surf,Paddle Surf,Itiwit Compact 01,250.8,301.57,45,2.7,31
-P00131,Paddle Surf,Paddle Surf,Itiwit Race 64,530.36,681.07,180,2.1,17
-P00132,Paddle Surf,Paddle Surf,Itiwit Race 00,407.61,486.67,180,1.8,42
-P00133,Paddle Surf,Paddle Surf,Itiwit Race 52,464.98,618.01,30,3.7,52
-P00134,Paddle surf ,Paddle Surf,Itiwit Inflatable 42,347.8,370.13,45,7.4,12
-P00135,Paddle Surf,Paddle Surf,Itiwit Compact 78,256.02,283.29,30,0.9,43
-P00136,Paddle Surf,Paddle Surf,Itiwit Inflatable 68,407.07,496.94,45,6.8,37
-P00137,Kayak,Piragüismo,Itiwit Sit-On 01,1053.37,1301.69,60,6.2,13
-P00138,Kayak,Piragüismo,Itiwit Sit-On 12,1055.49,1188.78,180,3.6,58
-P00139,Kayak,Piragüismo,Itiwit Whitewater 80,1184.65,1372.37,120,2.5,49
-P00140,Kayak,Piragüismo,Itiwit Touring 59,999.21,1229.25,45,3.3,39
-P00141,Kayak,Piragüismo,Itiwit Touring 82,278.11,294.5,120,0.2,24
-P00142,Kayak,Piragüismo,Itiwit Tandem 62,365.49,463.28,120,5.9,50
-P00143,Kayak,Piragüismo,Itiwit Touring 04,1090.02,1338.71,45,1.1,11
-P00144,Kayak,Piragüismo,Itiwit Tandem 50,893.1,984.09,90,7.9,19
-P00145,Kayak,Piragüismo,Itiwit Sit-On 53,216.58,291.93,90,1.0,37
-P00146,Kayak,Piragüismo,Itiwit Touring 31,1097.3,1441.98,90,5.0,15
-P00147,Kayak,Piragüismo,Itiwit Touring 58,250.52,307.73,30,5.3,21
-P00148,Kayak,Piragüismo,Itiwit Sit-On 69,1036.25,1093.71,90,1.9,51
-P00149,Kayak,Piragüismo,Itiwit Tandem 23,453.66,559.47,45,3.2,35
-P00150,Kayak,Piragüismo,Itiwit Tandem 22,877.62,1112.59,90,6.1,44
-P00151,Kayak,Piragüismo,Itiwit Tandem 60,619.27,745.83,180,6.4,5
-P00152,Kayak,Piragüismo,Itiwit Tandem 25,720.23,844.39,30,7.1,41
-P00153,Kayak,Piragüismo,Itiwit Touring 63,882.58,966.26,60,1.4,57
-P00154,Kayak,Piragüismo,Itiwit Tandem 42,399.54,522.48,180,1.7,23
-P00155,Kayak,Piragüismo,Itiwit Touring 16,933.49,1226.15,90,4.1,25
-P00156,Kayak,Piragüismo,Itiwit Whitewater 07,941.72,1195.36,120,4.6,29
-P00157,Kayak,Piragüismo,Itiwit Sit-On 33,1103.97,1445.84,180,0.8,48
-P00158,Kayak,Piragüismo,Itiwit Touring 75,404.4,514.83,30,7.8,59
-P00159,Kayak,Piragüismo,Itiwit Touring 43,919.31,1210.06,90,2.6,26
-P00160,Kayak,Piragüismo,Itiwit Touring 30,808.74,990.14,60,4.8,36
-P00161,Kayak,Piragüismo,Itiwit Tandem 36,667.64,740.43,60,3.2,25
-P00162,Kayak,Piragüismo,Itiwit Touring 54,331.11,363.84,120,2.7,6
-P00163,Kayak,Piragüismo,Itiwit Tandem 14,443.6,478.94,60,7.0,46
-P00164,Kayak,Piragüismo,Itiwit Tandem 58,478.11,531.0,45,4.2,8
-P00165,Kayak,Piragüismo,Itiwit Touring 68,459.44,488.64,30,7.7,31
-P00166,Kayak,Piragüismo,Itiwit Tandem 50,852.52,1021.87,30,2.0,12
-P00167,Kayak,Piragüismo,Itiwit Touring 14,964.8,1266.8,120,7.9,54
-P00168,Kayak,Piragüismo,Itiwit Whitewater 29,1182.37,1579.53,30,1.1,56
-P00169,Camping,Camping,Forclaz Base 40,358.57,386.93,120,4.3,38
-P00170,Camping,Camping,Quechua 2Seconds 19,149.27,168.07,30,4.7,51
-P00171,Camping,Camping,Forclaz MH100 65,456.97,520.4,180,6.1,27
-P00172,Camping,Camping,Forclaz Base 56,477.07,530.52,60,7.2,11
-P00173,Camping,Camping,Quechua Base 98,114.21,128.98,90,3.3,14
-P00174,Camping,Camping,Forclaz Arpenaz 16,302.92,340.35,30,7.0,51
-P00175,Camping,Camping,Forclaz MH100 93,243.23,294.13,45,1.3,18
-P00176,Camping,Camping,Quechua Arpenaz 40,567.61,747.2,45,3.9,33
-P00177,Camping,Camping,Forclaz Trek900 60,346.06,419.07,60,1.0,12
-P00178,Camping,Camping,Forclaz Base 88,574.21,685.96,30,4.4,13
-P00179,Camping,Camping,Forclaz 2Seconds 35,172.17,193.86,60,7.3,11
-P00180,Camping,Camping,Quechua Trek900 61,233.63,287.93,180,4.3,27
-P00181,Camping,Camping,Quechua Base 59,161.11,216.95,120,3.8,45
-P00182,Camping,Camping,Forclaz MH100 51,142.55,189.05,90,2.7,7
-P00183,Camping,Camping,Quechua Arpenaz 48,489.01,604.81,90,1.7,48
-P00184,Camping,Camping,Quechua Arpenaz 46,558.84,660.21,120,7.9,5
-P00185,Camping,Camping,Quechua Trek900 56,211.68,226.21,120,1.2,12
-P00186,Camping,Camping,Quechua Base 48,401.43,468.82,90,5.8,22
-P00187,Camping,Camping,Forclaz Trek900 23,308.99,385.62,30,7.6,31
-P00188,Camping,Camping,Quechua Arpenaz 66,245.07,270.35,180,0.3,51
-P00189,Camping,Camping,Forclaz Arpenaz 29,302.8,399.01,45,4.3,59
-P00190,Camping,Camping,Quechua Base 94,416.4,475.01,120,5.9,25
-P00191,Camping,Camping,Quechua Arpenaz 68,277.7,338.39,90,7.3,32
-P00192,Camping,Camping,Quechua MH100 04,286.42,356.34,120,3.5,27
-P00193,Camping,Camping,Quechua Arpenaz 43,127.94,137.86,30,5.3,41
-P00194,Camping,Camping,Forclaz 2Seconds 69,70.67,81.13,30,6.9,47
-P00195,Camping,Camping,Quechua 2Seconds 95,193.21,241.58,180,1.1,20
-P00196,Escalada,Escalada,Simond Edge 77,282.91,374.32,120,4.3,16
-P00197,Escalada,Escalada,Simond Vertika 73,292.5,390.74,90,2.0,21
-P00198,Escalada,Escalada,Simond Vertika 87,155.38,208.65,90,5.5,26
-P00199,Escalada,Escalada,Simond Vertika 21,48.36,56.58,180,4.9,24
-P00200,Escalada,Escalada,Simond Edge 48,376.94,492.36,45,4.4,22
-P00201,Escalada,Escalada,Simond Cliff 95,216.34,268.19,60,2.0,27
-P00202,Escalada,Escalada,Simond Cliff 13,372.59,485.48,180,6.0,58
-P00203,Escalada,Escalada,Simond Rock 43,315.28,403.17,60,3.7,43
-P00204,Escalada,Escalada,Simond Rock 32,272.13,309.36,45,4.7,19
-P00205,Escalada,Escalada,Simond Vertika 00,187.59,209.29,120,6.9,36
-P00206,Escalada,Escalada,Simond Rock 37,42.7,49.14,60,6.7,48
-P00207,Escalada,Escalada,Simond Vertika 91,89.8,115.15,30,3.1,29
-P00208,Escalada,Escalada,Simond Cliff 76,109.33,119.85,30,5.0,28
-P00209,Escalada,Escalada,Simond Vertika 93,375.84,505.22,30,1.1,37
-P00210,Escalada,Escalada,Simond Cliff 67,137.43,180.78,45,0.9,41
-P00211,Escalada,Escalada,Simond Rock 63,339.71,374.67,60,4.4,18
-P00212,Escalada,Escalada,Simond Vertika 20,287.02,357.57,30,8.0,59
-P00213,Escalada,Escalada,Simond Vertika 16,225.93,243.68,120,7.8,22
-P00214,Escalada,Escalada,Simond Edge 32,206.04,242.6,45,5.4,7
-P00215,Escalada,Escalada,Simond Vertika 87,167.2,215.06,120,6.6,56
-P00216,Escalada,Escalada,Simond Edge 08,155.76,198.54,120,3.9,49
-P00217,Escalada,Escalada,Simond Vertika 31,361.49,395.17,180,0.8,22
-P00218,Escalada,Escalada,Simond Rock 72,232.18,248.49,90,0.0,7
-P00219,Escalada,Escalada,Simond Rock 78,197.07,252.72,30,5.2,46
-P00220,Escalada,Escalada,Simond Cliff 89,100.48,109.93,30,6.6,52
-P00221,Escalada,Escalada,Simond Rock 57,234.02,303.23,30,3.2,35
-P00222,Escalada,Escalada,Simond Vertika 98,132.68,169.26,45,6.0,32
-P00223,Running,Running,Kiprun Support 68,98.86,110.3,45,6.0,57
-P00224,Running,Running,Kiprun KD500 72,53.76,59.29,45,6.6,8
-P00225,RUNNING,Running,Kiprun Comfort 77,198.46,216.55,90,3.6,55
-P00226,Running,Running,Kiprun Comfort 43,180.01,241.7,180,1.5,38
-P00227,Running,Running,Kiprun Run 48,144.97,164.79,120,4.5,46
-P00228,Running,Running,Kalenji Run 73,172.57,217.98,30,0.4,56
-P00229,Running,Running,Kalenji Run 47,117.79,132.87,60,6.1,10
-P00230,Running,Running,Kalenji Comfort 14,129.8,151.3,45,4.2,13
-P00231,Running,Running,Kiprun Comfort 34,130.26,163.22,30,0.0,5
-P00232,Running,Running,Kiprun Comfort 55,183.12,227.78,45,7.1,10
-P00233,Running,Running,Kiprun Run 81,116.17,154.58,30,1.7,31
-P00234,Running,Running,Kalenji KD500 22,71.28,89.38,45,0.8,27
-P00235,Running,Running,Kiprun KD500 36,107.64,118.71,30,6.9,14
-P00236,Running,Running,Kiprun Support 23,97.72,104.23,60,2.1,56
-P00237,Running,Running,Kalenji KD500 16,72.86,95.92,180,0.8,46
-P00238,Running,Running,Kiprun Run 65,58.45,72.24,30,6.8,57
-P00239,Running,Running,Kalenji KD500 87,171.17,206.74,180,0.4,16
-P00240,Running,Running,Kiprun KD500 60,91.83,122.56,90,6.4,55
-P00241,Running,Running,Kiprun Support 36,196.58,235.82,60,7.8,57
-P00242,Running,Running,Kiprun Run 69,103.6,126.95,30,2.6,16
-P00243,Running,Running,Kiprun KD500 09,56.53,74.05,90,2.9,41
-P00244,Running,Running,Kiprun Run 67,109.04,135.2,180,7.5,45
-P00245,RUNNING,Running,Kiprun Comfort 05,92.68,109.85,90,3.7,21
-P00246,Running,Running,Kalenji Comfort 46,128.7,147.52,60,3.0,34
-P00247,Running,Running,Kiprun Comfort 68,66.57,84.34,60,1.7,47
-P00248,Running,Running,Kalenji Support 89,160.89,181.36,120,7.4,14
-P00249,Running,Running,Kalenji Support 37,147.03,156.7,180,3.1,10
-P00250,Running,Running,Kalenji Support 34,132.64,139.46,30,5.4,55
-P00251,RUNNING,Running,Kalenji KD500 67,44.25,56.33,180,4.0,16
-P00252,Running,Running,Kiprun Comfort 06,40.88,52.57,45,7.0,59
-P00253,Running,Running,Kiprun Support 56,130.41,147.51,30,6.2,13
-P00254,Running,Running,Kiprun KD500 27,125.84,168.58,180,6.8,51
-P00255,Running,Running,Kiprun Support 29,135.08,177.42,60,0.8,26
-P00256,Running,Running,Kalenji Support 80,117.08,142.76,180,4.9,55
-P00257,Running,Running,Kiprun KD500 69,99.2,116.59,30,6.4,17
-P00258,Running,Running,Kalenji Support 90,85.5,97.57,180,0.2,56
-P00259,Running,Running,Kalenji Support 16,114.19,143.54,30,5.3,11
-P00260,Fitness,Fitness,Corength Rower 27,575.91,611.63,180,1.7,33
-P00261,Fitness,Fitness,Domyos Bench 20,168.68,186.65,45,7.6,10
-P00262,Fitness,Fitness,Domyos Weights 46,394.24,509.63,45,5.2,9
-P00263,Fitness,Fitness,Domyos Rower 53,790.7,980.68,30,0.3,28
-P00264,Fitness,Fitness,Domyos Weights 75,504.41,679.98,90,5.6,7
-P00265,Fitness,Fitness,Domyos Home 56,306.5,404.85,45,6.7,56
-P00266,Fitness,Fitness,Domyos Weights 46,149.88,160.06,180,4.3,13
-P00267,Fitness,Fitness,Corength Bench 41,828.38,1010.82,120,0.5,29
-P00268,Fitness,Fitness,Corength Home 70,873.44,998.51,90,7.7,20
-P00269,Fitness,Fitness,Domyos Elliptical 80,130.14,170.51,90,7.8,50
-P00270,Fitness,Fitness,Corength Home 53,765.83,1020.86,180,4.4,48
-P00271,Fitness,Fitness,Domyos Weights 10,511.97,675.63,60,3.9,43
-P00272,Fitness,Fitness,Domyos Bench 03,437.94,510.6,45,0.7,26
-P00273,Fitness,Fitness,Corength Rower 30,115.82,148.71,45,4.9,56
-P00274,Fitness,Fitness,Corength Bench 92,79.9,87.67,45,1.7,58
-P00275,Fitness,Fitness,Corength Weights 32,488.39,649.98,30,0.4,17
-P00276,Fitness,Fitness,Domyos Home 71,180.56,193.02,30,7.3,36
-P00277,Fitness,Fitness,Corength Bench 93,506.64,627.12,90,4.9,49
-P00278,Fitness,Fitness,Domyos Bench 74,784.52,1047.06,30,1.8,9
-P00279,Fitness,Fitness,Corength Bench 52,422.17,563.05,45,4.3,47
-P00280,Fitness,Fitness,Domyos Elliptical 99,205.39,235.42,45,3.5,42
-P00281,Fitness,Fitness,Corength Home 12,244.35,309.49,120,1.5,56
-P00282,Fitness,Fitness,Corength Rower 41,141.22,169.36,30,3.5,32
-P00283,Fitness,Fitness,Corength Rower 90,895.59,1071.02,180,0.5,28
-P00284,Fitness,Fitness,Corength Elliptical 49,554.01,619.6,90,7.9,7
-P00285,Fitness,Fitness,Domyos Rower 66,448.65,591.78,120,6.6,8
-P00286,Fitness,Fitness,Corength Rower 31,600.96,771.95,60,6.8,40
-P00287,Fitness,Fitness,Domyos Elliptical 93,586.41,676.89,120,7.7,41
-P00288,Fitness,Fitness,Corength Weights 14,365.28,430.13,60,5.9,32
-P00289,Raquetas,Deportes de Raqueta,Artengo Feel 91,88.18,112.3,30,1.6,25
-P00290,Raquetas,Deportes de Raqueta,Perfly Control 90,231.76,305.55,45,0.9,10
-P00291,Raquetas,Deportes de Raqueta,Perfly Feel 58,71.69,79.53,45,4.2,15
-P00292,Raquetas,Deportes de Raqueta,Perfly Power 65,235.35,297.12,45,2.9,48
-P00293,Raquetas,Deportes de Raqueta,Artengo TR160 18,69.81,79.03,45,1.0,43
-P00294,Raquetas,Deportes de Raqueta,Perfly Feel 50,220.36,236.0,60,6.3,36
-P00295,Raquetas,Deportes de Raqueta,Perfly Feel 67,250.07,296.2,120,1.9,23
-P00296,Raquetas,Deportes de Raqueta,Artengo Feel 16,77.62,92.39,60,1.9,55
-P00297,Raquetas,Deportes de Raqueta,Perfly Feel 57,114.74,129.87,30,3.5,43
-P00298,Raquetas,Deportes de Raqueta,Artengo Control 26,129.7,145.37,120,7.4,25
-P00299,Raquetas,Deportes de Raqueta,Artengo Control 28,203.61,266.76,180,4.9,29
-P00300,Raquetas,Deportes de Raqueta,Perfly Feel 49,275.32,354.46,60,0.6,44
-P00301,Raquetas,Deportes de Raqueta,Artengo Feel 87,158.84,190.34,60,4.5,46
-P00302,Raquetas,Deportes de Raqueta,Perfly Control 76,255.89,277.03,45,6.3,8
-P00303,Raquetas,Deportes de Raqueta,Perfly TR160 94,298.6,391.73,180,2.5,12
-P00304,Raquetas,Deportes de Raqueta,Artengo Control 53,102.38,126.12,180,2.8,59
-P00305,Raquetas,Deportes de Raqueta,Perfly TR160 14,110.0,121.1,45,0.5,39
-P00306,Raquetas,Deportes de Raqueta,Perfly TR160 73,138.78,180.45,120,1.5,45
-P00307,Raquetas,Deportes de Raqueta,Artengo Power 79,249.24,281.5,180,1.1,21
-P00308,Raquetas,Deportes de Raqueta,Perfly Power 96,249.91,280.04,45,7.7,35
-P00309,Raquetas,Deportes de Raqueta,Artengo Control 50,146.09,172.35,45,6.2,38
-P00310,Raquetas,Deportes de Raqueta,Perfly Power 75,132.15,171.87,45,0.0,36
-P00311,Raquetas,Deportes de Raqueta,Perfly TR160 27,298.4,316.78,45,4.2,45
-P00312,Raquetas,Deportes de Raqueta,Perfly Feel 35,54.04,63.15,120,3.0,18
-P00313,Raquetas,Deportes de Raqueta,Artengo Feel 45,82.78,97.1,60,6.9,33
-P00314,Raquetas,Deportes de Raqueta,Perfly TR160 49,216.41,291.05,60,3.2,18
-P00315,Raquetas,Deportes de Raqueta,Perfly TR160 48,96.39,122.31,120,0.8,27
-P00316,Raquetas,Deportes de Raqueta,Artengo Feel 08,84.15,93.04,60,2.3,15
-P00317,Raquetas,Deportes de Raqueta,Perfly Control 31,275.05,355.04,45,2.2,11
-P00318,Raquetas,Deportes de Raqueta,Artengo Control 36,66.46,88.6,60,1.8,27
-P00319,Raquetas,Deportes de Raqueta,Perfly TR160 78,137.78,146.12,30,5.1,28
-P00320,Raquetas,Deportes de Raqueta,Perfly Control 37,86.95,115.23,180,6.8,8
+P00001,Bicicletas,Ciclismo,Veloq City 96,812.45,1081.65,90,2.1,31
+P00002,Bicicletas,Ciclismo,Urbano Road 96,597.62,720.85,45,6.6,6
+P00003,Bicicletas,Ciclismo,Terrano City 53,1359.82,1485.03,45,5.4,10
+P00004,Bicicletas,Ciclismo,Corsa E-Bike 28,529.67,660.94,180,0.9,47
+P00005,Biciletas,Ciclismo,Veloq MTB 71,1386.62,1551.72,30,3.0,35
+P00006,Bicicletas,Ciclismo,Urbano Trail 01,1270.22,1641.73,45,2.3,57
+P00007,Bicicletas,Ciclismo,Urbano Gravel 22,845.33,952.51,45,0.4,14
+P00008,Bicicletas,Ciclismo,Veloq Gravel 69,737.38,993.78,30,7.1,46
+P00009,Bicicletas,Ciclismo,Terrano Trail 16,1356.15,1635.05,30,5.3,47
+P00010,Bicicletas,Ciclismo,Corsa E-Bike 69,654.44,705.71,60,7.5,19
+P00011,Bicicletas,Ciclismo,Veloq E-Bike 78,475.31,516.58,180,1.4,13
+P00012,Bicicletas,Ciclismo,Veloq Trail 48,959.17,1258.78,45,6.2,22
+P00013,Bicicletas,Ciclismo,Terrano MTB 01,1461.97,1754.69,180,1.8,5
+P00014,Bicicletas,Ciclismo,Urbano MTB 84,327.96,411.03,45,5.6,32
+P00015,Bicicletas,Ciclismo,Urbano E-Bike 51,934.51,1037.24,30,5.9,44
+P00016,Bicicletas,Ciclismo,Corsa Gravel 46,326.93,355.41,30,2.4,26
+P00017,Bicicletas,Ciclismo,Terrano Gravel 27,809.59,1011.06,90,7.4,20
+P00018,Bicicletas,Ciclismo,Veloq City 04,183.56,223.31,180,1.1,10
+P00019,Bicicletas,Ciclismo,Veloq City 82,715.8,959.08,45,6.4,56
+P00020,Bicicletas,Ciclismo,Urbano MTB 81,780.97,1003.88,90,6.6,11
+P00021,Bicicletas,Ciclismo,Terrano City 48,1225.7,1372.53,120,6.9,38
+P00022,Bicicletas,Ciclismo,Veloq Road 93,964.19,1131.74,180,5.2,28
+P00023,Bicicletas,Ciclismo,Corsa Trail 25,1321.11,1567.06,45,6.0,18
+P00024,Bicicletas,Ciclismo,Urbano MTB 28,1252.37,1354.54,60,1.2,37
+P00025,Bicicletas,Ciclismo,Urbano MTB 80,1263.3,1444.08,180,1.3,55
+P00026,Bicicletas,Ciclismo,Terrano MTB 95,534.37,585.71,90,0.4,6
+P00027,Bicicletas,Ciclismo,Terrano City 70,385.77,411.24,90,3.1,42
+P00028,Bicicletas,Ciclismo,Corsa Gravel 15,579.29,695.93,120,0.3,51
+P00029,Bicicletas,Ciclismo,Veloq Trail 43,395.02,442.83,90,3.3,36
+P00030,Bicicletas,Ciclismo,Urbano City 03,216.49,251.58,180,6.7,10
+P00031,Bicicletas,Ciclismo,Corsa MTB 91,220.15,292.24,180,7.2,51
+P00032,Bicicletas,Ciclismo,Corsa E-Bike 17,1472.42,1900.32,90,6.2,40
+P00033,Biciletas,Ciclismo,Terrano City 18,331.65,401.57,180,3.7,52
+P00034,Bicicletas,Ciclismo,Veloq Trail 22,669.87,831.89,30,3.8,12
+P00035,Bicicletas,Ciclismo,Terrano Road 78,712.8,798.17,90,2.6,25
+P00036,Bicicletas,Ciclismo,Veloq Trail 24,662.28,831.64,120,7.3,57
+P00037,Bicicletas,Ciclismo,Terrano City 89,799.23,917.92,180,5.2,51
+P00038,Bicicletas,Ciclismo,Urbano City 63,1235.93,1495.25,30,5.9,20
+P00039,Biciletas,Ciclismo,Corsa Gravel 83,423.25,532.63,180,4.9,12
+P00040,Esquí,Esquí Alpino,Nevado Boost 46,562.86,605.27,90,1.1,56
+P00041,Esquí,Esquí Alpino,Nevado Freeride 57,679.44,876.66,90,6.3,59
+P00042,Esquí,Esquí Alpino,Nevado Piste 87,673.01,757.82,120,0.8,37
+P00043,Esquí,Esquí Alpino,Nevado Boost 13,508.08,559.59,90,4.6,31
+P00044,Esquí,Esquí Alpino,Nevado Freeride 31,461.32,590.11,180,3.9,48
+P00045,Esquí,Esquí Alpino,Nevado AllMountain 50,499.8,664.42,30,0.9,44
+P00046,Esquí,Esquí Alpino,Nevado Boost 98,528.93,621.8,180,5.4,47
+P00047,esqui,Esquí Alpino,Nevado AllMountain 39,366.82,484.02,120,2.2,48
+P00048,Esquí,Esquí Alpino,Nevado Cross 30,357.22,391.97,180,7.5,13
+P00049,Esquí,Esquí Alpino,Nevado Boost 10,418.95,488.08,120,4.4,57
+P00050,Esquí,Esquí Alpino,Nevado AllMountain 31,590.15,704.53,30,7.9,25
+P00051,Esquí,Esquí Alpino,Nevado Freeride 05,558.88,746.31,30,6.8,53
+P00052,Esquí,Esquí Alpino,Nevado Piste 18,260.96,320.06,30,0.1,42
+P00053,Esquí,Esquí Alpino,Nevado Freeride 34,427.16,554.29,45,3.7,22
+P00054,Esquí,Esquí Alpino,Nevado Freeride 73,350.96,465.21,120,0.9,47
+P00055,Esquí,Esquí Alpino,Nevado Piste 82,698.52,917.69,45,6.7,7
+P00056,Esquí,Esquí Alpino,Nevado Boost 99,699.55,874.23,30,0.7,40
+P00057,esqui,Esquí Alpino,Nevado Cross 73,648.52,686.59,45,1.1,51
+P00058,Esquí,Esquí Alpino,Nevado Piste 76,299.1,395.77,45,0.3,41
+P00059,Esquí,Esquí Alpino,Nevado AllMountain 31,202.71,215.99,90,6.4,57
+P00060,Esquí,Esquí Alpino,Nevado Cross 16,624.7,666.66,120,7.4,49
+P00061,Esquí,Esquí Alpino,Nevado AllMountain 56,586.05,738.09,180,0.3,30
+P00062,Esquí,Esquí Alpino,Nevado Cross 67,262.46,315.31,90,5.0,45
+P00063,Esquí,Esquí Alpino,Nevado AllMountain 01,625.57,685.98,120,1.5,5
+P00064,Esquí,Esquí Alpino,Nevado Cross 06,554.95,745.89,120,0.4,38
+P00065,Esquí,Esquí Alpino,Nevado Cross 51,508.15,540.01,180,5.7,27
+P00066,Esquí,Esquí Alpino,Nevado Boost 33,245.86,271.69,60,3.7,58
+P00067,Esquí,Esquí Alpino,Nevado AllMountain 38,592.04,734.68,90,1.2,18
+P00068,Esquí,Esquí Alpino,Nevado AllMountain 72,350.67,429.01,90,5.2,43
+P00069,Esquí,Esquí Alpino,Nevado Freeride 62,670.3,733.66,90,3.2,55
+P00070,Esquí,Esquí Alpino,Nevado Freeride 47,259.61,283.03,180,2.4,20
+P00071,Esquí,Esquí Alpino,Nevado Freeride 31,413.95,510.52,90,3.3,13
+P00072,Esquí,Esquí Alpino,Nevado Freeride 78,308.81,378.75,90,0.3,22
+P00073,Esquí,Esquí Alpino,Nevado Boost 10,409.2,487.86,45,4.6,24
+P00074,Esquí,Esquí Alpino,Nevado Freeride 80,551.0,685.66,90,2.5,40
+P00075,Snowboard,Snowboard,Driftline AllRound 13,447.11,527.33,90,2.9,39
+P00076,Snowboard,Snowboard,Driftline Powder 26,430.73,547.46,180,7.4,51
+P00077,Snowboard,Snowboard,Driftline Powder 77,434.12,560.0,45,6.7,22
+P00078,Snowboard,Snowboard,Driftline Carve 36,422.36,458.16,30,6.7,50
+P00079,Snow Board,Snowboard,Driftline Carve 02,326.28,375.3,60,2.5,14
+P00080,Snowboard,Snowboard,Driftline Park 60,534.21,563.27,120,6.9,27
+P00081,Snowboard,Snowboard,Driftline Park 64,269.13,331.1,120,2.9,11
+P00082,Snowboard,Snowboard,Driftline Park 74,631.29,851.38,120,2.5,47
+P00083,Snowboard,Snowboard,Driftline Powder 68,517.43,603.51,180,0.1,40
+P00084,Snowboard,Snowboard,Driftline Park 72,294.08,355.11,30,1.3,27
+P00085,Snowboard,Snowboard,Driftline AllRound 34,645.11,784.96,45,7.9,51
+P00086,Snowboard,Snowboard,Driftline AllRound 30,263.72,312.37,60,0.6,50
+P00087,Snowboard,Snowboard,Driftline AllRound 98,395.2,470.6,180,1.4,13
+P00088,Snowboard,Snowboard,Driftline Powder 05,608.2,646.76,45,2.3,15
+P00089,Snowboard,Snowboard,Driftline Park 00,463.9,555.75,30,1.9,9
+P00090,Snowboard,Snowboard,Driftline Powder 97,579.61,719.46,90,5.4,48
+P00091,Snowboard,Snowboard,Driftline AllRound 88,226.15,262.33,120,2.7,34
+P00092,Snow Board,Snowboard,Driftline Powder 20,580.02,692.99,120,6.8,25
+P00093,Snowboard,Snowboard,Driftline Powder 81,609.3,747.09,30,2.7,51
+P00094,Snowboard,Snowboard,Driftline Powder 21,424.47,513.36,30,3.2,59
+P00095,Snowboard,Snowboard,Driftline AllRound 91,483.87,533.83,30,1.5,23
+P00096,Snowboard,Snowboard,Driftline Powder 36,211.17,280.48,60,2.5,12
+P00097,Snowboard,Snowboard,Driftline Powder 19,203.29,230.41,45,5.1,43
+P00098,Snowboard,Snowboard,Driftline AllRound 39,641.81,793.35,60,6.1,40
+P00099,Snowboard,Snowboard,Driftline AllRound 90,524.31,702.03,90,6.9,48
+P00100,Snowboard,Snowboard,Driftline AllRound 91,251.35,319.15,60,4.4,57
+P00101,Paddle Surf,Paddle Surf,Aquia Touring 69,880.38,1184.44,45,5.9,58
+P00102,Paddle Surf,Paddle Surf,Aquia Inflatable 98,475.22,516.64,45,6.2,7
+P00103,Paddle Surf,Paddle Surf,Aquia Compact 54,568.3,764.74,60,7.8,18
+P00104,Paddle Surf,Paddle Surf,Aquia Race 35,765.89,823.67,45,6.4,35
+P00105,Paddle Surf,Paddle Surf,Aquia Touring 34,851.06,1103.63,30,3.0,57
+P00106,Paddle Surf,Paddle Surf,Aquia Touring 62,321.03,402.12,120,6.2,44
+P00107,Paddle Surf,Paddle Surf,Aquia Race 47,812.55,1033.43,120,0.4,54
+P00108,Paddle Surf,Paddle Surf,Aquia Touring 51,654.23,855.36,60,4.1,5
+P00109,Paddle Surf,Paddle Surf,Aquia Compact 07,690.24,730.88,60,7.2,38
+P00110,Paddle Surf,Paddle Surf,Aquia Inflatable 99,404.48,528.18,90,6.8,24
+P00111,Paddle Surf,Paddle Surf,Aquia Race 11,444.31,545.21,60,2.2,35
+P00112,Paddle Surf,Paddle Surf,Aquia Compact 83,371.94,400.0,120,5.7,23
+P00113,Paddle Surf,Paddle Surf,Aquia Inflatable 84,774.83,1045.73,45,3.3,34
+P00114,Paddle Surf,Paddle Surf,Aquia Touring 25,623.67,841.5,180,4.8,43
+P00115,Paddle Surf,Paddle Surf,Aquia Touring 13,505.04,668.97,60,1.1,10
+P00116,Paddle Surf,Paddle Surf,Aquia Race 54,293.66,326.14,90,3.6,5
+P00117,Paddle Surf,Paddle Surf,Aquia Race 27,662.45,763.8,60,7.7,57
+P00118,Paddle Surf,Paddle Surf,Aquia Compact 84,601.56,682.99,60,1.9,54
+P00119,Paddle surf ,Paddle Surf,Aquia Race 98,461.47,610.4,90,5.9,16
+P00120,Paddle Surf,Paddle Surf,Aquia Inflatable 08,674.74,769.08,180,2.6,18
+P00121,Paddle Surf,Paddle Surf,Aquia Touring 41,351.04,460.67,45,4.5,18
+P00122,Paddle Surf,Paddle Surf,Aquia Compact 24,759.49,897.35,180,8.0,31
+P00123,Paddle Surf,Paddle Surf,Aquia Inflatable 11,688.49,891.18,180,6.3,30
+P00124,Paddle Surf,Paddle Surf,Aquia Touring 82,615.41,664.99,60,7.6,40
+P00125,Paddle Surf,Paddle Surf,Aquia Touring 44,583.28,688.21,30,7.7,45
+P00126,Paddle surf ,Paddle Surf,Aquia Touring 93,276.7,310.96,90,3.6,8
+P00127,Paddle Surf,Paddle Surf,Aquia Touring 53,585.46,669.63,30,0.9,39
+P00128,Paddle Surf,Paddle Surf,Aquia Race 48,289.34,364.41,60,2.4,16
+P00129,Paddle Surf,Paddle Surf,Aquia Touring 74,506.18,594.75,30,0.9,27
+P00130,Paddle Surf,Paddle Surf,Aquia Compact 01,250.8,301.57,45,2.7,31
+P00131,Paddle Surf,Paddle Surf,Aquia Race 64,530.36,681.07,180,2.1,17
+P00132,Paddle Surf,Paddle Surf,Aquia Race 00,407.61,486.67,180,1.8,42
+P00133,Paddle Surf,Paddle Surf,Aquia Race 52,464.98,618.01,30,3.7,52
+P00134,Paddle surf ,Paddle Surf,Aquia Inflatable 42,347.8,370.13,45,7.4,12
+P00135,Paddle Surf,Paddle Surf,Aquia Compact 78,256.02,283.29,30,0.9,43
+P00136,Paddle Surf,Paddle Surf,Aquia Inflatable 68,407.07,496.94,45,6.8,37
+P00137,Kayak,Piragüismo,Aquia Sit-On 01,1053.37,1301.69,60,6.2,13
+P00138,Kayak,Piragüismo,Aquia Sit-On 12,1055.49,1188.78,180,3.6,58
+P00139,Kayak,Piragüismo,Aquia Whitewater 80,1184.65,1372.37,120,2.5,49
+P00140,Kayak,Piragüismo,Aquia Touring 59,999.21,1229.25,45,3.3,39
+P00141,Kayak,Piragüismo,Aquia Touring 82,278.11,294.5,120,0.2,24
+P00142,Kayak,Piragüismo,Aquia Tandem 62,365.49,463.28,120,5.9,50
+P00143,Kayak,Piragüismo,Aquia Touring 04,1090.02,1338.71,45,1.1,11
+P00144,Kayak,Piragüismo,Aquia Tandem 50,893.1,984.09,90,7.9,19
+P00145,Kayak,Piragüismo,Aquia Sit-On 53,216.58,291.93,90,1.0,37
+P00146,Kayak,Piragüismo,Aquia Touring 31,1097.3,1441.98,90,5.0,15
+P00147,Kayak,Piragüismo,Aquia Touring 58,250.52,307.73,30,5.3,21
+P00148,Kayak,Piragüismo,Aquia Sit-On 69,1036.25,1093.71,90,1.9,51
+P00149,Kayak,Piragüismo,Aquia Tandem 23,453.66,559.47,45,3.2,35
+P00150,Kayak,Piragüismo,Aquia Tandem 22,877.62,1112.59,90,6.1,44
+P00151,Kayak,Piragüismo,Aquia Tandem 60,619.27,745.83,180,6.4,5
+P00152,Kayak,Piragüismo,Aquia Tandem 25,720.23,844.39,30,7.1,41
+P00153,Kayak,Piragüismo,Aquia Touring 63,882.58,966.26,60,1.4,57
+P00154,Kayak,Piragüismo,Aquia Tandem 42,399.54,522.48,180,1.7,23
+P00155,Kayak,Piragüismo,Aquia Touring 16,933.49,1226.15,90,4.1,25
+P00156,Kayak,Piragüismo,Aquia Whitewater 07,941.72,1195.36,120,4.6,29
+P00157,Kayak,Piragüismo,Aquia Sit-On 33,1103.97,1445.84,180,0.8,48
+P00158,Kayak,Piragüismo,Aquia Touring 75,404.4,514.83,30,7.8,59
+P00159,Kayak,Piragüismo,Aquia Touring 43,919.31,1210.06,90,2.6,26
+P00160,Kayak,Piragüismo,Aquia Touring 30,808.74,990.14,60,4.8,36
+P00161,Kayak,Piragüismo,Aquia Tandem 36,667.64,740.43,60,3.2,25
+P00162,Kayak,Piragüismo,Aquia Touring 54,331.11,363.84,120,2.7,6
+P00163,Kayak,Piragüismo,Aquia Tandem 14,443.6,478.94,60,7.0,46
+P00164,Kayak,Piragüismo,Aquia Tandem 58,478.11,531.0,45,4.2,8
+P00165,Kayak,Piragüismo,Aquia Touring 68,459.44,488.64,30,7.7,31
+P00166,Kayak,Piragüismo,Aquia Tandem 50,852.52,1021.87,30,2.0,12
+P00167,Kayak,Piragüismo,Aquia Touring 14,964.8,1266.8,120,7.9,54
+P00168,Kayak,Piragüismo,Aquia Whitewater 29,1182.37,1579.53,30,1.1,56
+P00169,Camping,Camping,Nomada Base 40,358.57,386.93,120,4.3,38
+P00170,Camping,Camping,Bivac QuickTent 19,149.27,168.07,30,4.7,51
+P00171,Camping,Camping,Nomada CT100 65,456.97,520.4,180,6.1,27
+P00172,Camping,Camping,Nomada Base 56,477.07,530.52,60,7.2,11
+P00173,Camping,Camping,Bivac Base 98,114.21,128.98,90,3.3,14
+P00174,Camping,Camping,Nomada Sendero 16,302.92,340.35,30,7.0,51
+P00175,Camping,Camping,Nomada CT100 93,243.23,294.13,45,1.3,18
+P00176,Camping,Camping,Bivac Sendero 40,567.61,747.2,45,3.9,33
+P00177,Camping,Camping,Nomada Trail900 60,346.06,419.07,60,1.0,12
+P00178,Camping,Camping,Nomada Base 88,574.21,685.96,30,4.4,13
+P00179,Camping,Camping,Nomada QuickTent 35,172.17,193.86,60,7.3,11
+P00180,Camping,Camping,Bivac Trail900 61,233.63,287.93,180,4.3,27
+P00181,Camping,Camping,Bivac Base 59,161.11,216.95,120,3.8,45
+P00182,Camping,Camping,Nomada CT100 51,142.55,189.05,90,2.7,7
+P00183,Camping,Camping,Bivac Sendero 48,489.01,604.81,90,1.7,48
+P00184,Camping,Camping,Bivac Sendero 46,558.84,660.21,120,7.9,5
+P00185,Camping,Camping,Bivac Trail900 56,211.68,226.21,120,1.2,12
+P00186,Camping,Camping,Bivac Base 48,401.43,468.82,90,5.8,22
+P00187,Camping,Camping,Nomada Trail900 23,308.99,385.62,30,7.6,31
+P00188,Camping,Camping,Bivac Sendero 66,245.07,270.35,180,0.3,51
+P00189,Camping,Camping,Nomada Sendero 29,302.8,399.01,45,4.3,59
+P00190,Camping,Camping,Bivac Base 94,416.4,475.01,120,5.9,25
+P00191,Camping,Camping,Bivac Sendero 68,277.7,338.39,90,7.3,32
+P00192,Camping,Camping,Bivac CT100 04,286.42,356.34,120,3.5,27
+P00193,Camping,Camping,Bivac Sendero 43,127.94,137.86,30,5.3,41
+P00194,Camping,Camping,Nomada QuickTent 69,70.67,81.13,30,6.9,47
+P00195,Camping,Camping,Bivac QuickTent 95,193.21,241.58,180,1.1,20
+P00196,Escalada,Escalada,Granit Edge 77,282.91,374.32,120,4.3,16
+P00197,Escalada,Escalada,Granit Ascent 73,292.5,390.74,90,2.0,21
+P00198,Escalada,Escalada,Granit Ascent 87,155.38,208.65,90,5.5,26
+P00199,Escalada,Escalada,Granit Ascent 21,48.36,56.58,180,4.9,24
+P00200,Escalada,Escalada,Granit Edge 48,376.94,492.36,45,4.4,22
+P00201,Escalada,Escalada,Granit Cliff 95,216.34,268.19,60,2.0,27
+P00202,Escalada,Escalada,Granit Cliff 13,372.59,485.48,180,6.0,58
+P00203,Escalada,Escalada,Granit Rock 43,315.28,403.17,60,3.7,43
+P00204,Escalada,Escalada,Granit Rock 32,272.13,309.36,45,4.7,19
+P00205,Escalada,Escalada,Granit Ascent 00,187.59,209.29,120,6.9,36
+P00206,Escalada,Escalada,Granit Rock 37,42.7,49.14,60,6.7,48
+P00207,Escalada,Escalada,Granit Ascent 91,89.8,115.15,30,3.1,29
+P00208,Escalada,Escalada,Granit Cliff 76,109.33,119.85,30,5.0,28
+P00209,Escalada,Escalada,Granit Ascent 93,375.84,505.22,30,1.1,37
+P00210,Escalada,Escalada,Granit Cliff 67,137.43,180.78,45,0.9,41
+P00211,Escalada,Escalada,Granit Rock 63,339.71,374.67,60,4.4,18
+P00212,Escalada,Escalada,Granit Ascent 20,287.02,357.57,30,8.0,59
+P00213,Escalada,Escalada,Granit Ascent 16,225.93,243.68,120,7.8,22
+P00214,Escalada,Escalada,Granit Edge 32,206.04,242.6,45,5.4,7
+P00215,Escalada,Escalada,Granit Ascent 87,167.2,215.06,120,6.6,56
+P00216,Escalada,Escalada,Granit Edge 08,155.76,198.54,120,3.9,49
+P00217,Escalada,Escalada,Granit Ascent 31,361.49,395.17,180,0.8,22
+P00218,Escalada,Escalada,Granit Rock 72,232.18,248.49,90,0.0,7
+P00219,Escalada,Escalada,Granit Rock 78,197.07,252.72,30,5.2,46
+P00220,Escalada,Escalada,Granit Cliff 89,100.48,109.93,30,6.6,52
+P00221,Escalada,Escalada,Granit Rock 57,234.02,303.23,30,3.2,35
+P00222,Escalada,Escalada,Granit Ascent 98,132.68,169.26,45,6.0,32
+P00223,Running,Running,Zancada Support 68,98.86,110.3,45,6.0,57
+P00224,Running,Running,Zancada RN500 72,53.76,59.29,45,6.6,8
+P00225,RUNNING,Running,Zancada Comfort 77,198.46,216.55,90,3.6,55
+P00226,Running,Running,Zancada Comfort 43,180.01,241.7,180,1.5,38
+P00227,Running,Running,Zancada Run 48,144.97,164.79,120,4.5,46
+P00228,Running,Running,Pulso Run 73,172.57,217.98,30,0.4,56
+P00229,Running,Running,Pulso Run 47,117.79,132.87,60,6.1,10
+P00230,Running,Running,Pulso Comfort 14,129.8,151.3,45,4.2,13
+P00231,Running,Running,Zancada Comfort 34,130.26,163.22,30,0.0,5
+P00232,Running,Running,Zancada Comfort 55,183.12,227.78,45,7.1,10
+P00233,Running,Running,Zancada Run 81,116.17,154.58,30,1.7,31
+P00234,Running,Running,Pulso RN500 22,71.28,89.38,45,0.8,27
+P00235,Running,Running,Zancada RN500 36,107.64,118.71,30,6.9,14
+P00236,Running,Running,Zancada Support 23,97.72,104.23,60,2.1,56
+P00237,Running,Running,Pulso RN500 16,72.86,95.92,180,0.8,46
+P00238,Running,Running,Zancada Run 65,58.45,72.24,30,6.8,57
+P00239,Running,Running,Pulso RN500 87,171.17,206.74,180,0.4,16
+P00240,Running,Running,Zancada RN500 60,91.83,122.56,90,6.4,55
+P00241,Running,Running,Zancada Support 36,196.58,235.82,60,7.8,57
+P00242,Running,Running,Zancada Run 69,103.6,126.95,30,2.6,16
+P00243,Running,Running,Zancada RN500 09,56.53,74.05,90,2.9,41
+P00244,Running,Running,Zancada Run 67,109.04,135.2,180,7.5,45
+P00245,RUNNING,Running,Zancada Comfort 05,92.68,109.85,90,3.7,21
+P00246,Running,Running,Pulso Comfort 46,128.7,147.52,60,3.0,34
+P00247,Running,Running,Zancada Comfort 68,66.57,84.34,60,1.7,47
+P00248,Running,Running,Pulso Support 89,160.89,181.36,120,7.4,14
+P00249,Running,Running,Pulso Support 37,147.03,156.7,180,3.1,10
+P00250,Running,Running,Pulso Support 34,132.64,139.46,30,5.4,55
+P00251,RUNNING,Running,Pulso RN500 67,44.25,56.33,180,4.0,16
+P00252,Running,Running,Zancada Comfort 06,40.88,52.57,45,7.0,59
+P00253,Running,Running,Zancada Support 56,130.41,147.51,30,6.2,13
+P00254,Running,Running,Zancada RN500 27,125.84,168.58,180,6.8,51
+P00255,Running,Running,Zancada Support 29,135.08,177.42,60,0.8,26
+P00256,Running,Running,Pulso Support 80,117.08,142.76,180,4.9,55
+P00257,Running,Running,Zancada RN500 69,99.2,116.59,30,6.4,17
+P00258,Running,Running,Pulso Support 90,85.5,97.57,180,0.2,56
+P00259,Running,Running,Pulso Support 16,114.19,143.54,30,5.3,11
+P00260,Fitness,Fitness,Ferra Rower 27,575.91,611.63,180,1.7,33
+P00261,Fitness,Fitness,Corpus Bench 20,168.68,186.65,45,7.6,10
+P00262,Fitness,Fitness,Corpus Weights 46,394.24,509.63,45,5.2,9
+P00263,Fitness,Fitness,Corpus Rower 53,790.7,980.68,30,0.3,28
+P00264,Fitness,Fitness,Corpus Weights 75,504.41,679.98,90,5.6,7
+P00265,Fitness,Fitness,Corpus Home 56,306.5,404.85,45,6.7,56
+P00266,Fitness,Fitness,Corpus Weights 46,149.88,160.06,180,4.3,13
+P00267,Fitness,Fitness,Ferra Bench 41,828.38,1010.82,120,0.5,29
+P00268,Fitness,Fitness,Ferra Home 70,873.44,998.51,90,7.7,20
+P00269,Fitness,Fitness,Corpus Elliptical 80,130.14,170.51,90,7.8,50
+P00270,Fitness,Fitness,Ferra Home 53,765.83,1020.86,180,4.4,48
+P00271,Fitness,Fitness,Corpus Weights 10,511.97,675.63,60,3.9,43
+P00272,Fitness,Fitness,Corpus Bench 03,437.94,510.6,45,0.7,26
+P00273,Fitness,Fitness,Ferra Rower 30,115.82,148.71,45,4.9,56
+P00274,Fitness,Fitness,Ferra Bench 92,79.9,87.67,45,1.7,58
+P00275,Fitness,Fitness,Ferra Weights 32,488.39,649.98,30,0.4,17
+P00276,Fitness,Fitness,Corpus Home 71,180.56,193.02,30,7.3,36
+P00277,Fitness,Fitness,Ferra Bench 93,506.64,627.12,90,4.9,49
+P00278,Fitness,Fitness,Corpus Bench 74,784.52,1047.06,30,1.8,9
+P00279,Fitness,Fitness,Ferra Bench 52,422.17,563.05,45,4.3,47
+P00280,Fitness,Fitness,Corpus Elliptical 99,205.39,235.42,45,3.5,42
+P00281,Fitness,Fitness,Ferra Home 12,244.35,309.49,120,1.5,56
+P00282,Fitness,Fitness,Ferra Rower 41,141.22,169.36,30,3.5,32
+P00283,Fitness,Fitness,Ferra Rower 90,895.59,1071.02,180,0.5,28
+P00284,Fitness,Fitness,Ferra Elliptical 49,554.01,619.6,90,7.9,7
+P00285,Fitness,Fitness,Corpus Rower 66,448.65,591.78,120,6.6,8
+P00286,Fitness,Fitness,Ferra Rower 31,600.96,771.95,60,6.8,40
+P00287,Fitness,Fitness,Corpus Elliptical 93,586.41,676.89,120,7.7,41
+P00288,Fitness,Fitness,Ferra Weights 14,365.28,430.13,60,5.9,32
+P00289,Raquetas,Deportes de Raqueta,Volea Feel 91,88.18,112.3,30,1.6,25
+P00290,Raquetas,Deportes de Raqueta,Smashly Control 90,231.76,305.55,45,0.9,10
+P00291,Raquetas,Deportes de Raqueta,Smashly Feel 58,71.69,79.53,45,4.2,15
+P00292,Raquetas,Deportes de Raqueta,Smashly Power 65,235.35,297.12,45,2.9,48
+P00293,Raquetas,Deportes de Raqueta,Volea RQ160 18,69.81,79.03,45,1.0,43
+P00294,Raquetas,Deportes de Raqueta,Smashly Feel 50,220.36,236.0,60,6.3,36
+P00295,Raquetas,Deportes de Raqueta,Smashly Feel 67,250.07,296.2,120,1.9,23
+P00296,Raquetas,Deportes de Raqueta,Volea Feel 16,77.62,92.39,60,1.9,55
+P00297,Raquetas,Deportes de Raqueta,Smashly Feel 57,114.74,129.87,30,3.5,43
+P00298,Raquetas,Deportes de Raqueta,Volea Control 26,129.7,145.37,120,7.4,25
+P00299,Raquetas,Deportes de Raqueta,Volea Control 28,203.61,266.76,180,4.9,29
+P00300,Raquetas,Deportes de Raqueta,Smashly Feel 49,275.32,354.46,60,0.6,44
+P00301,Raquetas,Deportes de Raqueta,Volea Feel 87,158.84,190.34,60,4.5,46
+P00302,Raquetas,Deportes de Raqueta,Smashly Control 76,255.89,277.03,45,6.3,8
+P00303,Raquetas,Deportes de Raqueta,Smashly RQ160 94,298.6,391.73,180,2.5,12
+P00304,Raquetas,Deportes de Raqueta,Volea Control 53,102.38,126.12,180,2.8,59
+P00305,Raquetas,Deportes de Raqueta,Smashly RQ160 14,110.0,121.1,45,0.5,39
+P00306,Raquetas,Deportes de Raqueta,Smashly RQ160 73,138.78,180.45,120,1.5,45
+P00307,Raquetas,Deportes de Raqueta,Volea Power 79,249.24,281.5,180,1.1,21
+P00308,Raquetas,Deportes de Raqueta,Smashly Power 96,249.91,280.04,45,7.7,35
+P00309,Raquetas,Deportes de Raqueta,Volea Control 50,146.09,172.35,45,6.2,38
+P00310,Raquetas,Deportes de Raqueta,Smashly Power 75,132.15,171.87,45,0.0,36
+P00311,Raquetas,Deportes de Raqueta,Smashly RQ160 27,298.4,316.78,45,4.2,45
+P00312,Raquetas,Deportes de Raqueta,Smashly Feel 35,54.04,63.15,120,3.0,18
+P00313,Raquetas,Deportes de Raqueta,Volea Feel 45,82.78,97.1,60,6.9,33
+P00314,Raquetas,Deportes de Raqueta,Smashly RQ160 49,216.41,291.05,60,3.2,18
+P00315,Raquetas,Deportes de Raqueta,Smashly RQ160 48,96.39,122.31,120,0.8,27
+P00316,Raquetas,Deportes de Raqueta,Volea Feel 08,84.15,93.04,60,2.3,15
+P00317,Raquetas,Deportes de Raqueta,Smashly Control 31,275.05,355.04,45,2.2,11
+P00318,Raquetas,Deportes de Raqueta,Volea Control 36,66.46,88.6,60,1.8,27
+P00319,Raquetas,Deportes de Raqueta,Smashly RQ160 78,137.78,146.12,30,5.1,28
+P00320,Raquetas,Deportes de Raqueta,Smashly Control 37,86.95,115.23,180,6.8,8

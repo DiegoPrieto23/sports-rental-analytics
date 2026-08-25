@@ -1,71 +1,71 @@
 store_id,store_name,city,country,store_size,annual_visitors
-S001,Decathlon Madrid OH,Madrid,ESPAÑA,Medium,406678
-S002,Decathlon Barcelona BV,Barcelona,España,Medium,236920
-S003,Decathlon Barcelona RP,Barcelona,España,Flagship,1846615
-S004,Decathlon Valencia OI,Valencia,España,Large,797316
-S005,Decathlon Valencia VG,Valencia,España ,Medium,417303
-S006,Decathlon Sevilla RV,Sevilla,España,Large,810634
-S007,Decathlon Sevilla IF,Sevilla,España,Large,878410
-S008,Decathlon Málaga LB,Málaga,España,Small,129184
-S009,Decathlon Málaga CB,Málaga,España,Small,143048
-S010,Decathlon Bilbao FN,Bilbao,España,Medium,337295
-S011,Decathlon Zaragoza OG,Zaragoza,España,Medium,446947
-S012,Decathlon Granada MB,Granada,España,Large,734320
-S013,Decathlon Granada JM,Granada,España,Small,133480
-S014,Decathlon Paris TP,Paris,Francia,Small,130325
-S015,Decathlon Paris SI,Paris,Francia,Medium,537142
-S016,Decathlon Lyon AO,Lyon,Francia,Flagship,1624724
-S017,Decathlon Marseille CL,Marseille,Francia,Medium,395887
-S018,Decathlon Marseille RZ,Marseille,Francia,Small,117296
-S019,Decathlon Toulouse AW,Toulouse,Francia,Medium,296793
-S020,Decathlon Nice ZK,Nice,Francia,Medium,406093
-S021,Decathlon Nice SB,Nice,Francia,Large,632938
-S022,Decathlon Bordeaux VR,Bordeaux,Francia,Small,105045
-S023,Decathlon Chamonix JN,Chamonix,francia,Large,818889
-S024,Decathlon Chamonix WV,Chamonix,Francia,Small,142847
-S025,Decathlon Annecy GF,Annecy,Francia,Small,137451
-S026,Decathlon Annecy YG,Annecy,Francia,Small,127143
-S027,Decathlon Roma WW,Roma,Italia,Medium,261517
-S028,Decathlon Roma MQ,Roma,Italia,Large,728171
-S029,Decathlon Milano ZC,Milano,Italia,Medium,331260
-S030,Decathlon Napoli UD,Napoli,Italia,Small,100919
-S031,Decathlon Napoli IH,Napoli,Italia,Medium,249974
-S032,Decathlon Torino YF,Torino,Italia,Large,826468
-S033,Decathlon Venezia JS,Venezia,Italia,Medium,403500
-S034,Decathlon Venezia ON,Venezia,Italia,Small,111915
-S035,Decathlon Firenze XK,Firenze,Italia,Medium,415518
-S036,Decathlon Firenze MT,Firenze,Italia,Medium,271183
-S037,Decathlon Bologna EC,Bologna,Italia,Small,99843
-S038,Decathlon Cortina QO,Cortina,Italia,Small,123467
-S039,Decathlon Cortina XS,Cortina,Italia,Medium,321334
-S040,Decathlon Berlin FO,Berlin,Alemania,Large,906625
-S041,Decathlon München GY,München,Alemania,Medium,383480
-S042,Decathlon München RD,München,Alemania,Small,111595
-S043,Decathlon Hamburg OX,Hamburg,Alemania,Small,94473
-S044,Decathlon Köln KX,Köln,Alemania,Medium,318637
-S045,Decathlon Frankfurt WN,Frankfurt,Alemania,Medium,385323
-S046,Decathlon Garmisch QR,Garmisch,Alemania,Medium,399818
-S047,Decathlon Garmisch SR,Garmisch,Alemania,Medium,321588
-S048,Decathlon Lisboa PE,Lisboa,Portugal,Medium,249751
-S049,Decathlon Lisboa MO,Lisboa,Portugal,Small,92107
-S050,Decathlon Porto KI,Porto,Portugal,Flagship,1949828
-S051,Decathlon Porto UP,Porto,Portugal,Medium,324504
-S052,Decathlon Faro KD,Faro,Portugal,Flagship,1676207
-S053,Decathlon Faro YR,Faro,Portugal,Medium,290385
-S054,Decathlon Braga OS,Braga,Portugal,Small,99234
-S055,Decathlon Coimbra JO,Coimbra,Portugal,Large,946407
-S056,Decathlon Bruxelles RU,Bruxelles,Bélgica,Small,130892
-S057,Decathlon Antwerpen XX,Antwerpen,Bélgica,Medium,310785
-S058,Decathlon Gent DO,Gent,Bélgica,Large,811624
-S059,Decathlon Gent CZ,Gent,Bélgica,Medium,366672
-S060,Decathlon Brugge UZ,Brugge,Bélgica,Medium,482166
-S061,Decathlon Brugge RE,Brugge,Bélgica,Medium,285212
-S062,Decathlon Liège NK,Liège,Bélgica,Medium,365743
-S063,Decathlon Amsterdam TU,Amsterdam,Países Bajos,Medium,413623
-S064,Decathlon Amsterdam NP,Amsterdam,Países Bajos,Small,160798
-S065,Decathlon Rotterdam FZ,Rotterdam,Países Bajos,Medium,307963
-S066,Decathlon Utrecht PD,Utrecht,Países Bajos,Large,739999
-S067,Decathlon Eindhoven JQ,Eindhoven,Países Bajos,Small,136254
-S068,Decathlon Den Haag IP,Den Haag,Países Bajos,Small,89418
-S069,Decathlon Den Haag VJ,Den Haag,Países Bajos,Medium,372648
-S070,Decathlon Groningen IQ,Groningen,Países Bajos,Small,178901
+S001,Sportia Madrid OH,Madrid,ESPAÑA,Medium,406678
+S002,Sportia Barcelona BV,Barcelona,España,Medium,236920
+S003,Sportia Barcelona RP,Barcelona,España,Flagship,1846615
+S004,Sportia Valencia OI,Valencia,España,Large,797316
+S005,Sportia Valencia VG,Valencia,España ,Medium,417303
+S006,Sportia Sevilla RV,Sevilla,España,Large,810634
+S007,Sportia Sevilla IF,Sevilla,España,Large,878410
+S008,Sportia Málaga LB,Málaga,España,Small,129184
+S009,Sportia Málaga CB,Málaga,España,Small,143048
+S010,Sportia Bilbao FN,Bilbao,España,Medium,337295
+S011,Sportia Zaragoza OG,Zaragoza,España,Medium,446947
+S012,Sportia Granada MB,Granada,España,Large,734320
+S013,Sportia Granada JM,Granada,España,Small,133480
+S014,Sportia Paris TP,Paris,Francia,Small,130325
+S015,Sportia Paris SI,Paris,Francia,Medium,537142
+S016,Sportia Lyon AO,Lyon,Francia,Flagship,1624724
+S017,Sportia Marseille CL,Marseille,Francia,Medium,395887
+S018,Sportia Marseille RZ,Marseille,Francia,Small,117296
+S019,Sportia Toulouse AW,Toulouse,Francia,Medium,296793
+S020,Sportia Nice ZK,Nice,Francia,Medium,406093
+S021,Sportia Nice SB,Nice,Francia,Large,632938
+S022,Sportia Bordeaux VR,Bordeaux,Francia,Small,105045
+S023,Sportia Chamonix JN,Chamonix,francia,Large,818889
+S024,Sportia Chamonix WV,Chamonix,Francia,Small,142847
+S025,Sportia Annecy GF,Annecy,Francia,Small,137451
+S026,Sportia Annecy YG,Annecy,Francia,Small,127143
+S027,Sportia Roma WW,Roma,Italia,Medium,261517
+S028,Sportia Roma MQ,Roma,Italia,Large,728171
+S029,Sportia Milano ZC,Milano,Italia,Medium,331260
+S030,Sportia Napoli UD,Napoli,Italia,Small,100919
+S031,Sportia Napoli IH,Napoli,Italia,Medium,249974
+S032,Sportia Torino YF,Torino,Italia,Large,826468
+S033,Sportia Venezia JS,Venezia,Italia,Medium,403500
+S034,Sportia Venezia ON,Venezia,Italia,Small,111915
+S035,Sportia Firenze XK,Firenze,Italia,Medium,415518
+S036,Sportia Firenze MT,Firenze,Italia,Medium,271183
+S037,Sportia Bologna EC,Bologna,Italia,Small,99843
+S038,Sportia Cortina QO,Cortina,Italia,Small,123467
+S039,Sportia Cortina XS,Cortina,Italia,Medium,321334
+S040,Sportia Berlin FO,Berlin,Alemania,Large,906625
+S041,Sportia München GY,München,Alemania,Medium,383480
+S042,Sportia München RD,München,Alemania,Small,111595
+S043,Sportia Hamburg OX,Hamburg,Alemania,Small,94473
+S044,Sportia Köln KX,Köln,Alemania,Medium,318637
+S045,Sportia Frankfurt WN,Frankfurt,Alemania,Medium,385323
+S046,Sportia Garmisch QR,Garmisch,Alemania,Medium,399818
+S047,Sportia Garmisch SR,Garmisch,Alemania,Medium,321588
+S048,Sportia Lisboa PE,Lisboa,Portugal,Medium,249751
+S049,Sportia Lisboa MO,Lisboa,Portugal,Small,92107
+S050,Sportia Porto KI,Porto,Portugal,Flagship,1949828
+S051,Sportia Porto UP,Porto,Portugal,Medium,324504
+S052,Sportia Faro KD,Faro,Portugal,Flagship,1676207
+S053,Sportia Faro YR,Faro,Portugal,Medium,290385
+S054,Sportia Braga OS,Braga,Portugal,Small,99234
+S055,Sportia Coimbra JO,Coimbra,Portugal,Large,946407
+S056,Sportia Bruxelles RU,Bruxelles,Bélgica,Small,130892
+S057,Sportia Antwerpen XX,Antwerpen,Bélgica,Medium,310785
+S058,Sportia Gent DO,Gent,Bélgica,Large,811624
+S059,Sportia Gent CZ,Gent,Bélgica,Medium,366672
+S060,Sportia Brugge UZ,Brugge,Bélgica,Medium,482166
+S061,Sportia Brugge RE,Brugge,Bélgica,Medium,285212
+S062,Sportia Liège NK,Liège,Bélgica,Medium,365743
+S063,Sportia Amsterdam TU,Amsterdam,Países Bajos,Medium,413623
+S064,Sportia Amsterdam NP,Amsterdam,Países Bajos,Small,160798
+S065,Sportia Rotterdam FZ,Rotterdam,Países Bajos,Medium,307963
+S066,Sportia Utrecht PD,Utrecht,Países Bajos,Large,739999
+S067,Sportia Eindhoven JQ,Eindhoven,Países Bajos,Small,136254
+S068,Sportia Den Haag IP,Den Haag,Países Bajos,Small,89418
+S069,Sportia Den Haag VJ,Den Haag,Países Bajos,Medium,372648
+S070,Sportia Groningen IQ,Groningen,Países Bajos,Small,178901
