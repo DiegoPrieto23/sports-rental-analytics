@@ -2,12 +2,20 @@
 
 <style>
 /* ---------------------------------------------------------------------------
-   Tokens. Paleta categorica de referencia con el azul corporativo #0082C3 en el
-   primer slot; validada en claro y oscuro (banda de luminosidad, suelo de croma,
-   separacion CVD, suelo de vision normal y contraste).
+   TOKENS. Fuente unica de estilo del informe: `build_report.py` no minifica ni
+   transforma el CSS, lo copia byte a byte al fichero final.
+
+   Regla de forma, tres pasos y ninguno mas:
+     --r-2   contenedores (tarjeta, barra de filtros, pista de pestanas, popover)
+     --r-1   controles y pastillas dentro de un contenedor
+     --r-pill  solo badge y tag
    --------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
+
+  /* Color. Paleta categorica de referencia con el azul corporativo #0082C3 en
+     el primer slot; validada en claro y oscuro (banda de luminosidad, suelo de
+     croma, separacion CVD, suelo de vision normal y contraste). */
   --plane:        #f9f9f7;
   --surface:      #fcfcfb;
   --ink:          #0b0b0b;
@@ -23,7 +31,44 @@
   --div-mid:      #f0efec;
   --s1: #0082C3; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
   --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
-  --shadow: 0 1px 2px rgba(11,11,11,.05);
+  /* Nota: --s6 es el unico slot que no se re-derivo para oscuro, y en claro
+     queda cerca de --good. Corregirlo exige volver a pasar la validacion
+     CVD/contraste de la paleta, asi que se documenta en vez de sustituirlo a
+     ojo por un valor sin validar. */
+
+  /* Espaciado. Escala de 4 px: ninguna medida se escribe fuera de aqui. */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
+
+  /* Tipografia. Sin @font-face: el informe se abre con doble clic y sin red.
+     La mono se reserva a lo que es literalmente codigo (nombres de fichero en
+     el pie). Las cifras van en la sans con `font-variant-numeric: tabular-nums`:
+     eso ya evita que bailen al filtrar, sin cambiar de voz ni depender de que
+     mono traiga cada sistema operativo. */
+  --f-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num:  ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+
+  --t-display: 28px;   /* cifra suelta grande */
+  --t-figure:  22px;   /* valor de KPI, chip */
+  --t-lead:    17px;   /* h1 */
+  --t-title:   14px;   /* titulo de panel, unidad de la cifra */
+  --t-body:    13px;   /* cuerpo, celda de tabla, control */
+  --t-meta:    12px;   /* subtitulo, nota, pie */
+  --t-micro:   11px;   /* eje, cabecera de tabla, label de KPI */
+  --t-nano:    10px;   /* etiqueta dentro de marca; espejo en 04_charts.js */
+
+  --w-reg: 400; --w-med: 500; --w-bold: 600;
+
+  --r-1:    6px;
+  --r-2:    10px;
+  --r-pill: 999px;
+
+  /* Elevacion. Dos pasos: lo que reposa y lo que flota. */
+  --shadow:     0 1px 2px rgba(11,11,11,.05);
+  --shadow-pop: 0 8px 24px rgba(11,11,11,.16);
+
+  /* Foco: una sola receta para todo control. */
+  --focus: 2px solid var(--s1);
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -35,6 +80,7 @@
     --s1: #1f9fdb; --s2: #d95926; --s3: #199e70; --s4: #c98500;
     --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
     --shadow: none;
+    --shadow-pop: 0 8px 24px rgba(0,0,0,.55);
   }
 }
 :root[data-theme="dark"] {
@@ -46,182 +92,261 @@
   --s1: #1f9fdb; --s2: #d95926; --s3: #199e70; --s4: #c98500;
   --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
   --shadow: none;
+  --shadow-pop: 0 8px 24px rgba(0,0,0,.55);
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0; background: var(--plane); color: var(--ink);
-  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: var(--w-reg) var(--t-body)/1.5 var(--f-sans);
   -webkit-font-smoothing: antialiased;
 }
-.app { max-width: 1640px; margin: 0 auto; padding: 0 16px 56px; }
+.app { max-width: 1640px; margin: 0 auto; padding: 0 var(--sp-4) var(--sp-7); }
 
-header { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 20px 2px 12px; }
-header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -.01em; }
-header .sub { color: var(--ink-2); font-size: 13px; margin-top: 3px; }
+/* Foco visible en todo lo enfocable, en los dos temas. */
+:where(button, select, input, a, summary, [role="tab"]):focus-visible {
+  outline: var(--focus); outline-offset: 2px;
+}
+
+/* --- cabecera --- */
+header { display: flex; align-items: flex-end; gap: var(--sp-4); flex-wrap: wrap; padding: var(--sp-5) 2px var(--sp-3); }
+header h1 { margin: 0; font-size: var(--t-lead); font-weight: var(--w-bold); letter-spacing: -.01em; }
+header .sub { color: var(--ink-2); font-size: var(--t-meta); margin-top: var(--sp-1); }
 header .spacer { flex: 1 1 auto; }
 .badge {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px;
-  border: 1px solid var(--hairline); border-radius: 999px;
-  font-size: 11.5px; color: var(--ink-2); background: var(--surface);
+  display: inline-flex; align-items: center; gap: var(--sp-2); padding: 3px 10px;
+  border: 1px solid var(--hairline); border-radius: var(--r-pill);
+  font-size: var(--t-micro); color: var(--ink-2); background: var(--surface);
 }
 .icon-btn {
   border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2);
-  border-radius: 8px; padding: 6px 11px; font: inherit; font-size: 12.5px; cursor: pointer;
+  border-radius: var(--r-1); padding: var(--sp-1) var(--sp-3); font: inherit;
+  font-size: var(--t-meta); cursor: pointer;
 }
-.icon-btn:hover { color: var(--ink); }
+.icon-btn:hover { color: var(--ink); border-color: var(--axis); }
 
 /* --- barra de filtros --- */
 .filterbar {
   position: sticky; top: 0; z-index: 40;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 10px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap;
+  padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3);
   background: var(--surface); border: 1px solid var(--hairline);
-  border-radius: 12px; box-shadow: var(--shadow);
+  border-radius: var(--r-2); box-shadow: var(--shadow);
 }
-.filterbar .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.filterbar .label { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .ms { position: relative; }
 .ms > button, select.plain {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: var(--sp-2);
   border: 1px solid var(--hairline); background: var(--plane); color: var(--ink);
-  border-radius: 8px; padding: 7px 11px; font: inherit; font-size: 13px;
-  cursor: pointer; min-height: 34px;
+  border-radius: var(--r-1); padding: 6px var(--sp-3); font: inherit;
+  font-size: var(--t-body); cursor: pointer; min-height: 34px;
 }
 .ms > button:hover { border-color: var(--axis); }
-.ms > button .caret { color: var(--muted); font-size: 10px; }
+.ms > button .caret { color: var(--muted); font-size: var(--t-nano); }
 .ms > button.on { border-color: var(--s1); box-shadow: inset 0 0 0 1px var(--s1); }
+
+/* Icono de filtro. Dice de que va cada desplegable sin tener que leerlo, y se
+   tine de azul cuando ese filtro esta aplicado: es estado real, no adorno. */
+.ficon { flex: none; color: var(--muted); display: block; }
+.ms > button:hover .ficon { color: var(--ink-2); }
+.ms > button.on .ficon { color: var(--s1); }
+.fsel { position: relative; display: inline-flex; align-items: center; }
+.fsel .islot {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; pointer-events: none;
+}
+.fsel select.plain { padding-left: 32px; }
+
 .ms .pop {
-  position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+  position: absolute; top: calc(100% + var(--sp-1)); left: 0; z-index: 50;
   min-width: 224px; max-height: 330px; overflow: auto;
   background: var(--surface); border: 1px solid var(--hairline);
-  border-radius: 10px; padding: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  border-radius: var(--r-2); padding: var(--sp-1); box-shadow: var(--shadow-pop);
 }
 .ms .pop[hidden] { display: none; }
 .ms .pop label {
-  display: flex; align-items: center; gap: 9px; padding: 6px 8px;
-  border-radius: 6px; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; gap: var(--sp-2); padding: 5px var(--sp-2);
+  border-radius: var(--r-1); cursor: pointer; font-size: var(--t-body);
 }
 .ms .pop label:hover { background: var(--plane); }
-.ms .pop .sep { height: 1px; background: var(--hairline); margin: 5px 2px; }
-.ms .pop .mini { font-size: 12px; color: var(--ink-2); padding: 4px 8px; cursor: pointer; }
+.ms .pop .sep { height: 1px; background: var(--hairline); margin: var(--sp-1) 2px; }
+.ms .pop .mini { font-size: var(--t-meta); color: var(--ink-2); padding: var(--sp-1) var(--sp-2); cursor: pointer; }
 .ms .pop .mini:hover { color: var(--s1); }
-.filterbar .count { margin-left: auto; font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.filterbar .count b { color: var(--ink); font-weight: 600; }
+.filterbar .count { margin-left: auto; font-size: var(--t-meta); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.filterbar .count b { color: var(--ink); font-weight: var(--w-bold); }
 
-/* --- paginas --- */
-.pages { display: flex; gap: 3px; margin: 2px 0 6px; flex-wrap: wrap; }
+/* --- navegacion por paginas ---
+   Pista hundida sobre el plano; la pagina activa es una pastilla que se levanta
+   a la altura de la superficie, con la marca de acento debajo. La pastilla
+   elevada dice "estas aqui" mucho antes que un cambio de color de texto. */
+.pages {
+  display: inline-flex; gap: 2px; flex-wrap: wrap; align-items: stretch;
+  margin: 2px 0 var(--sp-3); padding: 3px;
+  background: var(--plane); border: 1px solid var(--hairline);
+  border-radius: var(--r-2);
+}
 .pages button {
   border: 1px solid transparent; background: none; color: var(--ink-2);
-  font: inherit; font-size: 13px; padding: 7px 13px; cursor: pointer; border-radius: 8px;
+  font: inherit; font-size: var(--t-body); padding: 6px var(--sp-3);
+  cursor: pointer; border-radius: var(--r-1);
+  transition: background-color .12s, color .12s;
 }
-.pages button:hover { background: var(--surface); color: var(--ink); }
+.pages button:hover { color: var(--ink); background: var(--surface); }
 .pages button[aria-selected="true"] {
-  background: var(--surface); color: var(--ink); font-weight: 600;
-  border-color: var(--hairline); box-shadow: inset 0 -2px 0 var(--s1);
+  background: var(--surface); color: var(--ink); font-weight: var(--w-bold);
+  border-color: var(--hairline);
+  box-shadow: var(--shadow), inset 0 -2px 0 var(--s1);
 }
-.pagehead { margin: 6px 2px 12px; color: var(--ink-2); font-size: 12.5px; }
+/* Separa las paginas de negocio de las dos de metodo sin gastar una etiqueta. */
+.pages .pdiv { width: 1px; align-self: stretch; background: var(--hairline); margin: 2px var(--sp-2); }
+.pagehead { margin: 0 2px var(--sp-3); color: var(--ink-2); font-size: var(--t-meta); }
 
-/* --- rejilla y tarjetas --- */
-.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; align-items: start; }
+/* --- rejilla y tarjetas ---
+   `align-items: stretch` (el valor por defecto de grid, aqui explicito porque
+   es una decision) iguala el alto de las tarjetas que comparten fila: dos
+   graficos en paralelo terminan a la misma altura aunque su contenido no mida
+   lo mismo. */
+.grid {
+  display: grid; grid-template-columns: repeat(12, 1fr);
+  gap: var(--sp-3); align-items: stretch;
+}
 .card {
-  grid-column: span 12; background: var(--surface); border: 1px solid var(--hairline);
-  border-radius: 12px; padding: 14px 16px 12px; box-shadow: var(--shadow); min-width: 0;
+  grid-column: span 12; min-width: 0; position: relative;
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-2); padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  box-shadow: var(--shadow);
 }
 .card.c3 { grid-column: span 3; } .card.c4 { grid-column: span 4; }
 .card.c5 { grid-column: span 5; } .card.c6 { grid-column: span 6; }
 .card.c7 { grid-column: span 7; } .card.c8 { grid-column: span 8; }
-.card.c9 { grid-column: span 9; }
+.card.c9 { grid-column: span 9; } .card.c12 { grid-column: span 12; }
 @media (max-width: 1180px) {
   .card.c3, .card.c4, .card.c5 { grid-column: span 6; }
   .card.c7, .card.c8, .card.c9 { grid-column: span 12; }
 }
 @media (max-width: 720px) { .card { grid-column: span 12 !important; } }
 
-.card h3 { margin: 0; font-size: 13.5px; font-weight: 620; letter-spacing: -.005em; }
-.card .q { margin: 3px 0 10px; font-size: 12px; color: var(--ink-2); }
-.card .head { display: flex; align-items: baseline; gap: 10px; }
-.card .head .spacer { flex: 1 1 auto; }
+/* El titulo y su pregunta comparten linea; en panel estrecho la pregunta cae
+   sola a la segunda sin necesidad de media query. El hueco de la derecha
+   reserva sitio para el conmutador grafico/tabla, que va fuera del flujo. */
+.card .head {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  column-gap: var(--sp-2); row-gap: 2px;
+  padding-right: 62px; margin-bottom: var(--sp-3);
+}
+.card h3 { margin: 0; font-size: var(--t-title); font-weight: var(--w-bold); letter-spacing: -.005em; color: var(--ink); }
+.card .q { margin: 0; font-size: var(--t-meta); font-weight: var(--w-reg); color: var(--muted); }
 .tbtn {
+  position: absolute; top: var(--sp-3); right: var(--sp-4);
   border: 1px solid var(--hairline); background: none; color: var(--muted);
-  border-radius: 6px; font: inherit; font-size: 11px; padding: 2px 7px; cursor: pointer;
+  border-radius: var(--r-1); font: inherit; font-size: var(--t-micro);
+  padding: 2px var(--sp-2); cursor: pointer;
 }
 .tbtn:hover, .tbtn.on { color: var(--ink); border-color: var(--axis); }
-.segrow { display: flex; gap: 16px; flex-wrap: wrap; margin: 2px 0 10px; }
-.seg { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--muted); }
-.seg .opts { display: inline-flex; border: 1px solid var(--hairline); border-radius: 7px; overflow: hidden; }
+.segrow { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+.seg { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--t-micro); color: var(--muted); }
+.seg .opts { display: inline-flex; border: 1px solid var(--hairline); border-radius: var(--r-1); overflow: hidden; }
 .seg button {
   border: 0; border-left: 1px solid var(--hairline); background: none; color: var(--ink-2);
-  font: inherit; font-size: 11.5px; padding: 3px 10px; cursor: pointer;
+  font: inherit; font-size: var(--t-micro); padding: 3px var(--sp-3); cursor: pointer;
 }
 .seg button:first-child { border-left: 0; }
 .seg button:hover { color: var(--ink); background: var(--plane); }
 .seg button.on { background: var(--s1); color: #fff; }
-.note { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.note { margin-top: var(--sp-2); font-size: var(--t-micro); color: var(--muted); }
 .insight {
-  margin-top: 10px; padding: 9px 11px; border-left: 2px solid var(--s1);
-  background: var(--plane); border-radius: 0 8px 8px 0; font-size: 12.3px; color: var(--ink-2);
+  margin-top: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--s1); border-radius: var(--r-1);
+  background: var(--plane); font-size: var(--t-meta); color: var(--ink-2);
 }
-.insight b { color: var(--ink); font-weight: 600; }
+.insight b { color: var(--ink); font-weight: var(--w-bold); }
 .tag {
-  display: inline-block; font-size: 10.5px; padding: 1px 7px; border-radius: 999px;
-  border: 1px solid var(--hairline); color: var(--muted); vertical-align: 2px;
+  display: inline-block; font-size: var(--t-micro); padding: 1px var(--sp-2);
+  border-radius: var(--r-pill); border: 1px solid var(--hairline);
+  color: var(--muted); vertical-align: 2px;
 }
 
-/* --- tiles --- */
-.kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+/* --- indicadores ---
+   Siete tarjetas independientes, todas del mismo tamano. La cifra manda y la
+   unidad la acompana medio paso por detras: leer "12.111.837" y luego "EUR" es
+   mas rapido que leerlo todo con el mismo peso. */
+.kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-3); }
 @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 720px)  { .kpis { grid-template-columns: repeat(2, 1fr); } }
-.kpi { background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow); }
-.kpi .k { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-.kpi .v { font-size: 25px; font-weight: 640; letter-spacing: -.02em; margin-top: 4px; line-height: 1.1; }
-.kpi .d { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-2); padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--shadow); min-width: 0;
+  transition: border-color .12s;
+}
+.kpi:hover { border-color: var(--axis); }
+.kpi .k { font-size: var(--t-micro); color: var(--muted); }
+.kpi .v {
+  font-size: var(--t-figure); font-weight: var(--w-bold);
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  margin-top: var(--sp-1); line-height: 1.15; white-space: nowrap;
+}
+.kpi .v .u { font-size: var(--t-title); font-weight: var(--w-med); color: var(--muted); margin-left: 3px; letter-spacing: 0; }
+.kpi .d { font-size: var(--t-micro); color: var(--muted); margin-top: 3px; }
 .kpi .d .up { color: var(--good); } .kpi .d .down { color: var(--bad); }
-.chips { display: flex; gap: 18px; flex-wrap: wrap; margin: 2px 0 6px; }
-.chip .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-.chip .v { font-size: 19px; font-weight: 620; letter-spacing: -.01em; }
-.chip .v small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.chips { display: flex; gap: var(--sp-5); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+.chip .k { font-size: var(--t-micro); color: var(--muted); }
+.chip .v {
+  font-size: var(--t-figure); font-weight: var(--w-bold);
+  letter-spacing: -.01em; font-variant-numeric: tabular-nums;
+}
+.chip .v small { font-size: var(--t-meta); font-weight: var(--w-reg); color: var(--muted); }
 
 /* --- tablas --- */
-.tablewrap { overflow: auto; max-height: 430px; margin-top: 4px; }
-table.dt { width: 100%; border-collapse: collapse; font-size: 12.2px; }
-table.dt th, table.dt td { padding: 5px 9px; text-align: right; white-space: nowrap; }
-table.dt th:first-child, table.dt td:first-child { text-align: left; }
+.tablewrap { overflow: auto; max-height: 430px; margin-top: var(--sp-1); }
+table.dt { width: 100%; border-collapse: collapse; font-size: var(--t-meta); }
+table.dt th, table.dt td { padding: var(--sp-1) var(--sp-2); text-align: right; white-space: nowrap; }
+table.dt th:first-child, table.dt td:first-child { text-align: left; padding-left: 0; }
 table.dt th {
   position: sticky; top: 0; background: var(--surface); color: var(--muted);
-  font-weight: 550; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+  font-weight: var(--w-med); font-size: var(--t-micro);
   border-bottom: 1px solid var(--hairline);
 }
 table.dt td { border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; color: var(--ink-2); }
 table.dt td:first-child { color: var(--ink); }
 table.dt tbody tr:hover td { background: var(--plane); }
-.sig { color: var(--good); font-weight: 600; }
+.sig { color: var(--good); font-weight: var(--w-bold); }
 .nosig { color: var(--muted); }
 
-/* --- graficos --- */
+/* --- graficos ---
+   El tamano base sale del token; los graficos que bajan a `--t-nano` lo hacen
+   desde las constantes FS_MICRO / FS_NANO de 04_charts.js. */
 .chart { width: 100%; position: relative; }
 .chart svg { display: block; width: 100%; overflow: visible; }
-.chart text { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--muted); }
+.chart text { font-family: var(--f-sans); font-size: var(--t-micro); fill: var(--muted); }
 .chart text.val { fill: var(--ink-2); font-variant-numeric: tabular-nums; }
 .chart text.lbl { fill: var(--ink); }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 2px 0 6px; font-size: 12px; color: var(--ink-2); }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-2); font-size: var(--t-meta); color: var(--ink-2); }
+/* La muestra es cuadrada porque la marca que representa lo es. */
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
 .legend .ln { display: inline-block; width: 14px; height: 2px; margin-right: 6px; vertical-align: 4px; }
-.scale { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
-.scale .ramp { height: 8px; width: 120px; border-radius: 2px; }
+.scale { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--t-micro); color: var(--muted); margin-top: var(--sp-2); flex-wrap: wrap; }
+.scale .ramp { height: 8px; width: 120px; }
 
 #tip {
   position: fixed; z-index: 90; pointer-events: none; opacity: 0;
   background: var(--surface); color: var(--ink);
-  border: 1px solid var(--hairline); border-radius: 8px;
-  padding: 8px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.16);
+  border: 1px solid var(--hairline); border-radius: var(--r-1);
+  padding: var(--sp-2) var(--sp-3); font-size: var(--t-meta);
+  box-shadow: var(--shadow-pop);
   transition: opacity .08s linear; max-width: 300px;
 }
-#tip .t { font-weight: 620; margin-bottom: 3px; }
-#tip .r { display: flex; gap: 12px; justify-content: space-between; color: var(--ink-2); }
-#tip .r b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+#tip .t { font-weight: var(--w-bold); margin-bottom: 3px; }
+#tip .r { display: flex; gap: var(--sp-3); justify-content: space-between; color: var(--ink-2); }
+#tip .r b { color: var(--ink); font-weight: var(--w-bold); font-variant-numeric: tabular-nums; }
 
-footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--hairline); color: var(--muted); font-size: 11.8px; }
-footer p { margin: 5px 0; }
-#boot { padding: 60px 4px; color: var(--ink-2); }
+footer { margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--hairline); color: var(--muted); font-size: var(--t-meta); }
+footer p { margin: var(--sp-1) 0; }
+footer code { font-family: var(--f-num); font-size: var(--t-micro); }
+#boot { padding: var(--sp-7) var(--sp-1); color: var(--ink-2); }
 .hidden { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0s !important; scroll-behavior: auto !important; }
+}
 </style>

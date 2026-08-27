@@ -15,6 +15,14 @@ function mk(tag, attrs, parent) {
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const SERIES = i => cssVar("--s" + (i + 1));
 
+/* Espejo numerico de los tokens --t-micro / --t-nano de 01_head.html. El resto
+   del texto del SVG hereda tamano desde la regla `.chart text`; estos dos son
+   los unicos que hay que fijar por atributo. Deliberadamente NO se leen con
+   cssVar(): el DOM falso de docs/test_render.js solo resuelve colores, y
+   leerlos de ahi devolveria basura en el render headless. */
+const FS_MICRO = 11;   // eje, etiqueta de entidad, valor junto a la marca
+const FS_NANO  = 10;   // etiqueta dentro de la marca: heatmap, treemap, mapa
+
 const RAMP = ["#cde2fb","#b7d3f6","#9ec5f4","#86b6ef","#6da7ec","#5598e7","#3987e5",
               "#2a78d6","#256abf","#1c5cab","#184f95","#104281","#0d366b"];
 const isDark = () => document.documentElement.dataset.theme === "dark" ||
@@ -151,7 +159,7 @@ function barsH(host, spec) {
     const wpx = isFinite(d.value) ? Math.max(1, (pr - labelW) * (Math.abs(d.value) / max)) : 0;
     const lab = mk("text", { x: labelW - 10, y: y + bh - 1, "text-anchor": "end", class: "lbl" }, svg);
     lab.textContent = d.label.length > maxChars ? d.label.slice(0, maxChars - 1) + "…" : d.label;
-    mk("rect", { x: labelW, y, width: wpx, height: bh, rx: 4,
+    mk("rect", { x: labelW, y, width: wpx, height: bh, rx: 0,
                  fill: d.muted ? cssVar("--neutral-mark") : (d.color || color) }, svg);
     mk("text", { x: labelW + wpx + 7, y: y + bh - 1, class: "val" }, svg).textContent = spec.fmt(d.value);
     hover(mk("rect", { x: 0, y: y - 3, width: pr, height: rowH, fill: "transparent" }, svg),
@@ -175,7 +183,7 @@ function barsV(host, spec) {
   items.forEach((d, i) => {
     const x = pl + i * bw + 2, bwi = Math.max(2, bw - 4);
     const v = isFinite(d.value) ? d.value : 0;
-    mk("rect", { x, y: Y(v), width: bwi, height: Math.max(1, pb - Y(v)), rx: 4,
+    mk("rect", { x, y: Y(v), width: bwi, height: Math.max(1, pb - Y(v)), rx: 0,
                  fill: d.muted ? cssVar("--neutral-mark") : (d.color || spec.color || SERIES(0)) }, svg);
     if (showLabels) {
       const t = mk("text", { x: x + bwi / 2, y: Y(v) - 6, "text-anchor": "middle", class: "val" }, svg);
@@ -203,12 +211,12 @@ function stackedBarsH(host, spec) {
     d.parts.forEach((v, j) => {
       const wpx = width * (v / total);
       if (wpx > 0) {
-        mk("rect", { x, y, width: Math.max(0, wpx - 2), height: bh, rx: 2, fill: spec.colors[j] }, svg);
+        mk("rect", { x, y, width: Math.max(0, wpx - 2), height: bh, rx: 0, fill: spec.colors[j] }, svg);
         if (wpx > 34) {
           const t = mk("text", { x: x + (wpx - 2) / 2, y: y + bh - 4, "text-anchor": "middle" }, svg);
           t.textContent = Math.round(100 * v / total) + " %";
           t.setAttribute("fill", readable(spec.colors[j]));
-          t.setAttribute("font-size", 10);
+          t.setAttribute("font-size", FS_NANO);
         }
         hover(mk("rect", { x, y, width: Math.max(0, wpx - 2), height: bh, fill: "transparent" }, svg),
               d.label + " · " + spec.partNames[j],
@@ -241,7 +249,7 @@ function boxplot(host, spec) {
     [b.lo, b.hi].forEach(v => mk("line", { x1: X(v), x2: X(v), y1: cy - 5, y2: cy + 5,
                                            stroke: cssVar("--axis") }, svg));
     mk("rect", { x: X(b.q1), y: cy - bh / 2, width: Math.max(1, X(b.q3) - X(b.q1)), height: bh,
-                 rx: 3, fill: spec.color || SERIES(0), "fill-opacity": .35,
+                 rx: 0, fill: spec.color || SERIES(0), "fill-opacity": .35,
                  stroke: spec.color || SERIES(0), "stroke-width": 1.5 }, svg);
     mk("line", { x1: X(b.med), x2: X(b.med), y1: cy - bh / 2, y2: cy + bh / 2,
                  stroke: cssVar("--surface"), "stroke-width": 2.5 }, svg);
@@ -272,12 +280,12 @@ function heatmap(host, spec) {
       const v = spec.values[i][j];
       const col = colorOf(v, i, j);
       mk("rect", { x: labelW + cw * j + 1, y: y + 1, width: Math.max(1, cw - 2),
-                   height: cellH - 2, rx: 3, fill: col }, svg);
+                   height: cellH - 2, rx: 0, fill: col }, svg);
       if (spec.annotate && v != null && isFinite(v) && cw > 34) {
         const t = mk("text", { x: labelW + cw * (j + .5), y: y + cellH / 2 + 4, "text-anchor": "middle" }, svg);
         t.textContent = spec.fmt(v);
         t.setAttribute("fill", readable(col));
-        t.setAttribute("font-size", 10.5);
+        t.setAttribute("font-size", FS_NANO);
       }
       hover(mk("rect", { x: labelW + cw * j, y, width: cw, height: cellH, fill: "transparent" }, svg),
         r + " · " + c,
@@ -322,7 +330,7 @@ function scatter(host, spec) {
       if (placed.some(q => Math.abs(q.y - y) < 13 && Math.abs(q.x - x) < (q.w + wpx) / 2 + 6)) return;
       placed.push({ x, y, w: wpx });
       const t = mk("text", { x, y, "text-anchor": "middle", class: "lbl" }, svg);
-      t.textContent = p.label; t.setAttribute("font-size", 10.5); halo(t);
+      t.textContent = p.label; t.setAttribute("font-size", FS_NANO); halo(t);
     });
   }
 }
@@ -343,7 +351,7 @@ function curveChart(host, spec) {
     mk("line", { x1: X(spec.marker.x), x2: X(spec.marker.x), y1: pt, y2: pb,
                  stroke: SERIES(1), "stroke-width": 1.5 }, svg);
     const t = mk("text", { x: X(spec.marker.x) + 8, y: Y(spec.marker.y) - 10, class: "lbl" }, svg);
-    t.textContent = spec.marker.text; t.setAttribute("font-size", 11); halo(t);
+    t.textContent = spec.marker.text; t.setAttribute("font-size", FS_MICRO); halo(t);
   }
   const d = spec.points.map((p, i) => (i ? "L" : "M") + X(p.x) + " " + Y(p.y)).join(" ");
   mk("path", { d, fill: "none", stroke: SERIES(0), "stroke-width": 2.2, "stroke-linejoin": "round" }, svg);
@@ -435,18 +443,18 @@ function treemap(host, spec) {
   const groups = spec.groups.filter(g => g.value > 0);
   const outer = squarify(groups, 2, pt, w - 4, h - 8);
   outer.forEach(({ item, x, y, w: gw, h: gh }) => {
-    mk("rect", { x, y, width: gw - 3, height: gh - 3, rx: 5,
+    mk("rect", { x, y, width: gw - 3, height: gh - 3, rx: 0,
                  fill: cssVar("--plane"), stroke: cssVar("--hairline") }, svg);
     const inner = squarify(item.children, x + 4, y + 20, Math.max(1, gw - 11), Math.max(1, gh - 26));
     inner.forEach(({ item: ch, x: cx, y: cy, w: cw2, h: ch2 }) => {
       const t = Math.min(1, ch.value / spec.maxChild);
       mk("rect", { x: cx, y: cy, width: Math.max(0, cw2 - 2), height: Math.max(0, ch2 - 2),
-                   rx: 3, fill: SERIES(0), "fill-opacity": .25 + .6 * t }, svg);
+                   rx: 0, fill: SERIES(0), "fill-opacity": .25 + .6 * t }, svg);
       if (cw2 > 54 && ch2 > 18) {
         const lt = mk("text", { x: cx + 5, y: cy + 13 }, svg);
         lt.textContent = ch.label.length > Math.floor(cw2 / 6) ? ch.label.slice(0, Math.floor(cw2 / 6) - 1) + "…" : ch.label;
         lt.setAttribute("fill", cssVar("--ink"));
-        lt.setAttribute("font-size", 10.5);
+        lt.setAttribute("font-size", FS_NANO);
       }
       hover(mk("rect", { x: cx, y: cy, width: Math.max(0, cw2 - 2), height: Math.max(0, ch2 - 2),
                          fill: "transparent" }, svg),
@@ -454,7 +462,7 @@ function treemap(host, spec) {
     });
     const gt = mk("text", { x: x + 6, y: y + 14, class: "lbl" }, svg);
     gt.textContent = item.label;
-    gt.setAttribute("font-size", 11.5);
+    gt.setAttribute("font-size", FS_MICRO);
     gt.setAttribute("font-weight", 600);
     const gv = mk("text", { x: x + gw - 9, y: y + 14, "text-anchor": "end", class: "val" }, svg);
     gv.textContent = spec.fmtGroup(item.value);
@@ -584,7 +592,7 @@ function geoMap(host, spec) {
       : readable(ramp(Math.min(1, data.value / cMax)));
     const lt = mk("text", { x: p[0], y: p[1] - (byCity ? 0 : 5), "text-anchor": "middle" }, g);
     lt.textContent = data.name;
-    lt.setAttribute("font-size", 11);
+    lt.setAttribute("font-size", FS_MICRO);
     lt.setAttribute("font-weight", 600);
     lt.setAttribute("fill", ink);
     lt.setAttribute("pointer-events", "none");
@@ -592,7 +600,7 @@ function geoMap(host, spec) {
     if (!byCity) {
       const vt = mk("text", { x: p[0], y: p[1] + 10, "text-anchor": "middle" }, g);
       vt.textContent = spec.fmt(data.value);
-      vt.setAttribute("font-size", 10.5);
+      vt.setAttribute("font-size", FS_NANO);
       vt.setAttribute("fill", ink);
       vt.setAttribute("pointer-events", "none");
     }
@@ -616,7 +624,7 @@ function geoMap(host, spec) {
       const p = PX(t.lon, t.lat);
       const lt = mk("text", { x: p[0], y: p[1] - rOf(t.value) - 5, "text-anchor": "middle" }, g);
       lt.textContent = t.name;
-      lt.setAttribute("font-size", 10);
+      lt.setAttribute("font-size", FS_NANO);
       lt.setAttribute("fill", cssVar("--ink"));
       lt.setAttribute("pointer-events", "none");
       halo(lt);
@@ -634,7 +642,7 @@ function geoMap(host, spec) {
         .map(d => ({ name: d.name, sub: nf(d.cities.length) + " ciudades", value: d.value }));
   const head = mk("text", { x: px0, y: oy + 12 }, svg);
   head.textContent = spec.measureLabel + (byCity ? " por ciudad" : " por país");
-  head.setAttribute("font-size", 11.5);
+  head.setAttribute("font-size", FS_MICRO);
   head.setAttribute("font-weight", 620);
   head.setAttribute("fill", cssVar("--ink"));
 
@@ -645,18 +653,18 @@ function geoMap(host, spec) {
     const y = top + i * rowH;
     const nt = mk("text", { x: px0, y: y + 10 }, svg);
     nt.textContent = r.name;
-    nt.setAttribute("font-size", 11.5);
+    nt.setAttribute("font-size", FS_MICRO);
     nt.setAttribute("fill", cssVar("--ink"));
     const st = mk("text", { x: px0, y: y + 21, class: "lbl" }, svg);
     st.textContent = rowH > 24 ? r.sub : "";
-    st.setAttribute("font-size", 9.5);
-    mk("rect", { x: barX, y: y + 3, width: Math.max(0, barW), height: 5, rx: 2.5,
+    st.setAttribute("font-size", FS_NANO);
+    mk("rect", { x: barX, y: y + 3, width: Math.max(0, barW), height: 5, rx: 0,
                  fill: cssVar("--grid") }, svg);
     mk("rect", { x: barX, y: y + 3, width: Math.max(1, barW * r.value / rmax), height: 5,
-                 rx: 2.5, fill: byCity ? SERIES(0) : ramp(Math.min(1, r.value / cMax)) }, svg);
+                 rx: 0, fill: byCity ? SERIES(0) : ramp(Math.min(1, r.value / cMax)) }, svg);
     const vt = mk("text", { x: px0 + pw, y: y + 10, "text-anchor": "end" }, svg);
     vt.textContent = spec.fmt(r.value);
-    vt.setAttribute("font-size", 11);
+    vt.setAttribute("font-size", FS_MICRO);
     vt.setAttribute("fill", cssVar("--ink-2"));
   });
 
@@ -665,13 +673,13 @@ function geoMap(host, spec) {
     const grad = mk("linearGradient", { id: "mapgrad", x1: "0", x2: "1" }, defs);
     const arr = rampArr();
     arr.forEach((c, i) => mk("stop", { offset: (i / (arr.length - 1) * 100) + "%", "stop-color": c }, grad));
-    mk("rect", { x: px0, y: gy, width: Math.min(160, pw - 60), height: 8, rx: 2,
+    mk("rect", { x: px0, y: gy, width: Math.min(160, pw - 60), height: 8, rx: 0,
                  fill: "url(#mapgrad)" }, svg);
     const lo = mk("text", { x: px0, y: gy + 20, class: "lbl" }, svg);
-    lo.textContent = "0"; lo.setAttribute("font-size", 9.5);
+    lo.textContent = "0"; lo.setAttribute("font-size", FS_NANO);
     const hi = mk("text", { x: px0 + Math.min(160, pw - 60), y: gy + 20, "text-anchor": "middle",
                             class: "lbl" }, svg);
-    hi.textContent = spec.fmt(cMax); hi.setAttribute("font-size", 9.5);
+    hi.textContent = spec.fmt(cMax); hi.setAttribute("font-size", FS_NANO);
   } else {
     const gy = oy + mapH - 20;
     let x = px0;
@@ -681,12 +689,12 @@ function geoMap(host, spec) {
                      stroke: cssVar("--surface"), "stroke-width": 1.2 }, svg);
       const vt = mk("text", { x: x + r, y: gy + 26, "text-anchor": "middle", class: "lbl" }, svg);
       vt.textContent = spec.fmt(vmax * f);
-      vt.setAttribute("font-size", 9);
+      vt.setAttribute("font-size", FS_NANO);
       x += r * 2 + 26;
     }
     const cap = mk("text", { x: x + 2, y: gy + 14, class: "lbl" }, svg);
     cap.textContent = "área ∝ " + spec.measureLabel.toLowerCase();
-    cap.setAttribute("font-size", 10);
+    cap.setAttribute("font-size", FS_NANO);
   }
 }
 
@@ -742,7 +750,7 @@ function sankey(host, spec) {
   }
 
   for (const n of nodes) {
-    const rect = mk("rect", { x: n._x, y: n._y, width: nodeW, height: n._h, rx: 2,
+    const rect = mk("rect", { x: n._x, y: n._y, width: nodeW, height: n._h, rx: 0,
                               fill: n.color || SERIES(0) }, svg);
     hover(rect, n.label, n.tipRows());
     const last = n.col === cols - 1;
@@ -750,11 +758,11 @@ function sankey(host, spec) {
     const anchor = last ? "end" : "start";
     const lt = mk("text", { x: tx, y: n._y - 17, "text-anchor": anchor }, svg);
     lt.textContent = n.label;
-    lt.setAttribute("font-size", 11.5);
+    lt.setAttribute("font-size", FS_MICRO);
     lt.setAttribute("font-weight", 600);
     lt.setAttribute("fill", cssVar("--ink"));
     const vt = mk("text", { x: tx, y: n._y - 5, "text-anchor": anchor, class: "lbl" }, svg);
     vt.textContent = spec.fmt(n.value) + (n.sub ? " · " + n.sub : "");
-    vt.setAttribute("font-size", 10.5);
+    vt.setAttribute("font-size", FS_NANO);
   }
 }

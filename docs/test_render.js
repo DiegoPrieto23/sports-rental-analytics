@@ -18,6 +18,12 @@ const path = require("path");
 const vm = require("vm");
 
 /* ------------------------------------------------------------------ DOM ---- */
+/* Tercera copia de la paleta, necesaria para que cssVar() resuelva sin
+   navegador. La fuente de verdad es el bloque de tokens de
+   docs/report/01_head.html: al cambiar un color alli hay que cambiarlo aqui, o
+   el humo se renderiza con colores que ya no existen y no avisa de nada.
+   Solo hacen falta los colores: los tokens de tamano, espaciado y forma no se
+   leen nunca desde JS (04_charts.js los duplica como FS_MICRO / FS_NANO). */
 const COLORS = {
   "--s1": "#0082C3", "--s2": "#eb6834", "--s3": "#1baf7a", "--s4": "#eda100",
   "--s5": "#e87ba4", "--s6": "#008300", "--s7": "#4a3aa7", "--s8": "#e34948",

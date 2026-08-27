@@ -15,7 +15,13 @@
   <div id="ui" class="hidden">
     <div class="filterbar">
       <span class="label">Filtros</span>
-      <select class="plain" id="f-period" aria-label="Periodo"></select>
+      <!-- El icono del periodo va fuera del <select>: un elemento nativo no
+           admite marcado dentro. `buildChrome()` lo rellena desde el mismo
+           catalogo ICON que usan los cinco desplegables. -->
+      <span class="fsel">
+        <span class="islot" id="f-period-icon"></span>
+        <select class="plain" id="f-period" aria-label="Periodo"></select>
+      </span>
       <div class="ms" id="f-country"></div>
       <div class="ms" id="f-cat"></div>
       <div class="ms" id="f-channel"></div>
@@ -25,9 +31,9 @@
       <span class="count" id="f-count"></span>
     </div>
 
-    <nav class="pages" role="tablist" id="pages"></nav>
+    <nav class="pages" role="tablist" aria-label="Paginas del informe" id="pages"></nav>
     <div class="pagehead" id="pagehead"></div>
-    <main id="panels"></main>
+    <main id="panels" role="tabpanel"></main>
 
     <footer>
       <p><b>Fuente:</b> los cuatro CSV de <code>output/</code>, generados por <code>generate_dataset.py</code>

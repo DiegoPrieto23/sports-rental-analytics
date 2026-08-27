@@ -19,15 +19,57 @@ const monthLabel = m => MONTH_SHORT[+m.slice(5, 7) - 1] + " " + m.slice(2, 4);
 const pval = p => p == null || !isFinite(p) ? "—" : p < 1e-4 ? "< 0,0001" : nf(p, 4);
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
+/* Separa la unidad de la cifra para poder darles peso distinto en los KPI. No
+   reimplementa el formato: parte lo que ya devuelven eur() / pct() / nf(), asi
+   que sigue habiendo un unico sitio donde se decide como se escribe un numero. */
+const splitUnit = s => {
+  const m = /^(.+?)\s*(€|%|\/ 5)$/.exec(s);
+  return m ? [m[1], m[2]] : [s, ""];
+};
+
+/* --------------------------------------------------------------------------
+   Iconos de la barra de filtros
+
+   Dibujados a mano y en linea a proposito: el informe es un unico fichero que
+   se abre sin red, asi que no hay libreria de iconos que valga. Todos comparten
+   lienzo de 20x20, trazo de 1,5 y extremos redondeados, y heredan el color con
+   `currentColor` para seguir el tema y el estado del filtro.
+   -------------------------------------------------------------------------- */
+const ICON = {
+  // calendario
+  periodo: '<rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14"/>' +
+           '<path d="M7 2.5v3"/><path d="M13 2.5v3"/>',
+  // globo terraqueo
+  pais: '<circle cx="10" cy="10" r="7"/><path d="M3 10h14"/>' +
+        '<path d="M10 3c2.4 2.1 2.4 11.9 0 14"/><path d="M10 3c-2.4 2.1-2.4 11.9 0 14"/>',
+  // bicicleta: el catalogo es material deportivo
+  categoria: '<circle cx="5.5" cy="13.5" r="3.5"/><circle cx="14.5" cy="13.5" r="3.5"/>' +
+             '<path d="M5.5 13.5 9 7h4.5l1 6.5"/><path d="M8 7h3.5"/>',
+  // ramificacion: por donde entra la reserva
+  canal: '<circle cx="4.5" cy="10" r="2"/><circle cx="15.5" cy="5" r="2"/>' +
+         '<circle cx="15.5" cy="15" r="2"/><path d="M6.5 10h3l4-4"/><path d="M9.5 10l4 4"/>',
+  // tarjeta de socio
+  membresia: '<rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/>' +
+             '<path d="M6 12h3.5"/>',
+  // porcion de un total
+  segmento: '<circle cx="10" cy="10" r="7"/><path d="M10 10V3"/><path d="M10 10l6.1 3.4"/>',
+};
+const icon = k => '<svg class="ficon" viewBox="0 0 20 20" width="14" height="14" fill="none" ' +
+  'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" ' +
+  'aria-hidden="true" focusable="false">' + ICON[k] + "</svg>";
+
 /* --------------------------------------------------------------------------
    Tarjetas
    -------------------------------------------------------------------------- */
 function card(cls, title, question, tag) {
   const el = document.createElement("section");
   el.className = "card " + cls;
-  el.innerHTML = '<div class="head"><h3></h3><div class="spacer"></div>' +
-    '<button class="tbtn" type="button">Tabla</button></div>' +
-    '<p class="q"></p><div class="chart"></div><div class="tablewrap hidden"></div>';
+  // El titulo y su pregunta comparten linea y envuelven solos en panel estrecho.
+  // El conmutador grafico/tabla sale del flujo (posicionado sobre la tarjeta),
+  // asi la linea de titulo dispone del ancho entero.
+  el.innerHTML = '<div class="head"><h3></h3><span class="q"></span></div>' +
+    '<button class="tbtn" type="button">Tabla</button>' +
+    '<div class="chart"></div><div class="tablewrap hidden"></div>';
   el.querySelector("h3").textContent = title;
   if (tag) {
     const s = document.createElement("span");
@@ -142,9 +184,10 @@ const PERIODS = [
   { id: "2022", label: "2022" },
 ];
 
-function multiselect(hostId, label, options, store) {
+function multiselect(hostId, label, options, store, iconKey) {
   const host = document.getElementById(hostId);
-  host.innerHTML = '<button type="button"><span class="txt"></span><span class="caret">▾</span></button>' +
+  host.innerHTML = '<button type="button">' + icon(iconKey) +
+    '<span class="txt"></span><span class="caret">▾</span></button>' +
     '<div class="pop" hidden></div>';
   const btn = host.querySelector("button"), pop = host.querySelector(".pop");
   const txt = host.querySelector(".txt");
@@ -189,11 +232,13 @@ function buildChrome() {
   sel.innerHTML = PERIODS.map(p => '<option value="' + p.id + '">' + p.label + "</option>").join("");
   sel.addEventListener("change", () => { state.period = sel.value; render(); });
 
-  multiselect("f-country", "País", D.countries, state.country);
-  multiselect("f-cat", "Categoría", D.categories, state.cat);
-  multiselect("f-channel", "Canal", D.channel_labels, state.channel);
-  multiselect("f-member", "Membresía", D.members, state.member);
-  multiselect("f-segment", "Segmento", D.segments, state.segment);
+  document.getElementById("f-period-icon").innerHTML = icon("periodo");
+
+  multiselect("f-country", "País", D.countries, state.country, "pais");
+  multiselect("f-cat", "Categoría", D.categories, state.cat, "categoria");
+  multiselect("f-channel", "Canal", D.channel_labels, state.channel, "canal");
+  multiselect("f-member", "Membresía", D.members, state.member, "membresia");
+  multiselect("f-segment", "Segmento", D.segments, state.segment, "segmento");
 
   document.getElementById("f-reset").addEventListener("click", () => {
     state.period = "all"; sel.value = "all";
@@ -203,19 +248,34 @@ function buildChrome() {
     render();
   });
 
+  /* Una sola fila de pestanas, en el orden del array: primero las seis paginas
+     de negocio y al final las dos de metodo (calidad del dato y estadistica),
+     separadas por una linea fina. El indice que se guarda en `state.page` es el
+     del array PAGES: `render()` resuelve por PAGES[state.page]. */
   const nav = document.getElementById("pages");
+  const panels = document.getElementById("panels");
   PAGES.forEach((p, i) => {
+    if (i > 0 && p.group !== PAGES[i - 1].group) {
+      const sep = document.createElement("span");
+      sep.className = "pdiv";
+      sep.setAttribute("role", "presentation");
+      nav.appendChild(sep);
+    }
     const b = document.createElement("button");
     b.type = "button"; b.textContent = p.label; b.setAttribute("role", "tab");
+    b.setAttribute("id", "tab-" + p.id);
+    b.setAttribute("aria-controls", "panels");
     b.setAttribute("aria-selected", i === 0);
     b.addEventListener("click", () => {
       state.page = i;
-      nav.querySelectorAll("button").forEach((x, j) => x.setAttribute("aria-selected", i === j));
+      nav.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === b));
+      panels.setAttribute("aria-labelledby", "tab-" + p.id);
       render();
       scrollTo({ top: 0, behavior: "smooth" });
     });
     nav.appendChild(b);
   });
+  panels.setAttribute("aria-labelledby", "tab-" + PAGES[0].id);
 
   document.getElementById("theme-toggle").addEventListener("click", () => {
     const cur = document.documentElement.dataset.theme;
@@ -305,9 +365,14 @@ function kpiRow(host) {
   const wrap = document.createElement("div");
   wrap.className = "kpis";
   wrap.style.gridColumn = "span 12";
-  wrap.innerHTML = tiles.map(([k, v, d]) =>
-    '<div class="kpi"><div class="k">' + k + '</div><div class="v">' + v +
-    '</div><div class="d">' + d + "</div></div>").join("");
+  // Siete tarjetas iguales. La unidad se separa de la cifra para que pese medio
+  // paso menos: lo que se compara de un vistazo es el numero, no el simbolo.
+  wrap.innerHTML = tiles.map(([k, v, d]) => {
+    const [num, unit] = splitUnit(v);
+    return '<div class="kpi"><div class="k">' + k + '</div><div class="v">' + num +
+      (unit ? '<span class="u">' + unit + "</span>" : "") +
+      '</div><div class="d">' + d + "</div></div>";
+  }).join("");
   host.appendChild(wrap);
 }
 

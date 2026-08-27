@@ -644,22 +644,30 @@ function pageEstadistica(grid) {
   }
 }
 
-/* --------------------------- indice de paginas ---------------------------- */
+/* --------------------------- indice de paginas ----------------------------
+   `group` decide en que mitad de la barra de navegacion cae cada pagina:
+   "negocio" son las que responden a una pregunta del negocio, "metodo" las dos
+   que responden por el propio analisis (de donde sale el dato y cuanto aguanta
+   estadisticamente). El orden del array es el que ve el usuario.
+
+   Ojo al reordenar: `state.page` guarda el INDICE de este array (05_ui.js), no
+   el `id`. No hay routing por hash, asi que reordenar no rompe ningun enlace,
+   pero la posicion 0 tiene que seguir siendo la pagina de entrada. */
 const PAGES = [
-  { id: "resumen", label: "Resumen ejecutivo", render: pageResumen,
+  { id: "resumen", label: "Resumen ejecutivo", group: "negocio", render: pageResumen,
     intro: "Los siete indicadores del negocio, su evolución y de dónde sale el dinero." },
-  { id: "calidad", label: "Calidad del dato", render: pageCalidad,
-    intro: "Qué problemas trae el dato de origen y qué se decidió con cada uno antes de calcular nada." },
-  { id: "demanda", label: "Demanda y estacionalidad", render: pageDemanda,
+  { id: "demanda", label: "Demanda y estacionalidad", group: "negocio", render: pageDemanda,
     intro: "Cuándo se alquila, cuánto dura y qué semanas se salen del patrón." },
-  { id: "producto", label: "Producto e inventario", render: pageProducto,
+  { id: "producto", label: "Producto e inventario", group: "negocio", render: pageProducto,
     intro: "Qué referencias sostienen el negocio, cuáles no rotan y cuándo toca renovar la flota." },
-  { id: "tiendas", label: "Tiendas y geografía", render: pageTiendas,
+  { id: "tiendas", label: "Tiendas y geografía", group: "negocio", render: pageTiendas,
     intro: "Dónde se vende, qué tiendas convierten mejor su tráfico y dónde hay fricción operativa." },
-  { id: "clientes", label: "Clientes y fidelización", render: pageClientes,
+  { id: "clientes", label: "Clientes y fidelización", group: "negocio", render: pageClientes,
     intro: "Quién sostiene los ingresos, qué aporta la membresía y si el cliente vuelve." },
-  { id: "pricing", label: "Pricing y canal", render: pagePricing,
+  { id: "pricing", label: "Pricing y canal", group: "negocio", render: pagePricing,
     intro: "Cómo está construido el precio, dónde queda recorrido y por qué canal entra la demanda." },
-  { id: "estadistica", label: "Estadística", render: pageEstadistica,
+  { id: "calidad", label: "Calidad del dato", group: "metodo", render: pageCalidad,
+    intro: "Qué problemas trae el dato de origen y qué se decidió con cada uno antes de calcular nada." },
+  { id: "estadistica", label: "Estadística", group: "metodo", render: pageEstadistica,
     intro: "De «se ve una relación» a cuantificarla: correlaciones, regresiones y contrastes sobre la selección." },
 ];

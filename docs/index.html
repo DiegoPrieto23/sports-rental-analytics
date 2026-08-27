@@ -16,20 +16,40 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <style>
-/* Mismos tokens que el informe: la portada y el cuadro de mando tienen que
-   leerse como la misma pieza. Paleta claro/oscuro por `prefers-color-scheme`. */
+/* Mismos tokens y misma escala que el informe: la portada y el cuadro de mando
+   tienen que leerse como la misma pieza. La fuente de verdad es
+   docs/report/01_head.html; esto es una copia deliberada porque la portada es
+   un fichero independiente. Al tocar alli, tocar aqui.
+
+   Regla de forma, igual que en el informe: --r-2 para contenedores, --r-1 para
+   controles y --r-pill solo para la pastilla. */
 :root {
   color-scheme: light;
   --plane: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e;
-  --muted: #898781; --grid: #e1e0d9; --hairline: rgba(11,11,11,0.10);
+  --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7;
+  --hairline: rgba(11,11,11,0.10);
   --s1: #0082C3;
+
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
+
+  --f-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num:  ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+
+  --t-display: 28px; --t-figure: 22px; --t-lead: 17px; --t-title: 14px;
+  --t-body: 13px; --t-meta: 12px; --t-micro: 11px;
+  --w-reg: 400; --w-med: 500; --w-bold: 600;
+
+  --r-1: 6px; --r-2: 10px; --r-pill: 999px;
   --shadow: 0 1px 2px rgba(11,11,11,.05);
+  --focus: 2px solid var(--s1);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
     --plane: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
-    --muted: #898781; --grid: #2c2c2a; --hairline: rgba(255,255,255,0.10);
+    --muted: #898781; --grid: #2c2c2a; --axis: #383835;
+    --hairline: rgba(255,255,255,0.10);
     --s1: #1f9fdb;
     --shadow: none;
   }
@@ -37,52 +57,69 @@
 * { box-sizing: border-box; }
 body {
   margin: 0; background: var(--plane); color: var(--ink);
-  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: var(--w-reg) var(--t-body)/1.5 var(--f-sans);
   -webkit-font-smoothing: antialiased;
 }
-.wrap { max-width: 940px; margin: 0 auto; padding: 56px 20px 72px; }
+.wrap { max-width: 940px; margin: 0 auto; padding: var(--sp-7) var(--sp-4) var(--sp-7); }
 
-h1 { margin: 0; font-size: 30px; font-weight: 650; letter-spacing: -.015em; text-wrap: balance; }
-.sub { margin: 10px 0 0; color: var(--ink-2); font-size: 16px; max-width: 62ch; }
+:where(a, button):focus-visible { outline: var(--focus); outline-offset: 2px; }
+
+h1 { margin: 0; font-size: var(--t-display); font-weight: var(--w-bold); letter-spacing: -.02em; text-wrap: balance; }
+.sub { margin: var(--sp-3) 0 0; color: var(--ink-2); font-size: var(--t-lead); max-width: 62ch; line-height: 1.45; }
 .badge {
-  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px;
-  padding: 3px 10px; border: 1px solid var(--hairline); border-radius: 999px;
-  font-size: 12px; color: var(--ink-2); background: var(--surface);
+  display: inline-flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-4);
+  padding: 3px 10px; border: 1px solid var(--hairline); border-radius: var(--r-pill);
+  font-size: var(--t-micro); color: var(--ink-2); background: var(--surface);
 }
 
-.cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 34px; }
+.cta { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-5) 0 var(--sp-6); }
 .btn {
-  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
-  border-radius: 9px; padding: 10px 18px; font-size: 14.5px; font-weight: 550;
+  display: inline-flex; align-items: center; gap: var(--sp-2); text-decoration: none;
+  border-radius: var(--r-1); padding: 9px var(--sp-4); font-size: var(--t-body); font-weight: var(--w-med);
   border: 1px solid var(--hairline); background: var(--surface); color: var(--ink);
-  transition: border-color .15s, transform .15s;
+  transition: border-color .15s;
 }
-.btn:hover { border-color: var(--s1); transform: translateY(-1px); }
+.btn:hover { border-color: var(--axis); }
 .btn.primary { background: var(--s1); border-color: var(--s1); color: #fff; }
-.btn.primary:hover { filter: brightness(1.07); }
-.btn:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.btn.primary:hover { filter: brightness(1.07); border-color: var(--s1); }
 
-.shot { display: block; margin: 0 0 40px; border-radius: 12px; overflow: hidden;
-        border: 1px solid var(--hairline); box-shadow: var(--shadow); }
+.shot {
+  display: block; margin: 0 0 var(--sp-6); overflow: hidden;
+  border: 1px solid var(--hairline); border-radius: var(--r-2); box-shadow: var(--shadow);
+}
 .shot img { display: block; width: 100%; height: auto; }
 
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+/* Mismas cajas que los paneles del informe: superficie sobre plano, filete y
+   sombra minima. `align-items: stretch` iguala el alto de las tres. */
+.grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3); align-items: stretch;
+}
 @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
 .card {
   background: var(--surface); border: 1px solid var(--hairline);
-  border-radius: 11px; padding: 16px 17px;
+  border-radius: var(--r-2); padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  box-shadow: var(--shadow);
 }
-.card h2 { margin: 0 0 6px; font-size: 14.5px; font-weight: 620; }
-.card p { margin: 0; font-size: 13.3px; color: var(--ink-2); }
+.card h2 { margin: 0 0 var(--sp-2); font-size: var(--t-title); font-weight: var(--w-bold); }
+.card p { margin: 0; font-size: var(--t-meta); color: var(--ink-2); }
 
-.facts { display: flex; flex-wrap: wrap; gap: 30px; margin: 40px 0 8px;
-         padding-top: 26px; border-top: 1px solid var(--grid); }
-.fact .k { font-size: 22px; font-weight: 620; letter-spacing: -.01em;
-           font-variant-numeric: tabular-nums; }
-.fact .v { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.facts {
+  display: flex; flex-wrap: wrap; gap: var(--sp-6); margin: var(--sp-6) 0 0;
+  padding-top: var(--sp-5); border-top: 1px solid var(--grid);
+}
+/* Cifra en la sans con cifra tabular, igual que los KPI del informe: la mono
+   se reserva a lo que es codigo. */
+.fact .k {
+  font-size: var(--t-figure); font-weight: var(--w-bold);
+  letter-spacing: -.01em; font-variant-numeric: tabular-nums;
+}
+.fact .v { font-size: var(--t-micro); color: var(--muted); margin-top: 2px; }
 
-footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--grid);
-         font-size: 13px; color: var(--muted); }
+footer {
+  margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--grid);
+  font-size: var(--t-meta); color: var(--muted);
+}
 footer a { color: var(--ink-2); }
 </style>
 </head>
@@ -90,7 +127,7 @@ footer a { color: var(--ink-2); }
 <div class="wrap">
 
   <span class="badge">Datos 100 % sintéticos</span>
-  <h1>Sports Rental — Analytics Engineering</h1>
+  <h1>Sports Rental · Analytics Engineering</h1>
   <p class="sub">
     Simulación y análisis del negocio de alquiler de material deportivo de un retailer
     europeo: del generador de datos al cuadro de mando, pasando por la calidad del dato,
