@@ -11,43 +11,15 @@ function pageTiendas(grid) {
   const rows = storeMetrics();
   const byRev = rows.slice().sort((a, b) => b.rev - a.rev);
 
-  /* Roll-up por ciudad a partir de las tiendas: el hecho ya trae store_id, asi
-     que ciudad y pais salen de la dimension sin tocar el encoding binario. */
-  const cities = {};
-  rows.forEach(d => {
-    const k = d.city + "|" + d.country;
-    if (!cities[k]) cities[k] = { city: d.city, country: d.country, rev: 0, n: 0,
-                                  stores: 0, psum: 0, pn: 0 };
-    const c = cities[k];
-    c.rev += d.rev; c.n += d.n; c.stores++;
-    c.psum += A.store.psum[d.b]; c.pn += A.store.pn[d.b];
-  });
-  const cityList = Object.values(cities).sort((a, b) => b.rev - a.rev);
+  const cityList = cityRollup(rows);
   const sinCoord = cityList.filter(d => !CITY_LL[d.city]);
 
   const c0 = card("c12", "Mapa de negocio", "¿Cómo se reparte el negocio sobre el terreno?");
   grid.appendChild(c0);
   const drawMap = () => {
     const byRevM = geoView.metric === "rev";
-    const val = d => byRevM ? d.rev : d.n;
     const fmt = v => byRevM ? compact(v) + " €" : compact(v);
-    const groups = D.countries.map((name, ci) => {
-      const own = cityList.filter(d => d.country === name && CITY_LL[d.city]);
-      return {
-        name, value: own.reduce((a, b) => a + val(b), 0),
-        tipRows: () => [["Ingresos", eur(A.country.rev[ci + 1])],
-                        ["Alquileres", nf(A.country.n[ci + 1])],
-                        ["Ticket medio", eur(kpi.ticket(A.country, ci + 1), 2)],
-                        ["Ciudades", nf(own.length)],
-                        ["Tiendas", nf(own.reduce((a, b) => a + b.stores, 0))]],
-        cities: own.map(d => ({
-          name: d.city, lat: CITY_LL[d.city][0], lon: CITY_LL[d.city][1], value: val(d),
-          tipRows: () => [["País", d.country], ["Ingresos", eur(d.rev)],
-                          ["Alquileres", nf(d.n)], ["Tiendas", nf(d.stores)],
-                          ["Ticket medio", eur(d.pn ? d.psum / d.pn : NaN, 2)]],
-        })),
-      };
-    }).filter(g => g.cities.length);
+    const groups = geoCountryGroups(cityList, byRevM);
     geoMap(c0._chart, {
       height: 620, level: geoView.level, countries: groups, fmt,
       measureLabel: byRevM ? "Ingresos" : "Alquileres",
@@ -653,21 +625,3 @@ function pageEstadistica(grid) {
    Ojo al reordenar: `state.page` guarda el INDICE de este array (05_ui.js), no
    el `id`. No hay routing por hash, asi que reordenar no rompe ningun enlace,
    pero la posicion 0 tiene que seguir siendo la pagina de entrada. */
-const PAGES = [
-  { id: "resumen", label: "Resumen ejecutivo", group: "negocio", render: pageResumen,
-    intro: "Los siete indicadores del negocio, su evolución y de dónde sale el dinero." },
-  { id: "demanda", label: "Demanda y estacionalidad", group: "negocio", render: pageDemanda,
-    intro: "Cuándo se alquila, cuánto dura y qué semanas se salen del patrón." },
-  { id: "producto", label: "Producto e inventario", group: "negocio", render: pageProducto,
-    intro: "Qué referencias sostienen el negocio, cuáles no rotan y cuándo toca renovar la flota." },
-  { id: "tiendas", label: "Tiendas y geografía", group: "negocio", render: pageTiendas,
-    intro: "Dónde se vende, qué tiendas convierten mejor su tráfico y dónde hay fricción operativa." },
-  { id: "clientes", label: "Clientes y fidelización", group: "negocio", render: pageClientes,
-    intro: "Quién sostiene los ingresos, qué aporta la membresía y si el cliente vuelve." },
-  { id: "pricing", label: "Pricing y canal", group: "negocio", render: pagePricing,
-    intro: "Cómo está construido el precio, dónde queda recorrido y por qué canal entra la demanda." },
-  { id: "calidad", label: "Calidad del dato", group: "metodo", render: pageCalidad,
-    intro: "Qué problemas trae el dato de origen y qué se decidió con cada uno antes de calcular nada." },
-  { id: "estadistica", label: "Estadística", group: "metodo", render: pageEstadistica,
-    intro: "De «se ve una relación» a cuantificarla: correlaciones, regresiones y contrastes sobre la selección." },
-];

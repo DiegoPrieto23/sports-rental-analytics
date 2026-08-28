@@ -37,7 +37,7 @@ python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.time
 # Rebuild the interactive HTML report and run its two test suites
 python docs/build_report.py
 python docs/verify_report.py    # numbers: vs pandas/scipy/statsmodels (runs Node internally)
-node    docs/test_render.js     # pages: 8 pages x 4 filter scenarios, must not throw
+node    docs/test_render.js     # pages: 9 pages x 4 filter scenarios, must not throw
 ```
 
 There is **no lint config and no test framework**. "Passing" means: the generator runs
@@ -120,18 +120,79 @@ orchestrated by `main()`. Numbered section banners (`# 1.` … `# 8.`) mark the 
 ## Interactive report (`docs/`)
 
 `docs/build_report.py` concatenates the pieces in `docs/report/` into
-`docs/informe.html`: a self-contained 8-page dashboard (no CDN, no server, no build
+`docs/informe.html`: a self-contained 9-page dashboard (no CDN, no server, no build
 tooling, ~2.3 MB). **Edit the pieces, never `informe.html`** — it is generated.
 
 ```
-report/01_head.html   tokens + CSS          report/05_ui.js       cards, filters, render loop
+report/01_head.html   tokens + CSS          report/05_ui.js       nav, cards, filters, render
 report/02_body.html   markup shell          report/06_pages_a.js  pages 1-4
-report/03_core.js     engine (no DOM)       report/07_pages_b.js  pages 5-8 + PAGES index
-report/03b_geo.js     country outlines      report/04_charts.js   SVG chart library
+report/03_core.js     engine (no DOM)       report/07_pages_b.js  pages 5-8
+report/03b_geo.js     country outlines      report/08_pages_c.js  page 9 + PAGES index
+report/04_charts.js   SVG chart library
 ```
 
 Key invariants:
 
+- **`PAGES` lives at the end of `08_pages_c.js`**, the last piece the builder concatenates,
+  and `state.page` stores the *index* into that array. Adding a page means adding a
+  `pageX()` function and one entry there — the rail builds itself from it, grouping by `group`
+  under the labels in `GROUP_LABEL` and drawing the icon `PAGE_ICON[id]`. A page whose id has
+  no icon still works; it just renders an empty 16 px slot.
+- **The rail is a sibling of `.app`, not a child, and that is load-bearing.** It is
+  `position: fixed` to the window edge, and `.app` is a centred max-width container — a fixed
+  element nested inside it could not reach the edge. `.app` clears it with
+  `margin-left: var(--rail)`. Below 1080 px the rail turns into a static horizontal strip and
+  that margin goes to zero.
+- **The rail's palette does not follow the theme.** `--rail-*` holds the same six values in
+  light and dark on purpose: the rail is furniture, not document. Every text tone on it clears
+  5:1. Do not wire it to `--surface`/`--ink` "for consistency" — that is the change that makes
+  it disappear into the page in one theme.
+- **There is no `<header>` any more.** The title lives in the rail, the dataset identity in
+  `#rail-meta` (repeated in `#footer-meta`, because the rail hides on narrow screens), and the
+  theme toggle sits in the filter bar with the other controls.
+- **Diagrams don't reflow, so they scroll.** `flowDiagram` and `starDiagram` use
+  `wideFrame()`, which pins a design width and lets the card pan horizontally. Every other
+  chart takes `host.clientWidth`; a boxes-and-arrows diagram squeezed into 300 px would just
+  overlap its own labels.
+- **`scatter`'s zoom is a domain change with a redraw**, not an SVG `transform`. Scaling the
+  group would scale the bubble radii too, which re-creates exactly the overplotting the zoom
+  exists to undo. Opt in per chart with `spec.zoom`.
+- **Page 1 cards remember their view across filters.** `catView`, `geoResumenView`,
+  `growthView` (page 1) and `ageView` (page 3) live at module scope in `06_pages_a.js`
+  because `render()` rebuilds every card on each filter change; a toggle stored in the DOM
+  would reset itself. Their initial values are the default view.
+- **The occupancy gauge does not run 0–100.** This fleet rents 2–9 % of the time, so a
+  full-scale arc would pin every mark to the origin. `gMax` snaps to the next nice tick above
+  the highest category and both ends are written on the arc. If you change the generator's
+  inventory sizing, that scale follows automatically — don't hardcode it.
+- The card *Averías por antigüedad* (page 3) defaults to a box plot over five age buckets and
+  keeps the old product scatter behind a toggle. `ageView.mode` in `06_pages_a.js` picks the
+  default; set it to `"scatter"` to restore the previous behaviour.
+- **Font sizes in charts go through `fs()`, never `setAttribute("font-size", …)`.** The
+  `.chart text` rule in `01_head.html` is a CSS declaration and beats every SVG presentation
+  attribute, so an attribute-set size silently renders at `--t-micro`. `fs()` writes an inline
+  style, which wins.
+- **Text colour has the same trap as font size, and it is the one that bites.** `.chart text`
+  sets `fill`, so a `setAttribute("fill", …)` on an SVG text node loses to it. The rules now
+  carry `:not([fill])` so the library's own colour wins, and in-mark labels also go through
+  `paint()` (inline style). Without both, `readable()` computes a colour that never reaches
+  the screen and every label falls back to muted grey on a coloured mark.
+- **`readable(hex)` picks whichever of ink/white has the higher contrast ratio**, not a fixed
+  luminance threshold. The old `> .45` cutoff put white text on the middle of the blue ramp at
+  2.1:1. Every in-mark label (heatmap, treemap, map, stacked bars) depends on this.
+- **Both treemaps fill their marks from `ramp()`, not from a translucent `SERIES(0)`.** Opacity
+  over the card background reverses direction between themes (in dark, more value read as
+  lighter) and crosses the mid-luminance band where neither ink nor white clears 4.5:1 — the
+  largest tile sat at 4.4:1. The ramp is validated for contrast and CVD and keeps one meaning
+  for "darker blue" across the whole report. Worst in-mark contrast is now 5.4:1.
+- **`note()` renders HTML**, like `insight()`. It used `textContent`, so any `<b>` showed up as
+  literal tag text on the page.
+- **Prose tables opt into `.tablewrap.txt`** via `textTable()`. The default `table.dt` aligns
+  right and sets `white-space: nowrap`, which is correct for columns of figures and wrong for
+  sentences — it pushes short cells to the far right and forces horizontal scrolling.
+- **`starDiagram` places boxes by separation, not by radius.** For each ray it finds the
+  smallest distance at which the two boxes no longer overlap on *either* axis. A fixed-radius
+  ellipse leaves the diagonal positions overlapping the fact box.
 - **`03_core.js` must stay DOM-free.** `docs/test_report.js` loads that exact file in Node
   to check the engine against pandas/scipy/statsmodels. One `document.` reference there
   and the whole numeric test suite stops running.
@@ -163,7 +224,7 @@ Key invariants:
   like a thin band of bubbles. Cross-check with `cities inside their own country polygon`,
   never by re-deriving the same formula in the test.
 - No browser is available in this environment, so `test_render.js` stubs a minimal DOM and
-  renders all 8 pages under 4 filter scenarios. It proves nothing about *looks* — only that
+  renders all 9 pages under 4 filter scenarios. It proves nothing about *looks* — only that
   the page code runs. Visual regressions still need a human to open the file.
 
 ## Data model

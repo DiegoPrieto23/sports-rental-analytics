@@ -183,7 +183,16 @@ const html = fs.readFileSync(path.join(__dirname, "informe.html"), "utf8");
 const m = html.match(/<script>([\s\S]*?)<\/script>/);
 if (!m) { console.error("No se encontro el <script> del informe"); process.exit(1); }
 // Se quita la llamada final a boot() para controlarla desde aqui.
-const script = m[1].replace(/\nboot\(\)\.catch\([\s\S]*?\}\);\n/, "\n");
+// Los `\r?` no sobran: `build_report.py` escribe el fichero con los finales de
+// linea del sistema, asi que en Windows llega con CRLF y un patron anclado en
+// "\n" no casa. Sin ellos el recorte fallaba en silencio: boot() arrancaba por
+// su cuenta ademas del driver, y todo se construia y se medía dos veces. La
+// comprobacion posterior existe para que un fallo asi vuelva a ser ruidoso.
+const script = m[1].replace(/\r?\nboot\(\)\.catch\([\s\S]*?\}\);\r?\n/, "\n");
+if (/boot\(\)\.catch\(/.test(script)) {
+  console.error("No se pudo recortar la llamada a boot(): el arnes no controlaria el arranque.");
+  process.exit(1);
+}
 
 const driver = `
 globalThis.__run = async () => {

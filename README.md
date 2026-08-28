@@ -11,7 +11,7 @@ material deportivo (Rental)** de un retailer europeo. Consta de tres piezas:
    de principio a fin (calidad del dato → KPIs → SQL → EDA → estadística → recomendaciones),
    pensado para Databricks y ejecutable localmente en VSCode.
 3. **Informe interactivo** (`docs/informe.html`) — el análisis convertido en una herramienta
-   de exploración: seis filtros cruzados, ocho páginas y detalle hasta la referencia
+   de exploración: seis filtros cruzados, nueve páginas y detalle hasta la referencia
    concreta, en un único fichero HTML que se abre con doble clic.
 
 > Todos los datos son **100 % sintéticos**. No contienen información real de clientes,
@@ -40,11 +40,11 @@ El **mapa de negocio** alterna entre **países y ciudades** y entre **importe y 
 panel lateral da la cifra exacta que el color solo insinúa.
 
 Seis filtros —periodo, país, categoría, canal, membresía y segmento— se aplican a la vez a
-**ocho páginas**:
+**nueve páginas**:
 
 | Página | Qué responde |
 |--------|--------------|
-| **Resumen ejecutivo** | 7 KPIs con variación contra el periodo anterior, evolución mensual con media móvil, mix por categoría y país |
+| **Resumen ejecutivo** | 7 KPIs con variación contra el periodo anterior, ingresos del mes frente al **mismo mes del año anterior**, **indicador radial** de ocupación de la flota con desglose por categoría, peso de cada deporte y reparto por país —ambos con conmutador **treemap/mapa ↔ barras**— y **barras divergentes** de crecimiento por categoría contra los doce meses anteriores |
 | **Calidad del dato** | Data Trust Score, nulos por columna, reglas de negocio incumplidas, duplicados y outliers por la regla de Tukey |
 | **Demanda y estacionalidad** | Heatmap categoría × mes, serie semanal con **detección de anomalías** (z robusto sobre MAD), día de la semana, duración, antelación de reserva y un **Sankey del ciclo de vida** del alquiler (reservado → cancelado / a tiempo / tardío / con avería) |
 | **Producto e inventario** | Curva de Pareto ABC, rotación por cuartiles, ocupación frente a margen, antigüedad frente a averías, saturados e infrautilizados por capital inmovilizado |
@@ -52,6 +52,7 @@ Seis filtros —periodo, país, categoría, canal, membresía y segmento— se a
 | **Clientes y fidelización** | Segmentos, distribución de review por nivel de socio, cancelación por membresía, concentración de CLRV y **cohortes de retención** |
 | **Pricing y canal** | Precio/día por categoría y temporada, recorrido de pricing dinámico, **caja y bigotes** del precio, mix y fricción por canal |
 | **Estadística** | Matriz de correlación, correlaciones con significación, **regresión lineal del precio**, **logística de la cancelación**, intervalos de confianza y test A/B |
+| **Modelo y metodología** | Diagrama del pipeline `rental_raw → stg_* → int_* → mart_*` con los modelos dbt reales, **diagrama del modelo en estrella** con grano y cardinalidades, decisiones de modelado, supuestos del generador sintético y cómo se calcula el Data Trust Score |
 
 Las regresiones **se recalculan sobre la selección**: no son tablas precocinadas. La lineal
 se resuelve por ecuaciones normales y la logística por IRLS, ambas escritas a mano en el
@@ -65,7 +66,7 @@ depende solo del color o del tooltip.
 ```bash
 python docs/build_report.py     # regenera docs/informe.html desde output/*.csv
 python docs/verify_report.py    # contrasta sus cifras con pandas, scipy y statsmodels
-node    docs/test_render.js     # renderiza las 8 páginas × 4 filtros contra un DOM simulado
+node    docs/test_render.js     # renderiza las 9 páginas × 4 filtros contra un DOM simulado
 ```
 
 La verificación no es cosmética. `verify_report.py` decodifica el payload igual que el
@@ -75,7 +76,7 @@ KPIs sin filtro y con filtros cruzados, correlaciones de Pearson, los 18 términ
 regresión lineal, la logística con su log-verosimilitud, el contraste de proporciones y los
 cuantiles. Todo cuadra a seis decimales.
 
-`test_render.js` monta un DOM mínimo y renderiza las 32 combinaciones de página y filtro
+`test_render.js` monta un DOM mínimo y renderiza las 36 combinaciones de página y filtro
 para garantizar que ninguna lanza una excepción, incluida la selección sin resultados.
 
 `docs/make_geo.py` es lo único del proyecto que necesita conexión, y solo hay que
@@ -94,7 +95,7 @@ falla si alguna de sus tres promesas deja de cumplirse:
 | El notebook ejecuta limpio | `nbconvert --execute` y recuento de celdas con `output_type == "error"` |
 | El informe publicado está al día | Se reconstruye y se compara con el commiteado (Pages sirve el fichero versionado, no el recién construido) |
 | Las cifras siguen cuadrando | `verify_report.py` contra pandas, scipy y statsmodels |
-| Las 8 páginas renderizan | `test_render.js` sobre 4 escenarios de filtro |
+| Las 9 páginas renderizan | `test_render.js` sobre 4 escenarios de filtro |
 
 La reproducibilidad byte a byte solo se sostiene **dentro de las mismas versiones** de
 numpy, pandas y faker, así que el CI instala con `-c constraints.txt`, que las clava a las
@@ -171,7 +172,7 @@ sports-rental-analytics/
 │   ├── build_report.py                  # Ensambla el informe desde los CSV y report/
 │   ├── verify_report.py                 # Contrasta sus cifras con pandas y statsmodels
 │   ├── test_report.js                   # Ejecuta el motor del informe en Node
-│   ├── test_render.js                   # Renderiza las 8 páginas contra un DOM simulado
+│   ├── test_render.js                   # Renderiza las 9 páginas contra un DOM simulado
 │   ├── make_geo.py                      # Extrae las fronteras del mapa (Natural Earth)
 │   ├── report/                          # Piezas del informe (estilos, motor, geo, gráficos, páginas)
 │   ├── modelo_relacional.drawio         # Diagrama editable del modelo de datos

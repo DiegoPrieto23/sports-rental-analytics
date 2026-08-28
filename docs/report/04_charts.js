@@ -23,6 +23,18 @@ const SERIES = i => cssVar("--s" + (i + 1));
 const FS_MICRO = 11;   // eje, etiqueta de entidad, valor junto a la marca
 const FS_NANO  = 10;   // etiqueta dentro de la marca: heatmap, treemap, mapa
 
+/* El tamano de fuente va SIEMPRE por estilo en linea, nunca por atributo de
+   presentacion: la regla `.chart text { font-size: var(--t-micro) }` de
+   01_head.html gana a cualquier atributo de presentacion, asi que fijar el
+   tamano por atributo lo dejaba renderizando a 11 px sin avisar. El estilo en
+   linea, en cambio, si gana a la regla. */
+function fs(el, px) { el.style.fontSize = px + "px"; return el; }
+
+/* Color de relleno del texto, tambien por estilo en linea. Se reserva a las
+   etiquetas que van encima de una marca de color, donde el contraste lo decide
+   `readable()` y no puede quedar a merced de una regla de hoja de estilos. */
+function paint(el, color) { el.style.fill = color; return el; }
+
 const RAMP = ["#cde2fb","#b7d3f6","#9ec5f4","#86b6ef","#6da7ec","#5598e7","#3987e5",
               "#2a78d6","#256abf","#1c5cab","#184f95","#104281","#0d366b"];
 const isDark = () => document.documentElement.dataset.theme === "dark" ||
@@ -49,10 +61,19 @@ function mixHex(a, b, t) {
   const pb = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
   return "#" + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, "0")).join("");
 }
-function readable(hex) {
+function relLum(hex) {
   const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
   const f = v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4);
-  return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]) > .45 ? "#0b0b0b" : "#ffffff";
+  return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]);
+}
+/* Tinta o blanco: gana el que MAS contraste da sobre ese fondo. El criterio
+   anterior era un umbral de luminancia fijo en .45, y eso elegia blanco sobre
+   los azules medios de la rampa: blanco sobre #1f9fdb da 2,7:1 cuando la tinta
+   da 6,9:1. Comparar los dos ratios pone el cruce donde toca (L = 0,179) y
+   arregla de una vez las etiquetas del treemap, del heatmap y del mapa. */
+function readable(hex) {
+  const L = relLum(hex);
+  return (L + .05) / .05 >= 1.05 / (L + .05) ? "#0b0b0b" : "#ffffff";
 }
 
 const tip = document.getElementById("tip");
@@ -86,6 +107,20 @@ function niceTicks(max, count) {
   if (out[out.length - 1] < max) out.push(+(out[out.length - 1] + step).toFixed(10));
   return out;
 }
+/* Lienzo que no baja de un ancho minimo. Los graficos de datos se reflujan al
+   ancho que haya, pero un diagrama de cajas y flechas no: por debajo de cierto
+   ancho las etiquetas se pisan. En vez de encoger el SVG hasta que el texto sea
+   ilegible, se fija el ancho de diseno y la tarjeta desplaza en horizontal.
+   Es la misma regla que ya siguen las tablas anchas del informe. */
+function wideFrame(host, h, minW) {
+  host.innerHTML = "";
+  host.style.overflowX = "auto";
+  const w = Math.max(minW, host.clientWidth || minW);
+  const svg = mk("svg", { viewBox: "0 0 " + w + " " + h, height: h, role: "img" }, host);
+  svg.style.minWidth = minW + "px";
+  return { svg, w, h };
+}
+
 function frame(host, h, pad) {
   host.innerHTML = "";
   const w = Math.max(280, host.clientWidth || 600);
@@ -97,7 +132,8 @@ function frame(host, h, pad) {
 function lineChart(host, spec) {
   const { svg, w, pl, pr, pt, pb } = frame(host, spec.height || 240, [14, 18, 30, 60]);
   const xs = spec.x, series = spec.series;
-  const max = Math.max(...series.flatMap(s => s.values.filter(isFinite)), 0);
+  const ok = v => v != null && isFinite(v);
+  const max = Math.max(...series.flatMap(s => s.values.filter(ok)), 0);
   const ticks = niceTicks(max, 4), top = ticks[ticks.length - 1];
   const X = i => pl + (pr - pl) * (xs.length === 1 ? .5 : i / (xs.length - 1));
   const Y = v => pb - (pb - pt) * (v / top);
@@ -111,14 +147,45 @@ function lineChart(host, spec) {
     if (i % step) return;
     mk("text", { x: X(i), y: pb + 18, "text-anchor": "middle" }, svg).textContent = x;
   });
+  /* Los huecos se dibujan como huecos. Una serie de comparacion interanual no
+     tiene dato en los primeros 12 meses de la ventana, y unirlos con una recta
+     inventaria una tendencia que no existe: cada tramo continuo es un subpath. */
+  const runs = vals => {
+    const out = [];
+    let cur = null;
+    vals.forEach((v, i) => {
+      if (v == null || !isFinite(v)) { cur = null; return; }
+      if (!cur) { cur = []; out.push(cur); }
+      cur.push(i);
+    });
+    return out;
+  };
   series.forEach(s => {
-    const d = s.values.map((v, i) => (i ? "L" : "M") + X(i) + " " + Y(v)).join(" ");
-    mk("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 2,
-                 "stroke-dasharray": s.dash || null, "stroke-linejoin": "round",
-                 "stroke-linecap": "round" }, svg);
+    const segs = runs(s.values);
+    if (s.area) {
+      // El area va debajo de la linea y solo bajo la serie principal: rellena la
+      // magnitud sin competir con la serie de comparacion, que queda como trazo.
+      segs.forEach(seg => {
+        if (seg.length < 2) return;
+        const top = seg.map((i, k) => (k ? "L" : "M") + X(i) + " " + Y(s.values[i])).join(" ");
+        mk("path", { d: top + " L" + X(seg[seg.length - 1]) + " " + pb + " L" + X(seg[0]) + " " + pb + " Z",
+                     fill: s.color, "fill-opacity": .12, stroke: "none" }, svg);
+      });
+    }
+    segs.forEach(seg => {
+      if (seg.length === 1) {
+        mk("circle", { cx: X(seg[0]), cy: Y(s.values[seg[0]]), r: 2.5, fill: s.color }, svg);
+        return;
+      }
+      const d = seg.map((i, k) => (k ? "L" : "M") + X(i) + " " + Y(s.values[i])).join(" ");
+      mk("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 2,
+                   "stroke-dasharray": s.dash || null, "stroke-linejoin": "round",
+                   "stroke-linecap": "round" }, svg);
+    });
   });
   const main = series[0];
   if (xs.length <= 32) main.values.forEach((v, i) => {
+    if (v == null || !isFinite(v)) return;
     mk("circle", { cx: X(i), cy: Y(v), r: 3, fill: main.color,
                    stroke: cssVar("--surface"), "stroke-width": 2 }, svg);
   });
@@ -127,7 +194,7 @@ function lineChart(host, spec) {
                    stroke: cssVar("--surface"), "stroke-width": 2 }, svg);
   });
   const lastI = main.values.length - 1;
-  if (isFinite(main.values[lastI])) {
+  if (ok(main.values[lastI])) {
     const t = mk("text", { x: X(lastI) - 7, y: Math.max(pt + 10, Y(main.values[lastI]) - 9),
                            "text-anchor": "end", class: "val" }, svg);
     t.textContent = spec.fmtY(main.values[lastI]); halo(t);
@@ -215,8 +282,8 @@ function stackedBarsH(host, spec) {
         if (wpx > 34) {
           const t = mk("text", { x: x + (wpx - 2) / 2, y: y + bh - 4, "text-anchor": "middle" }, svg);
           t.textContent = Math.round(100 * v / total) + " %";
-          t.setAttribute("fill", readable(spec.colors[j]));
-          t.setAttribute("font-size", FS_NANO);
+          paint(t, readable(spec.colors[j]));
+          fs(t, FS_NANO);
         }
         hover(mk("rect", { x, y, width: Math.max(0, wpx - 2), height: bh, fill: "transparent" }, svg),
               d.label + " · " + spec.partNames[j],
@@ -284,8 +351,8 @@ function heatmap(host, spec) {
       if (spec.annotate && v != null && isFinite(v) && cw > 34) {
         const t = mk("text", { x: labelW + cw * (j + .5), y: y + cellH / 2 + 4, "text-anchor": "middle" }, svg);
         t.textContent = spec.fmt(v);
-        t.setAttribute("fill", readable(col));
-        t.setAttribute("font-size", FS_NANO);
+        paint(t, readable(col));
+        fs(t, FS_NANO);
       }
       hover(mk("rect", { x: labelW + cw * j, y, width: cw, height: cellH, fill: "transparent" }, svg),
         r + " · " + c,
@@ -295,44 +362,154 @@ function heatmap(host, spec) {
   });
 }
 
-/* ---- dispersion / burbujas ---- */
+/* ---- dispersion / burbujas ----
+   Con `spec.zoom` la nube pasa a ser navegable: rueda para acercar sobre el
+   cursor, arrastre para desplazar y un boton para volver al encuadre inicial.
+   El zoom NO es un `transform` sobre el grupo sino un cambio de dominio con
+   redibujado: escalando el grupo creceria tambien el radio de las burbujas y
+   se volverian a solapar, que es justo lo que el zoom viene a deshacer. */
+
+/* Marcas "bonitas" dentro de un intervalo cualquiera. `niceTicks` solo sabe
+   empezar en cero, y una vista con zoom no empieza en cero. */
+function ticksIn(lo, hi, count) {
+  const span = hi - lo;
+  if (!(span > 0)) return [lo];
+  const raw = span / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = ([1, 2, 2.5, 5, 10].find(x => x * mag >= raw) || 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out.length ? out : [lo, hi];
+}
+
 function scatter(host, spec) {
-  const { svg, pl, pr, pt, pb } = frame(host, spec.height || 300, [16, 24, 44, 58]);
   const pts = spec.points;
   const xt = niceTicks(Math.max(...pts.map(p => p.x), 0) * 1.05, 4);
   const yt = niceTicks(Math.max(...pts.map(p => p.y), 0) * 1.1, 4);
-  const X = v => pl + (pr - pl) * (v / xt[xt.length - 1]);
-  const Y = v => pb - (pb - pt) * (v / yt[yt.length - 1]);
-  yt.forEach(t => {
-    mk("line", { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: cssVar("--grid") }, svg);
-    mk("text", { x: pl - 8, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = spec.fmtY(t);
-  });
-  xt.forEach(t => mk("text", { x: X(t), y: pb + 17, "text-anchor": "middle" }, svg)
-    .textContent = spec.fmtX(t));
-  mk("text", { x: (pl + pr) / 2, y: pb + 36, "text-anchor": "middle" }, svg).textContent = spec.xLabel || "";
-  if (spec.hline != null) mk("line", { x1: pl, x2: pr, y1: Y(spec.hline), y2: Y(spec.hline),
-                                       stroke: cssVar("--axis") }, svg);
-  if (spec.vline != null) mk("line", { x1: X(spec.vline), x2: X(spec.vline), y1: pt, y2: pb,
-                                       stroke: cssVar("--axis") }, svg);
-  const rmax = Math.max(...pts.map(p => p.r || 1), 1);
-  pts.forEach(p => {
-    const r = spec.sizeBy ? 4 + 14 * Math.sqrt((p.r || 0) / rmax) : 5;
-    mk("circle", { cx: X(p.x), cy: Y(p.y), r, fill: p.color || SERIES(0),
-                   "fill-opacity": spec.sizeBy ? .72 : .8,
-                   stroke: cssVar("--surface"), "stroke-width": 2 }, svg);
-    hover(mk("circle", { cx: X(p.x), cy: Y(p.y), r: Math.max(r, 12), fill: "transparent" }, svg),
-          p.label, p.rows || []);
-  });
-  if (spec.labelPoints) {
-    const placed = [];
-    pts.slice().sort((a, b) => (b.r || 0) - (a.r || 0)).forEach(p => {
-      const x = X(p.x), y = Y(p.y) - 15, wpx = p.label.length * 5.6;
-      if (placed.some(q => Math.abs(q.y - y) < 13 && Math.abs(q.x - x) < (q.w + wpx) / 2 + 6)) return;
-      placed.push({ x, y, w: wpx });
-      const t = mk("text", { x, y, "text-anchor": "middle", class: "lbl" }, svg);
-      t.textContent = p.label; t.setAttribute("font-size", FS_NANO); halo(t);
-    });
+  const home = { x0: 0, x1: xt[xt.length - 1], y0: 0, y1: yt[yt.length - 1] };
+  const view = Object.assign({}, home);
+  const atHome = () =>
+    Math.abs(view.x0 - home.x0) < 1e-9 && Math.abs(view.x1 - home.x1) < 1e-9 &&
+    Math.abs(view.y0 - home.y0) < 1e-9 && Math.abs(view.y1 - home.y1) < 1e-9;
+
+  function clamp() {
+    const sx = Math.min(view.x1 - view.x0, home.x1 - home.x0);
+    const sy = Math.min(view.y1 - view.y0, home.y1 - home.y0);
+    view.x0 = Math.min(Math.max(view.x0, home.x0), home.x1 - sx); view.x1 = view.x0 + sx;
+    view.y0 = Math.min(Math.max(view.y0, home.y0), home.y1 - sy); view.y1 = view.y0 + sy;
   }
+
+  function draw() {
+    const f = frame(host, spec.height || 300, [16, 24, 44, 58]);
+    const { svg, w, h, pl, pr, pt, pb } = f;
+    const X = v => pl + (pr - pl) * ((v - view.x0) / (view.x1 - view.x0));
+    const Y = v => pb - (pb - pt) * ((v - view.y0) / (view.y1 - view.y0));
+
+    ticksIn(view.y0, view.y1, 4).forEach(t => {
+      mk("line", { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: cssVar("--grid") }, svg);
+      mk("text", { x: pl - 8, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = spec.fmtY(t);
+    });
+    ticksIn(view.x0, view.x1, 4).forEach(t =>
+      mk("text", { x: X(t), y: pb + 17, "text-anchor": "middle" }, svg).textContent = spec.fmtX(t));
+    mk("text", { x: (pl + pr) / 2, y: pb + 36, "text-anchor": "middle" }, svg).textContent = spec.xLabel || "";
+    if (spec.hline != null && spec.hline >= view.y0 && spec.hline <= view.y1)
+      mk("line", { x1: pl, x2: pr, y1: Y(spec.hline), y2: Y(spec.hline), stroke: cssVar("--axis") }, svg);
+    if (spec.vline != null && spec.vline >= view.x0 && spec.vline <= view.x1)
+      mk("line", { x1: X(spec.vline), x2: X(spec.vline), y1: pt, y2: pb, stroke: cssVar("--axis") }, svg);
+
+    const g = mk("g", {}, svg);
+    if (spec.zoom) {
+      const cp = mk("clipPath", { id: "scclip" }, mk("defs", {}, svg));
+      mk("rect", { x: pl - 3, y: pt - 3, width: pr - pl + 6, height: pb - pt + 6 }, cp);
+      g.setAttribute("clip-path", "url(#scclip)");
+    }
+
+    const rmax = Math.max(...pts.map(p => p.r || 1), 1);
+    const shown = spec.zoom
+      ? pts.filter(p => p.x >= view.x0 && p.x <= view.x1 && p.y >= view.y0 && p.y <= view.y1)
+      : pts;
+    shown.forEach(p => {
+      const r = spec.sizeBy ? 4 + 14 * Math.sqrt((p.r || 0) / rmax) : 5;
+      mk("circle", { cx: X(p.x), cy: Y(p.y), r, fill: p.color || SERIES(0),
+                     "fill-opacity": spec.sizeBy ? .72 : .8,
+                     stroke: cssVar("--surface"), "stroke-width": 2 }, g);
+      hover(mk("circle", { cx: X(p.x), cy: Y(p.y), r: Math.max(r, 12), fill: "transparent" }, g),
+            p.label, p.rows || []);
+    });
+    if (spec.labelPoints) {
+      const placed = [];
+      shown.slice().sort((a, b) => (b.r || 0) - (a.r || 0)).forEach(p => {
+        const x = X(p.x), y = Y(p.y) - 15, wpx = p.label.length * 5.6;
+        if (placed.some(q => Math.abs(q.y - y) < 13 && Math.abs(q.x - x) < (q.w + wpx) / 2 + 6)) return;
+        placed.push({ x, y, w: wpx });
+        const t = mk("text", { x, y, "text-anchor": "middle", class: "lbl" }, g);
+        t.textContent = p.label; fs(t, FS_NANO); halo(t);
+      });
+    }
+    if (!spec.zoom) return;
+
+    /* Superficie de navegacion sobre el area de trazado. Va encima de las marcas
+       para que el arrastre no dependa de acertar en el hueco entre dos burbujas;
+       el tooltip vive en las burbujas y sigue funcionando porque esta capa no
+       captura `mousemove` salvo mientras se arrastra. */
+    const surf = mk("rect", { x: pl, y: pt, width: pr - pl, height: pb - pt,
+                              fill: "transparent", cursor: "grab",
+                              "pointer-events": "all" }, svg);
+    // Un pixel de pantalla en unidades del viewBox: el SVG se dibuja a lo ancho
+    // de la tarjeta pero sus coordenadas son las del viewBox.
+    const vb = ev => {
+      const bb = svg.getBoundingClientRect();
+      return [(ev.clientX - bb.left) * (w / Math.max(1, bb.width)),
+              (ev.clientY - bb.top) * (h / Math.max(1, bb.height))];
+    };
+    surf.addEventListener("wheel", ev => {
+      ev.preventDefault();
+      const [vx, vy] = vb(ev);
+      const fx = Math.min(1, Math.max(0, (vx - pl) / (pr - pl)));
+      const fy = 1 - Math.min(1, Math.max(0, (vy - pt) / (pb - pt)));
+      const k = ev.deltaY < 0 ? 1 / 1.3 : 1.3;
+      const nx = Math.min(home.x1 - home.x0, (view.x1 - view.x0) * k);
+      const ny = Math.min(home.y1 - home.y0, (view.y1 - view.y0) * k);
+      const cx = view.x0 + (view.x1 - view.x0) * fx;
+      const cy = view.y0 + (view.y1 - view.y0) * fy;
+      view.x0 = cx - nx * fx; view.x1 = view.x0 + nx;
+      view.y0 = cy - ny * fy; view.y1 = view.y0 + ny;
+      clamp(); hideTip(); draw();
+    });
+    let drag = null;
+    surf.addEventListener("mousedown", ev => {
+      drag = { p: vb(ev), v: Object.assign({}, view) };
+      surf.setAttribute("cursor", "grabbing");
+    });
+    surf.addEventListener("mousemove", ev => {
+      if (!drag) return;
+      const [vx, vy] = vb(ev);
+      const dx = -(vx - drag.p[0]) * (drag.v.x1 - drag.v.x0) / (pr - pl);
+      const dy = (vy - drag.p[1]) * (drag.v.y1 - drag.v.y0) / (pb - pt);
+      view.x0 = drag.v.x0 + dx; view.x1 = drag.v.x1 + dx;
+      view.y0 = drag.v.y0 + dy; view.y1 = drag.v.y1 + dy;
+      clamp(); draw();
+    });
+    const stop = () => { drag = null; surf.setAttribute("cursor", "grab"); };
+    surf.addEventListener("mouseup", stop);
+    surf.addEventListener("mouseleave", stop);
+
+    if (atHome()) {
+      const t = mk("text", { x: pr, y: pt - 3, "text-anchor": "end", class: "lbl" }, svg);
+      t.textContent = "rueda: acercar · arrastrar: mover";
+      fs(t, FS_NANO);
+      t.setAttribute("fill", cssVar("--muted"));
+    } else {
+      const bw = 96, bh = 18, bx = pr - bw, by = pt - 16;
+      const gb = mk("g", { cursor: "pointer" }, svg);
+      mk("rect", { x: bx, y: by, width: bw, height: bh, rx: 6, fill: cssVar("--plane"),
+                   stroke: cssVar("--axis") }, gb);
+      const bt = mk("text", { x: bx + bw / 2, y: by + 13, "text-anchor": "middle", class: "lbl" }, gb);
+      bt.textContent = "Reiniciar zoom";
+      fs(bt, FS_NANO);
+      gb.addEventListener("click", () => { Object.assign(view, home); draw(); });
+    }
+  }
+  draw();
 }
 
 /* ---- curva acumulada (Pareto / concentracion): un solo eje ---- */
@@ -351,7 +528,7 @@ function curveChart(host, spec) {
     mk("line", { x1: X(spec.marker.x), x2: X(spec.marker.x), y1: pt, y2: pb,
                  stroke: SERIES(1), "stroke-width": 1.5 }, svg);
     const t = mk("text", { x: X(spec.marker.x) + 8, y: Y(spec.marker.y) - 10, class: "lbl" }, svg);
-    t.textContent = spec.marker.text; t.setAttribute("font-size", FS_MICRO); halo(t);
+    t.textContent = spec.marker.text; fs(t, FS_MICRO); halo(t);
   }
   const d = spec.points.map((p, i) => (i ? "L" : "M") + X(p.x) + " " + Y(p.y)).join(" ");
   mk("path", { d, fill: "none", stroke: SERIES(0), "stroke-width": 2.2, "stroke-linejoin": "round" }, svg);
@@ -447,14 +624,19 @@ function treemap(host, spec) {
                  fill: cssVar("--plane"), stroke: cssVar("--hairline") }, svg);
     const inner = squarify(item.children, x + 4, y + 20, Math.max(1, gw - 11), Math.max(1, gh - 26));
     inner.forEach(({ item: ch, x: cx, y: cy, w: cw2, h: ch2 }) => {
+      // Misma razon que en `treemapFlat`: la rampa validada en vez de opacidad,
+      // para que el contraste de la etiqueta no dependa del tema.
       const t = Math.min(1, ch.value / spec.maxChild);
+      const col = ramp(t);
       mk("rect", { x: cx, y: cy, width: Math.max(0, cw2 - 2), height: Math.max(0, ch2 - 2),
-                   rx: 0, fill: SERIES(0), "fill-opacity": .25 + .6 * t }, svg);
+                   rx: 0, fill: col }, svg);
       if (cw2 > 54 && ch2 > 18) {
         const lt = mk("text", { x: cx + 5, y: cy + 13 }, svg);
         lt.textContent = ch.label.length > Math.floor(cw2 / 6) ? ch.label.slice(0, Math.floor(cw2 / 6) - 1) + "…" : ch.label;
-        lt.setAttribute("fill", cssVar("--ink"));
-        lt.setAttribute("font-size", FS_NANO);
+        // La marca es SERIES(0) translucido sobre el fondo del grupo: el color
+        // que ve el ojo es la mezcla, y es esa la que decide el color del texto.
+        paint(lt, readable(col));
+        fs(lt, FS_NANO);
       }
       hover(mk("rect", { x: cx, y: cy, width: Math.max(0, cw2 - 2), height: Math.max(0, ch2 - 2),
                          fill: "transparent" }, svg),
@@ -462,7 +644,7 @@ function treemap(host, spec) {
     });
     const gt = mk("text", { x: x + 6, y: y + 14, class: "lbl" }, svg);
     gt.textContent = item.label;
-    gt.setAttribute("font-size", FS_MICRO);
+    fs(gt, FS_MICRO);
     gt.setAttribute("font-weight", 600);
     const gv = mk("text", { x: x + gw - 9, y: y + 14, "text-anchor": "end", class: "val" }, svg);
     gv.textContent = spec.fmtGroup(item.value);
@@ -592,16 +774,16 @@ function geoMap(host, spec) {
       : readable(ramp(Math.min(1, data.value / cMax)));
     const lt = mk("text", { x: p[0], y: p[1] - (byCity ? 0 : 5), "text-anchor": "middle" }, g);
     lt.textContent = data.name;
-    lt.setAttribute("font-size", FS_MICRO);
+    fs(lt, FS_MICRO);
     lt.setAttribute("font-weight", 600);
-    lt.setAttribute("fill", ink);
+    paint(lt, ink);
     lt.setAttribute("pointer-events", "none");
     if (byCity) halo(lt);
     if (!byCity) {
       const vt = mk("text", { x: p[0], y: p[1] + 10, "text-anchor": "middle" }, g);
       vt.textContent = spec.fmt(data.value);
-      vt.setAttribute("font-size", FS_NANO);
-      vt.setAttribute("fill", ink);
+      fs(vt, FS_NANO);
+      paint(vt, ink);
       vt.setAttribute("pointer-events", "none");
     }
   }
@@ -624,7 +806,7 @@ function geoMap(host, spec) {
       const p = PX(t.lon, t.lat);
       const lt = mk("text", { x: p[0], y: p[1] - rOf(t.value) - 5, "text-anchor": "middle" }, g);
       lt.textContent = t.name;
-      lt.setAttribute("font-size", FS_NANO);
+      fs(lt, FS_NANO);
       lt.setAttribute("fill", cssVar("--ink"));
       lt.setAttribute("pointer-events", "none");
       halo(lt);
@@ -642,7 +824,7 @@ function geoMap(host, spec) {
         .map(d => ({ name: d.name, sub: nf(d.cities.length) + " ciudades", value: d.value }));
   const head = mk("text", { x: px0, y: oy + 12 }, svg);
   head.textContent = spec.measureLabel + (byCity ? " por ciudad" : " por país");
-  head.setAttribute("font-size", FS_MICRO);
+  fs(head, FS_MICRO);
   head.setAttribute("font-weight", 620);
   head.setAttribute("fill", cssVar("--ink"));
 
@@ -653,18 +835,18 @@ function geoMap(host, spec) {
     const y = top + i * rowH;
     const nt = mk("text", { x: px0, y: y + 10 }, svg);
     nt.textContent = r.name;
-    nt.setAttribute("font-size", FS_MICRO);
+    fs(nt, FS_MICRO);
     nt.setAttribute("fill", cssVar("--ink"));
     const st = mk("text", { x: px0, y: y + 21, class: "lbl" }, svg);
     st.textContent = rowH > 24 ? r.sub : "";
-    st.setAttribute("font-size", FS_NANO);
+    fs(st, FS_NANO);
     mk("rect", { x: barX, y: y + 3, width: Math.max(0, barW), height: 5, rx: 0,
                  fill: cssVar("--grid") }, svg);
     mk("rect", { x: barX, y: y + 3, width: Math.max(1, barW * r.value / rmax), height: 5,
                  rx: 0, fill: byCity ? SERIES(0) : ramp(Math.min(1, r.value / cMax)) }, svg);
     const vt = mk("text", { x: px0 + pw, y: y + 10, "text-anchor": "end" }, svg);
     vt.textContent = spec.fmt(r.value);
-    vt.setAttribute("font-size", FS_MICRO);
+    fs(vt, FS_MICRO);
     vt.setAttribute("fill", cssVar("--ink-2"));
   });
 
@@ -676,10 +858,10 @@ function geoMap(host, spec) {
     mk("rect", { x: px0, y: gy, width: Math.min(160, pw - 60), height: 8, rx: 0,
                  fill: "url(#mapgrad)" }, svg);
     const lo = mk("text", { x: px0, y: gy + 20, class: "lbl" }, svg);
-    lo.textContent = "0"; lo.setAttribute("font-size", FS_NANO);
+    lo.textContent = "0"; fs(lo, FS_NANO);
     const hi = mk("text", { x: px0 + Math.min(160, pw - 60), y: gy + 20, "text-anchor": "middle",
                             class: "lbl" }, svg);
-    hi.textContent = spec.fmt(cMax); hi.setAttribute("font-size", FS_NANO);
+    hi.textContent = spec.fmt(cMax); fs(hi, FS_NANO);
   } else {
     const gy = oy + mapH - 20;
     let x = px0;
@@ -689,12 +871,12 @@ function geoMap(host, spec) {
                      stroke: cssVar("--surface"), "stroke-width": 1.2 }, svg);
       const vt = mk("text", { x: x + r, y: gy + 26, "text-anchor": "middle", class: "lbl" }, svg);
       vt.textContent = spec.fmt(vmax * f);
-      vt.setAttribute("font-size", FS_NANO);
+      fs(vt, FS_NANO);
       x += r * 2 + 26;
     }
     const cap = mk("text", { x: x + 2, y: gy + 14, class: "lbl" }, svg);
     cap.textContent = "área ∝ " + spec.measureLabel.toLowerCase();
-    cap.setAttribute("font-size", FS_NANO);
+    fs(cap, FS_NANO);
   }
 }
 
@@ -758,11 +940,314 @@ function sankey(host, spec) {
     const anchor = last ? "end" : "start";
     const lt = mk("text", { x: tx, y: n._y - 17, "text-anchor": anchor }, svg);
     lt.textContent = n.label;
-    lt.setAttribute("font-size", FS_MICRO);
+    fs(lt, FS_MICRO);
     lt.setAttribute("font-weight", 600);
     lt.setAttribute("fill", cssVar("--ink"));
     const vt = mk("text", { x: tx, y: n._y - 5, "text-anchor": anchor, class: "lbl" }, svg);
     vt.textContent = spec.fmt(n.value) + (n.sub ? " · " + n.sub : "");
-    vt.setAttribute("font-size", FS_NANO);
+    fs(vt, FS_NANO);
   }
+}
+
+
+/* ---- indicador radial + desglose ----
+   Un arco para UN indice: es la unica forma de esta libreria que no compara nada,
+   y por eso se reserva a un score global. El desglose que lo compone va debajo en
+   barras finas, dentro del mismo SVG, para que arco y partes se lean como una
+   sola pieza. El arco no usa semaforo: el color solo distingue lo hecho de lo que
+   falta, y el juicio lo pone el numero. */
+function gauge(host, spec) {
+  const dims = spec.dims || [];
+  const rowH = spec.rowH || 26, labelW = spec.labelW || 104, sw = 13;
+  const A0 = 150, A1 = 390;                      // arco abierto por abajo
+  /* La altura se deriva de la geometria, no se fija a ojo: el arco baja hasta
+     `R/2` por debajo del centro y todavia lleva sus dos topes escritos debajo.
+     Con una altura constante, un radio mayor metia el arco dentro de la primera
+     barra del desglose. El radio, a su vez, sigue al ancho de la tarjeta. */
+  const w0 = Math.max(280, host.clientWidth || 600);
+  const R = Math.max(56, Math.min(84, w0 * 0.20));
+  const cyRel = 6 + R + sw / 2;
+  const capY = cyRel + (R + sw / 2 + 11) / 2 + 4;   // linea de los topes 0 / max
+  const arcH = capY + 16;
+  const { svg, w, pt } = frame(host, arcH + dims.length * rowH + 10, [10, 8, 8, 0]);
+  const cx = w / 2, cy = pt + cyRel;
+  const pol = (a, r) => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
+  const arcPath = (a0, a1, r) => {
+    const s0 = pol(a0, r), s1 = pol(a1, r);
+    return "M" + s0[0].toFixed(1) + " " + s0[1].toFixed(1) +
+      "A" + r + " " + r + " 0 " + (a1 - a0 > 180 ? 1 : 0) + " 1 " + s1[0].toFixed(1) + " " + s1[1].toFixed(1);
+  };
+  const t = Math.min(1, Math.max(0, spec.value / spec.max));
+  mk("path", { d: arcPath(A0, A1, R), fill: "none", stroke: cssVar("--grid"),
+               "stroke-width": sw, "stroke-linecap": "round" }, svg);
+  mk("path", { d: arcPath(A0, A0 + (A1 - A0) * t, R), fill: "none", stroke: SERIES(0),
+               "stroke-width": sw, "stroke-linecap": "round" }, svg);
+
+  /* Dentro del arco solo cabe la cifra. Cualquier pie descriptivo se sale por
+     los lados —el hueco util son 2R menos el trazo— y acaba tocando el propio
+     arco, asi que la explicacion va en la nota de la tarjeta. */
+  const big = mk("text", { x: cx, y: cy + 12, "text-anchor": "middle", class: "lbl" }, svg);
+  big.textContent = spec.fmtValue(spec.value);
+  fs(big, Math.round(R * 0.44));
+  big.setAttribute("font-weight", 650);
+  big.setAttribute("letter-spacing", "-0.02em");
+  [0, 1].forEach(k => {
+    const e = pol(k ? A1 : A0, R + sw / 2 + 11);
+    const l = mk("text", { x: e[0], y: e[1] + 4, "text-anchor": k ? "start" : "end" }, svg);
+    l.textContent = (spec.fmtEnd || spec.fmtValue)(k ? spec.max : 0);
+    fs(l, FS_NANO);
+  });
+  hover(mk("circle", { cx, cy, r: R + sw, fill: "transparent" }, svg), spec.title || "",
+        spec.tipRows || []);
+
+  const barX = labelW, barW = w - labelW - 52;
+  dims.forEach((d, i) => {
+    const y = pt + arcH + i * rowH;
+    mk("text", { x: labelW - 10, y: y + 12, "text-anchor": "end", class: "lbl" }, svg)
+      .textContent = d.label;
+    mk("rect", { x: barX, y: y + 4, width: barW, height: 9, rx: 0, fill: cssVar("--grid") }, svg);
+    mk("rect", { x: barX, y: y + 4, width: Math.max(1, barW * d.value / spec.max), height: 9,
+                 rx: 0, fill: SERIES(0), "fill-opacity": .55 + .45 * (d.value / spec.max) }, svg);
+    const v = mk("text", { x: w - 4, y: y + 12, "text-anchor": "end", class: "val" }, svg);
+    v.textContent = spec.fmtDim(d.value);
+    fs(v, FS_MICRO);
+    hover(mk("rect", { x: 0, y, width: w, height: rowH, fill: "transparent" }, svg),
+          d.label, d.rows || []);
+  });
+}
+
+/* ---- barras divergentes desde cero ----
+   Para una variacion con signo. Frente al puente que habia aqui antes, no pide
+   reconstruir ninguna suma: cada barra sale de la linea de cero y su lado ya
+   dice el sentido. El signo va codificado dos veces —color y simbolo delante de
+   la cifra— para que no dependa de distinguir azul de naranja.
+
+   La mitad util del ancho se recorta en `valueW` para que la etiqueta de la
+   barra mas larga quepa dentro del lienzo en vez de salirse por el borde. */
+function barsDiverging(host, spec) {
+  const items = spec.items, rowH = spec.rowH || 26, labelW = spec.labelW || 124;
+  const valueW = spec.valueW || 58;
+  const { svg, pl, pr, pt, pb } = frame(host, items.length * rowH + 46, [10, 14, 30, labelW]);
+  const max = Math.max(...items.map(d => Math.abs(d.value)).filter(isFinite), 0) || 1;
+  const ticks = niceTicks(max, 2), top = ticks[ticks.length - 1];
+  const zero = (pl + pr) / 2;
+  const half = Math.max(20, (pr - pl) / 2 - valueW);
+  const X = v => zero + half * (v / top);
+
+  // Rejilla simetrica: las mismas marcas a un lado y a otro del cero.
+  ticks.slice(1).forEach(t => [t, -t].forEach(v => {
+    mk("line", { x1: X(v), x2: X(v), y1: pt, y2: pb, stroke: cssVar("--grid") }, svg);
+    const lt = mk("text", { x: X(v), y: pb + 16, "text-anchor": "middle" }, svg);
+    lt.textContent = spec.fmt(v);
+  }));
+  mk("line", { x1: zero, x2: zero, y1: pt, y2: pb + 4, stroke: cssVar("--axis") }, svg);
+  mk("text", { x: zero, y: pb + 16, "text-anchor": "middle" }, svg).textContent = spec.fmt(0);
+
+  items.forEach((d, i) => {
+    const y = pt + i * rowH, bh = Math.min(14, rowH - 8);
+    const v = isFinite(d.value) ? d.value : 0;
+    const up = v >= 0;
+    const x1 = X(v);
+    const lab = mk("text", { x: labelW - 10, y: y + bh - 1, "text-anchor": "end", class: "lbl" }, svg);
+    const maxCh = Math.max(6, Math.floor((labelW - 12) / 6.4));
+    lab.textContent = d.label.length > maxCh ? d.label.slice(0, maxCh - 1) + "…" : d.label;
+    mk("rect", { x: Math.min(zero, x1), y, width: Math.max(1.5, Math.abs(x1 - zero)), height: bh,
+                 rx: 0, fill: d.muted ? cssVar("--neutral-mark") : (up ? SERIES(0) : SERIES(1)) }, svg);
+    const vt = mk("text", { x: x1 + (up ? 7 : -7), y: y + bh - 1,
+                            "text-anchor": up ? "start" : "end", class: "val" }, svg);
+    vt.textContent = (up ? "+" : "−") + spec.fmt(Math.abs(v));
+    hover(mk("rect", { x: pl - labelW, y, width: pr - pl + labelW, height: rowH,
+                       fill: "transparent" }, svg), d.label, d.rows || []);
+  });
+  if (spec.xLabel) {
+    const t = mk("text", { x: zero, y: pb + 32, "text-anchor": "middle" }, svg);
+    t.textContent = spec.xLabel;
+  }
+}
+
+/* ---- treemap de un solo nivel ----
+   El treemap de dos niveles de la pagina de tiendas responde "dentro de que"; este
+   responde "cuanto de cada", que es lo que pide una portada. Comparte el squarify
+   y la misma convencion: el area es el valor y la intensidad lo acompana. */
+function treemapFlat(host, spec) {
+  const h = spec.height || 300;
+  const { svg, w, pt } = frame(host, h, [2, 2, 2, 2]);
+  const items = spec.items.filter(d => d.value > 0);
+  const max = Math.max(...items.map(d => d.value), 1);
+  squarify(items, 1, pt, w - 2, h - 4).forEach(({ item, x, y, w: bw, h: bh }) => {
+    const t = Math.min(1, item.value / max);
+    /* Color de la rampa, no azul translucido.
+
+       La opacidad sobre el fondo de la tarjeta producia una escala que cambia
+       de sentido con el tema (en oscuro, mas valor = mas claro) y que pasa por
+       la banda de luminancia media, donde ni la tinta ni el blanco alcanzan
+       4,5:1 sobre la marca: la etiqueta del rectangulo mas grande se quedaba en
+       4,4:1. La rampa esta validada para contraste y daltonismo, mantiene el
+       mismo sentido en claro y en oscuro, y es la que ya usan el mapa y el
+       heatmap, asi que "mas azul oscuro = mas" significa lo mismo en todo el
+       informe. */
+    const col = ramp(t);
+    mk("rect", { x, y, width: Math.max(0, bw - 3), height: Math.max(0, bh - 3), rx: 0,
+                 fill: col }, svg);
+    if (bw > 62 && bh > 30) {
+      const ink = readable(col);
+      const lt = mk("text", { x: x + 7, y: y + 16 }, svg);
+      lt.textContent = item.label.length > Math.floor((bw - 12) / 6.2)
+        ? item.label.slice(0, Math.floor((bw - 12) / 6.2) - 1) + "…" : item.label;
+      fs(lt, FS_MICRO);
+      lt.setAttribute("font-weight", 600);
+      paint(lt, ink);
+      const vt = mk("text", { x: x + 7, y: y + 31 }, svg);
+      vt.textContent = spec.fmt(item.value);
+      fs(vt, FS_NANO);
+      paint(vt, ink);
+    }
+    hover(mk("rect", { x, y, width: Math.max(0, bw - 3), height: Math.max(0, bh - 3),
+                       fill: "transparent" }, svg), item.label, item.rows || []);
+  });
+}
+
+/* ---- diagrama de flujo por capas ----
+   Cajas en columnas y flechas entre columnas. No es un grafico de datos: es el
+   plano del pipeline, y por eso vive aqui y no en una imagen: hereda tema, tokens
+   y tooltip como cualquier otra forma. */
+function flowDiagram(host, spec) {
+  const cols = spec.columns;
+  const nodeH = spec.nodeH || 44, gapY = 10, headH = 40, gapX = spec.gapX || 26;
+  const rows = Math.max(...cols.map(c => c.nodes.length));
+  const h = headH + rows * (nodeH + gapY) + 26;
+  // 200 px por columna es lo que necesita el nombre de modelo mas largo del
+  // pipeline (`int_rentals_deduplicated`) sin partirse.
+  const { svg, w } = wideFrame(host, h, 200 * cols.length + gapX * (cols.length - 1));
+  const pt = 4;
+  const cw = (w - gapX * (cols.length - 1)) / cols.length;
+  const colX = i => i * (cw + gapX);
+
+  cols.forEach((c, i) => {
+    const x = colX(i);
+    mk("rect", { x, y: pt, width: cw, height: h - 14, rx: 10,
+                 fill: c.accent ? cssVar("--plane") : "none",
+                 stroke: cssVar("--hairline") }, svg);
+    const t = mk("text", { x: x + 12, y: pt + 20 }, svg);
+    t.textContent = c.title;
+    fs(t, FS_MICRO);
+    t.setAttribute("font-weight", 650);
+    t.setAttribute("fill", cssVar("--ink"));
+    const st = mk("text", { x: x + 12, y: pt + 33, class: "lbl" }, svg);
+    st.textContent = c.subtitle || "";
+    fs(st, FS_NANO);
+    st.setAttribute("fill", cssVar("--muted"));
+
+    c.nodes.forEach((n, j) => {
+      const y = pt + headH + j * (nodeH + gapY);
+      const g = mk("g", {}, svg);
+      mk("rect", { x: x + 10, y, width: cw - 20, height: nodeH, rx: 6,
+                   fill: cssVar("--surface"), stroke: n.strong ? SERIES(0) : cssVar("--axis"),
+                   "stroke-width": n.strong ? 1.6 : 1 }, g);
+      const nt = mk("text", { x: x + 20, y: y + 19 }, g);
+      nt.textContent = n.label;
+      fs(nt, FS_MICRO);
+      nt.setAttribute("font-weight", 600);
+      nt.setAttribute("fill", cssVar("--ink"));
+      const ns = mk("text", { x: x + 20, y: y + 33, class: "lbl" }, g);
+      ns.textContent = n.sub || "";
+      fs(ns, FS_NANO);
+      ns.setAttribute("fill", cssVar("--muted"));
+      hover(mk("rect", { x: x + 10, y, width: cw - 20, height: nodeH, fill: "transparent" }, g),
+            n.label, n.rows || []);
+    });
+
+    if (i < cols.length - 1) {
+      const ax = x + cw + 4, ay = pt + headH + nodeH / 2 + (rows - 1) * (nodeH + gapY) / 2;
+      mk("path", { d: "M" + ax + " " + ay + "h" + (gapX - 12), fill: "none",
+                   stroke: cssVar("--axis"), "stroke-width": 1.4 }, svg);
+      mk("path", { d: "M" + (ax + gapX - 12) + " " + (ay - 4.5) + "l5 4.5l-5 4.5z",
+                   fill: cssVar("--axis") }, svg);
+    }
+  });
+}
+
+/* ---- diagrama de modelo estrella ----
+   El hecho en el centro y las dimensiones alrededor, con la cardinalidad escrita
+   en la propia linea. Dice de un vistazo lo que una lista de tablas no dice: cual
+   es el grano y quien apunta a quien. */
+function starDiagram(host, spec) {
+  const h = spec.height || 340;
+  // El hecho central y dos dimensiones enfrentadas no caben por debajo de esto.
+  const { svg, w } = wideFrame(host, h, 620);
+  const pt = 4;
+  const cx = w / 2, cy = pt + h / 2 - 6;
+  const fw = Math.min(240, w * 0.40), fh = 74;
+  const dims = spec.dims;
+  const dw = Math.min(158, w * 0.26), dh = 52;
+
+  /* Colocacion por separacion, no por radio.
+
+     La version anterior ponia las dimensiones sobre una elipse de radio fijo, y
+     en los angulos intermedios (30°, 150°) ni la separacion horizontal ni la
+     vertical llegaban a la suma de los semianchos: las cajas se montaban sobre
+     el hecho. Aqui, para cada rayo, se busca la distancia minima a la que las
+     dos cajas YA no se solapan —basta con separarlas en UNO de los dos ejes— y
+     se coloca ahi. Funciona con cualquier numero de dimensiones. */
+  const GAP = 28;
+  const needX = (fw + dw) / 2 + GAP, needY = (fh + dh) / 2 + GAP;
+  const place = a => {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const tX = Math.abs(ca) > 1e-6 ? needX / Math.abs(ca) : Infinity;
+    const tY = Math.abs(sa) > 1e-6 ? needY / Math.abs(sa) : Infinity;
+    const t = Math.min(tX, tY);
+    // Y sin salirse del lienzo, que es la otra forma de que esto se vea mal.
+    const x = Math.max(dw / 2 + 4, Math.min(w - dw / 2 - 4, cx + t * ca));
+    const y = Math.max(pt + dh / 2, Math.min(pt + h - dh / 2 - 8, cy + t * sa));
+    return [x, y];
+  };
+
+  dims.forEach((d, i) => {
+    const a = (-90 + (360 / dims.length) * i) * Math.PI / 180;
+    const [x, y] = place(a);
+    mk("line", { x1: cx, y1: cy, x2: x, y2: y, stroke: cssVar("--axis"),
+                 "stroke-dasharray": "3 3" }, svg);
+    // La cardinalidad va en el punto medio del rayo, que con esta colocacion
+    // cae siempre en el hueco entre las dos cajas.
+    const mx = cx + (x - cx) * 0.5, my = cy + (y - cy) * 0.5;
+    const ct = mk("text", { x: mx, y: my + 3, "text-anchor": "middle", class: "val" }, svg);
+    ct.textContent = d.card || "1 — N";
+    fs(ct, FS_NANO); halo(ct);
+    const g = mk("g", {}, svg);
+    mk("rect", { x: x - dw / 2, y: y - dh / 2, width: dw, height: dh, rx: 8,
+                 fill: cssVar("--surface"), stroke: cssVar("--axis") }, g);
+    const t = mk("text", { x, y: y - 6, "text-anchor": "middle" }, g);
+    t.textContent = d.label;
+    fs(t, FS_MICRO);
+    t.setAttribute("font-weight", 600);
+    t.setAttribute("fill", cssVar("--ink"));
+    const s2 = mk("text", { x, y: y + 9, "text-anchor": "middle", class: "lbl" }, g);
+    s2.textContent = d.sub || "";
+    fs(s2, FS_NANO);
+    s2.setAttribute("fill", cssVar("--muted"));
+    const s3 = mk("text", { x, y: y + 21, "text-anchor": "middle", class: "lbl" }, g);
+    s3.textContent = d.key || "";
+    fs(s3, FS_NANO);
+    s3.setAttribute("fill", cssVar("--muted"));
+    hover(mk("rect", { x: x - dw / 2, y: y - dh / 2, width: dw, height: dh, fill: "transparent" }, g),
+          d.label, d.rows || []);
+  });
+
+  mk("rect", { x: cx - fw / 2, y: cy - fh / 2, width: fw, height: fh, rx: 8,
+               fill: cssVar("--plane"), stroke: SERIES(0), "stroke-width": 1.8 }, svg);
+  const ft = mk("text", { x: cx, y: cy - 10, "text-anchor": "middle" }, svg);
+  ft.textContent = spec.fact.label;
+  fs(ft, 13);
+  ft.setAttribute("font-weight", 650);
+  ft.setAttribute("fill", cssVar("--ink"));
+  const fs2 = mk("text", { x: cx, y: cy + 8, "text-anchor": "middle", class: "lbl" }, svg);
+  fs2.textContent = spec.fact.sub || "";
+  fs(fs2, FS_NANO);
+  fs2.setAttribute("fill", cssVar("--ink-2"));
+  const fs3 = mk("text", { x: cx, y: cy + 22, "text-anchor": "middle", class: "lbl" }, svg);
+  fs3.textContent = spec.fact.grain || "";
+  fs(fs3, FS_NANO);
+  fs3.setAttribute("fill", cssVar("--muted"));
+  hover(mk("rect", { x: cx - fw / 2, y: cy - fh / 2, width: fw, height: fh, fill: "transparent" }, svg),
+        spec.fact.label, spec.fact.rows || []);
 }

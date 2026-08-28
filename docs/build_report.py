@@ -409,7 +409,7 @@ def build_payload():
 PARTS_DIR = DOCS_DIR / "report"
 HTML_PARTS = ["01_head.html", "02_body.html"]
 JS_PARTS = ["03_core.js", "03b_geo.js", "04_charts.js", "05_ui.js",
-            "06_pages_a.js", "07_pages_b.js"]
+            "06_pages_a.js", "07_pages_b.js", "08_pages_c.js"]
 
 BOOT = """
 boot().catch(e => {

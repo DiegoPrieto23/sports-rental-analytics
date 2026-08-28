@@ -58,6 +58,49 @@ const icon = k => '<svg class="ficon" viewBox="0 0 20 20" width="14" height="14"
   'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" ' +
   'aria-hidden="true" focusable="false">' + ICON[k] + "</svg>";
 
+/* Iconos de las paginas. Mismo lienzo de 20x20, mismo trazo de 1,5 y los mismos
+   extremos redondeados que los de la barra de filtros: son la misma familia. La
+   metafora sale del contenido de cada pagina, no de un repertorio generico, y
+   cada una tiene que distinguirse de las otras ocho a 16 px. */
+const PAGE_ICON = {
+  // barras: las cifras del negocio
+  resumen: '<path d="M3 16.5h14"/><path d="M6 16.5v-4.5"/><path d="M10 16.5v-9"/>' +
+           '<path d="M14 16.5v-6.5"/>',
+  // onda sobre la linea del ano: la demanda sube y baja con la temporada
+  demanda: '<path d="M2.5 16.8h15"/><path d="M3 11c2-5 4.4-5 6.4 0s4.4 5 6.4 0"/>',
+  // caja de material
+  producto: '<path d="M10 2.9 3.2 6.2v7.6L10 17.1l6.8-3.3V6.2z"/><path d="M3.2 6.2 10 9.5l6.8-3.3"/>' +
+            '<path d="M10 9.5v7.6"/>',
+  // escaparate con toldo
+  tiendas: '<path d="M3.6 8.6h12.8v8.4H3.6z"/><path d="M2.6 8.6 4.4 3.9h11.2l1.8 4.7"/>' +
+           '<path d="M8.1 17v-4.6h3.8V17"/>',
+  // dos personas
+  clientes: '<circle cx="7.6" cy="7" r="2.6"/><path d="M3.2 16.6c0-2.6 2-4.3 4.4-4.3s4.4 1.7 4.4 4.3"/>' +
+            '<path d="M13.3 5.1a2.6 2.6 0 0 1 0 5.2"/><path d="M14 12.5c1.9.5 2.9 1.9 2.9 4.1"/>',
+  // etiqueta de precio
+  pricing: '<path d="M10.3 2.9h6.1c.4 0 .7.3.7.7v6.1c0 .2-.1.4-.2.5l-6.7 6.7a.7.7 0 0 1-1 0L2.8 10.5' +
+           'a.7.7 0 0 1 0-1l6.7-6.7c.1-.1.3-.2.5-.2z"/><circle cx="13.5" cy="6.4" r="1.2"/>',
+  // escudo con marca de verificacion
+  calidad: '<path d="M10 2.7 4.2 5v4.9c0 3.4 2.4 6.2 5.8 7.3 3.4-1.1 5.8-3.9 5.8-7.3V5z"/>' +
+           '<path d="M7.5 9.9 9.4 11.8l3.4-3.7"/>',
+  // nube de puntos con su recta
+  estadistica: '<path d="M3.2 3v14h14"/><path d="M5.6 14.6 16 5.4"/><circle cx="7.2" cy="12.7" r="1.1"/>' +
+               '<circle cx="10.6" cy="10.5" r="1.1"/><circle cx="13.8" cy="7.3" r="1.1"/>',
+  // dos tablas encadenadas: el dato pasando de una capa a la siguiente
+  modelo: '<rect x="2.4" y="6.5" width="5.2" height="7" rx="1.2"/>' +
+          '<rect x="12.4" y="6.5" width="5.2" height="7" rx="1.2"/><path d="M7.6 10h4"/>' +
+          '<path d="M10.2 8.4 11.9 10l-1.7 1.6"/>',
+};
+const pageIcon = (k, size) => '<svg class="pico" viewBox="0 0 20 20" width="' + (size || 16) +
+  '" height="' + (size || 16) + '" fill="none" stroke="currentColor" stroke-width="1.5" ' +
+  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+  (PAGE_ICON[k] || "") + "</svg>";
+
+/* Rotulo de cada bloque del menu. La separacion entre paginas de negocio y de
+   metodo antes era una linea fina sin nombre; en vertical hay sitio para
+   decirlo con palabras. */
+const GROUP_LABEL = { negocio: "Negocio", metodo: "Método" };
+
 /* --------------------------------------------------------------------------
    Tarjetas
    -------------------------------------------------------------------------- */
@@ -106,9 +149,11 @@ function insight(el, html) {
   d.className = "insight"; d.innerHTML = html;
   el.appendChild(d);
 }
-function note(el, text) {
+/* La nota admite marcado, igual que `insight()`. Iba por textContent y cualquier
+   <b> se veia como texto literal en la pagina. */
+function note(el, html) {
   const d = document.createElement("div");
-  d.className = "note"; d.textContent = text;
+  d.className = "note"; d.innerHTML = html;
   el.appendChild(d);
 }
 function legend(el, entries) {
@@ -248,21 +293,24 @@ function buildChrome() {
     render();
   });
 
-  /* Una sola fila de pestanas, en el orden del array: primero las seis paginas
-     de negocio y al final las dos de metodo (calidad del dato y estadistica),
-     separadas por una linea fina. El indice que se guarda en `state.page` es el
-     del array PAGES: `render()` resuelve por PAGES[state.page]. */
+  /* Menu lateral, en el orden del array: primero las seis paginas de negocio y
+     al final las tres de metodo, cada bloque bajo su rotulo. El indice que se
+     guarda en `state.page` es el del array PAGES: `render()` resuelve por
+     PAGES[state.page]. */
   const nav = document.getElementById("pages");
   const panels = document.getElementById("panels");
   PAGES.forEach((p, i) => {
-    if (i > 0 && p.group !== PAGES[i - 1].group) {
-      const sep = document.createElement("span");
-      sep.className = "pdiv";
-      sep.setAttribute("role", "presentation");
-      nav.appendChild(sep);
+    if (i === 0 || p.group !== PAGES[i - 1].group) {
+      const h = document.createElement("div");
+      h.className = "glabel";
+      h.setAttribute("role", "presentation");
+      h.textContent = GROUP_LABEL[p.group] || p.group;
+      nav.appendChild(h);
     }
     const b = document.createElement("button");
-    b.type = "button"; b.textContent = p.label; b.setAttribute("role", "tab");
+    b.type = "button";
+    b.innerHTML = pageIcon(p.id) + "<span>" + p.label + "</span>";
+    b.setAttribute("role", "tab");
     b.setAttribute("id", "tab-" + p.id);
     b.setAttribute("aria-controls", "panels");
     b.setAttribute("aria-selected", i === 0);
@@ -284,14 +332,22 @@ function buildChrome() {
     render();
   });
 
-  document.getElementById("badge-rows").textContent =
-    nf(DATA.meta.n_rows) + " alquileres · " + DATA.meta.first_date + " → " + DATA.meta.last_date;
-  document.getElementById("badge-trust").textContent =
-    "Data Trust Score " + nf(DATA.quality.score, 1) + "/100";
+  /* Pie del riel: la identidad del dato que se esta mirando. Estaba en insignias
+     de la cabecera, que se repetian en todas las paginas y competian por el
+     ancho con los filtros. Aqui se dice una vez y se queda. */
+  document.getElementById("rail-meta").innerHTML =
+    "<div><b>" + nf(DATA.meta.n_rows) + "</b> alquileres sintéticos</div>" +
+    "<div>" + DATA.meta.first_date + " → " + DATA.meta.last_date +
+    " · <b>" + nf(D.months.length) + "</b> meses</div>" +
+    "<div>Data Trust Score <b>" + nf(DATA.quality.score, 1) + "</b>/100</div>" +
+    '<div class="chain">raw → staging → intermediate → marts</div>';
+  // El pie del informe repite las cifras del riel porque este se oculta en
+  // pantalla estrecha, y ahi es el unico sitio donde quedan.
   document.getElementById("footer-meta").textContent =
     "Generado el " + DATA.meta.generated + " · " + nf(DATA.quality.n_raw) + " filas crudas → " +
     nf(DATA.quality.n_clean) + " tras deduplicar · " + P.id.length + " productos · " +
-    S.id.length + " tiendas · " + D.countries.length + " países.";
+    S.id.length + " tiendas · " + D.countries.length + " países · Data Trust Score " +
+    nf(DATA.quality.score, 1) + "/100.";
 
   addEventListener("resize", debounce(render, 200));
 }
@@ -312,7 +368,12 @@ function render() {
   document.getElementById("f-count").innerHTML =
     "<b>" + nf(A.total.n[0]) + "</b> alquileres · <b>" + nf(A.total.comp[0]) + "</b> completados · <b>" +
     eur(A.total.rev[0]) + "</b>";
-  document.getElementById("pagehead").textContent = PAGES[state.page].intro;
+  // Con el menu fuera de la columna de contenido, la pagina tiene que decir su
+  // propio nombre: el icono repetido es lo que la ata a su entrada del menu.
+  const page = PAGES[state.page];
+  document.getElementById("pagehead").innerHTML =
+    '<div class="eyebrow">' + (GROUP_LABEL[page.group] || page.group) + "</div><h2>" +
+    pageIcon(page.id, 19) + "<span>" + page.label + "</span></h2><p>" + page.intro + "</p>";
 
   const panels = document.getElementById("panels");
   panels.innerHTML = "";
@@ -376,6 +437,26 @@ function kpiRow(host) {
   host.appendChild(wrap);
 }
 
+/* Ocupacion por categoria sobre el corte activo, con el mismo denominador que
+   `occupancy()`: dias alquilados / (unidades del catalogo con actividad x dias
+   del periodo). Filtrando por pais sigue siendo una cota inferior, porque las
+   unidades de inventario son globales por referencia y no estan repartidas por
+   tienda; la tarjeta que la usa lo dice. */
+function occupancyByCategory() {
+  const out = D.categories.map((c, i) => ({ c, i, days: 0, cap: 0, units: 0, refs: 0 }));
+  for (let j = 0; j < P.id.length; j++) {
+    if (!A.product.n[j]) continue;
+    const k = P.cat[j];
+    if (k < 0) continue;
+    const d = out[k];
+    d.days += A.product.days[j];
+    d.cap += (P.units[j] || 0) * PDAYS;
+    d.units += P.units[j] || 0;
+    d.refs++;
+  }
+  return out.filter(d => d.cap > 0).map(d => Object.assign(d, { occ: d.days / d.cap }));
+}
+
 /* Metricas por producto sobre el corte activo. */
 function productMetrics() {
   const out = [];
@@ -402,6 +483,75 @@ function productMetrics() {
     p.rotation = p.occupancy <= q1 ? "Infrautilizado" : p.occupancy >= q3 ? "Saturado" : "Normal";
   });
   return out;
+}
+
+/* Ingresos de una ventana de meses distinta a la seleccionada, con los mismos
+   filtros aplicados. La portada necesita tres: el mismo mes del ano anterior y
+   las dos ventanas del puente de crecimiento.
+
+   No usa `aggregate()` a proposito. Aquel llena quince medidas por cada uno de
+   los doce cortes y cuesta lo que cuesta; aqui solo hacen falta los ingresos por
+   mes y por categoria, y con tres ventanas extra la diferencia se nota en el
+   tiempo de pintado de la primera pantalla que ve el usuario.
+
+   La definicion de ingreso es la misma que en `aggregate()`: solo cuenta el
+   alquiler completado, y el que llega sin precio suma cero. */
+function revSlice(m0, m1) {
+  const out = { total: 0, month: new Float64Array(D.months.length),
+                cat: new Float64Array(D.categories.length) };
+  if (m1 < m0 || m1 < 0) return out;
+  const mask = buildMask(Math.max(0, m0), m1);
+  for (let i = 0; i < N; i++) {
+    if (!mask[i]) continue;
+    const fl = F.flags[i];
+    if (fl & 1) continue;                       // cancelado: no genera ingreso
+    if ((fl >> 3) & 1) continue;                // sin precio: no suma
+    const rev = F.price[i] / 100;
+    out.total += rev;
+    out.month[F.month[i]] += rev;
+    const k = rowCat[i];
+    if (k >= 0) out.cat[k] += rev;
+  }
+  return out;
+}
+
+/* Roll-up por ciudad a partir de las tiendas. El hecho ya trae `store_id`, asi
+   que ciudad y pais salen de la dimension sin tocar el encoding binario. Lo usan
+   el mapa del resumen y el de la pagina de tiendas: una sola definicion. */
+function cityRollup(rows) {
+  const cities = {};
+  rows.forEach(d => {
+    const k = d.city + "|" + d.country;
+    if (!cities[k]) cities[k] = { city: d.city, country: d.country, rev: 0, n: 0,
+                                  stores: 0, psum: 0, pn: 0 };
+    const c = cities[k];
+    c.rev += d.rev; c.n += d.n; c.stores++;
+    c.psum += A.store.psum[d.b]; c.pn += A.store.pn[d.b];
+  });
+  return Object.values(cities).sort((a, b) => b.rev - a.rev);
+}
+
+/* Grupos de pais en el formato que espera geoMap(). Solo entran los paises con
+   al menos una plaza con coordenada: el resto no es dibujable. */
+function geoCountryGroups(cityList, byRevM) {
+  const val = d => byRevM ? d.rev : d.n;
+  return D.countries.map((name, ci) => {
+    const own = cityList.filter(d => d.country === name && CITY_LL[d.city]);
+    return {
+      name, value: own.reduce((a, b) => a + val(b), 0),
+      tipRows: () => [["Ingresos", eur(A.country.rev[ci + 1])],
+                      ["Alquileres", nf(A.country.n[ci + 1])],
+                      ["Ticket medio", eur(kpi.ticket(A.country, ci + 1), 2)],
+                      ["Ciudades", nf(own.length)],
+                      ["Tiendas", nf(own.reduce((a, b) => a + b.stores, 0))]],
+      cities: own.map(d => ({
+        name: d.city, lat: CITY_LL[d.city][0], lon: CITY_LL[d.city][1], value: val(d),
+        tipRows: () => [["País", d.country], ["Ingresos", eur(d.rev)],
+                        ["Alquileres", nf(d.n)], ["Tiendas", nf(d.stores)],
+                        ["Ticket medio", eur(d.pn ? d.psum / d.pn : NaN, 2)]],
+      })),
+    };
+  }).filter(g => g.cities.length);
 }
 
 /* Metricas por tienda sobre el corte activo. */

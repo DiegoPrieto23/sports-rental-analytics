@@ -6,9 +6,9 @@
    transforma el CSS, lo copia byte a byte al fichero final.
 
    Regla de forma, tres pasos y ninguno mas:
-     --r-2   contenedores (tarjeta, barra de filtros, pista de pestanas, popover)
+     --r-2   contenedores (tarjeta, barra de filtros, menu lateral, popover)
      --r-1   controles y pastillas dentro de un contenedor
-     --r-pill  solo badge y tag
+     --r-pill  solo la etiqueta `tag`
    --------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
@@ -69,6 +69,20 @@
 
   /* Foco: una sola receta para todo control. */
   --focus: 2px solid var(--s1);
+
+  /* Riel de navegacion. Su paleta NO sigue al tema, y es deliberado: el riel no
+     es documento, es el mueble donde esta colgado el documento. Manteniendolo
+     oscuro en los dos temas, el borde entre "donde estoy" y "que estoy leyendo"
+     no se difumina nunca, y el informe conserva el mismo perfil reconocible con
+     luz y sin ella. Los tres tonos de texto estan por encima de 5:1 sobre el
+     fondo del riel. */
+  --rail:       248px;
+  --rail-bg:    #141413;
+  --rail-ink:   #ffffff;
+  --rail-item:  #c9c7bf;
+  --rail-label: #8b8981;
+  --rail-line:  rgba(255,255,255,.09);
+  --rail-on:    rgba(255,255,255,.07);
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -101,23 +115,102 @@ body {
   font: var(--w-reg) var(--t-body)/1.5 var(--f-sans);
   -webkit-font-smoothing: antialiased;
 }
-.app { max-width: 1640px; margin: 0 auto; padding: 0 var(--sp-4) var(--sp-7); }
+/* El contenido arranca donde acaba el riel. No se centra en el hueco restante:
+   con una navegacion anclada a la izquierda, centrar el texto lo despega de su
+   propio indice y en pantallas anchas deja el ojo saltando de un extremo a otro. */
+.app {
+  max-width: 1560px; margin-left: var(--rail);
+  padding: 0 var(--sp-5) var(--sp-7);
+}
 
 /* Foco visible en todo lo enfocable, en los dos temas. */
 :where(button, select, input, a, summary, [role="tab"]):focus-visible {
   outline: var(--focus); outline-offset: 2px;
 }
 
-/* --- cabecera --- */
-header { display: flex; align-items: flex-end; gap: var(--sp-4); flex-wrap: wrap; padding: var(--sp-5) 2px var(--sp-3); }
-header h1 { margin: 0; font-size: var(--t-lead); font-weight: var(--w-bold); letter-spacing: -.01em; }
-header .sub { color: var(--ink-2); font-size: var(--t-meta); margin-top: var(--sp-1); }
-header .spacer { flex: 1 1 auto; }
-.badge {
-  display: inline-flex; align-items: center; gap: var(--sp-2); padding: 3px 10px;
-  border: 1px solid var(--hairline); border-radius: var(--r-pill);
-  font-size: var(--t-micro); color: var(--ink-2); background: var(--surface);
+/* --- riel de navegacion ---
+   Fijo al borde de la ventana y de alto completo. No es una tarjeta: no lleva
+   radio ni sombra ni margen, porque no flota sobre el plano, ES el borde de la
+   pantalla. Por eso tambien es hermano de `.app` y no hijo: dentro de un
+   contenedor centrado con ancho maximo no podria llegar al borde. */
+.rail {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--rail); z-index: 60;
+  display: flex; flex-direction: column; overflow-y: auto;
+  background: var(--rail-bg); color: var(--rail-item);
+  border-right: 1px solid var(--rail-line);
 }
+.rail .brand { padding: var(--sp-5) var(--sp-5) var(--sp-4); border-bottom: 1px solid var(--rail-line); }
+.rail .bname {
+  margin: 0; font-size: 15px; font-weight: var(--w-bold);
+  letter-spacing: -.01em; color: var(--rail-ink);
+}
+/* La mono se reserva a lo que es metadato, no prosa: el subtitulo del rotulo,
+   los nombres de bloque y el pie del riel. Esa voz distinta es lo que separa el
+   aparato de navegacion del contenido sin tener que encerrarlo en una caja. */
+.rail .bsub {
+  margin-top: 4px; font-family: var(--f-num); font-size: var(--t-nano);
+  text-transform: uppercase; letter-spacing: .14em; color: var(--rail-label);
+}
+
+.pages { display: flex; flex-direction: column; padding: var(--sp-3) 0 var(--sp-5); }
+.pages .glabel {
+  font-family: var(--f-num); font-size: var(--t-nano);
+  text-transform: uppercase; letter-spacing: .14em; color: var(--rail-label);
+  padding: var(--sp-4) var(--sp-5) var(--sp-2);
+}
+.pages .glabel:first-child { padding-top: var(--sp-1); }
+/* La pagina activa es una banda de lado a lado del riel con una marca de acento
+   pegada al canto izquierdo. Sin esquinas redondeadas: una pastilla flotando
+   dentro de una barra fija se lee como un boton suelto, y esto no es un boton,
+   es el sitio donde estas. */
+.pages button {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  border: 0; border-radius: 0; background: none; color: var(--rail-item);
+  font: inherit; font-size: var(--t-body); padding: 8px var(--sp-5);
+  cursor: pointer; transition: background-color .12s, color .12s;
+}
+.pages button .pico { flex: none; color: var(--rail-label); }
+.pages button:hover { color: var(--rail-ink); background: rgba(255,255,255,.045); }
+.pages button:hover .pico { color: var(--rail-item); }
+.pages button[aria-selected="true"] {
+  background: var(--rail-on); color: var(--rail-ink); font-weight: var(--w-med);
+  box-shadow: inset 2px 0 0 var(--s1);
+}
+.pages button[aria-selected="true"] .pico { color: var(--s1); }
+.rail :focus-visible { outline-offset: -2px; }
+
+/* Pie del riel: de que dato va esto. La cadena de capas no es decoracion, son
+   los nombres reales de los esquemas del proyecto dbt. */
+.railfoot {
+  margin-top: auto; padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  border-top: 1px solid var(--rail-line);
+  font-size: var(--t-nano); line-height: 1.8; color: var(--rail-label);
+}
+.railfoot b { color: var(--rail-item); font-weight: var(--w-med); font-variant-numeric: tabular-nums; }
+.railfoot .chain {
+  margin-top: var(--sp-3); padding-top: var(--sp-3);
+  border-top: 1px solid var(--rail-line);
+  font-family: var(--f-num); letter-spacing: .01em;
+}
+
+/* Por debajo de este ancho un riel de 248 px se come la pantalla: pasa a ser una
+   tira horizontal en la parte de arriba, deja de estar fija y suelta el pie,
+   cuyas cifras siguen estando en el pie del informe. */
+@media (max-width: 1080px) {
+  .rail {
+    position: static; width: auto; overflow: visible;
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    border-right: 0; border-bottom: 1px solid var(--rail-line);
+  }
+  .rail .brand { border-bottom: 0; padding: var(--sp-3) var(--sp-4); }
+  .pages { flex-direction: row; flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); }
+  .pages button { width: auto; padding: 7px var(--sp-3); }
+  .pages button[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--s1); }
+  .pages .glabel { padding: var(--sp-2) var(--sp-3) var(--sp-1); }
+  .railfoot { display: none; }
+  .app { margin-left: 0; padding-left: var(--sp-4); padding-right: var(--sp-4); }
+}
+
 .icon-btn {
   border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2);
   border-radius: var(--r-1); padding: var(--sp-1) var(--sp-3); font: inherit;
@@ -129,10 +222,11 @@ header .spacer { flex: 1 1 auto; }
 .filterbar {
   position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap;
-  padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3); margin: var(--sp-4) 0 var(--sp-3);
   background: var(--surface); border: 1px solid var(--hairline);
   border-radius: var(--r-2); box-shadow: var(--shadow);
 }
+.filterbar #theme-toggle { margin-left: var(--sp-3); }
 .filterbar .label { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .ms { position: relative; }
 .ms > button, select.plain {
@@ -175,31 +269,28 @@ header .spacer { flex: 1 1 auto; }
 .filterbar .count { margin-left: auto; font-size: var(--t-meta); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .filterbar .count b { color: var(--ink); font-weight: var(--w-bold); }
 
-/* --- navegacion por paginas ---
-   Pista hundida sobre el plano; la pagina activa es una pastilla que se levanta
-   a la altura de la superficie, con la marca de acento debajo. La pastilla
-   elevada dice "estas aqui" mucho antes que un cambio de color de texto. */
-.pages {
-  display: inline-flex; gap: 2px; flex-wrap: wrap; align-items: stretch;
-  margin: 2px 0 var(--sp-3); padding: 3px;
-  background: var(--plane); border: 1px solid var(--hairline);
-  border-radius: var(--r-2);
+/* --- cabecera de la pagina activa ---
+   Con la navegacion fuera del flujo principal, el contenido necesita decir por
+   si mismo que se esta mirando. El icono es el mismo de la lista: es lo que ata
+   una cosa con la otra sin que haya que buscar la etiqueta resaltada. */
+.pagehead { margin: var(--sp-5) 2px var(--sp-5); }
+/* Encima del nombre, el bloque del informe al que pertenece la pagina: la misma
+   voz y el mismo rotulo que en el riel, para que el salto de uno a otro no haya
+   que reconstruirlo. */
+.pagehead .eyebrow {
+  font-family: var(--f-num); font-size: var(--t-nano);
+  text-transform: uppercase; letter-spacing: .14em; color: var(--muted);
+  margin-bottom: var(--sp-2);
 }
-.pages button {
-  border: 1px solid transparent; background: none; color: var(--ink-2);
-  font: inherit; font-size: var(--t-body); padding: 6px var(--sp-3);
-  cursor: pointer; border-radius: var(--r-1);
-  transition: background-color .12s, color .12s;
+.pagehead h2 {
+  display: flex; align-items: center; gap: var(--sp-2); margin: 0;
+  font-size: 19px; font-weight: var(--w-bold); letter-spacing: -.015em; color: var(--ink);
 }
-.pages button:hover { color: var(--ink); background: var(--surface); }
-.pages button[aria-selected="true"] {
-  background: var(--surface); color: var(--ink); font-weight: var(--w-bold);
-  border-color: var(--hairline);
-  box-shadow: var(--shadow), inset 0 -2px 0 var(--s1);
+.pagehead h2 .pico { flex: none; color: var(--s1); }
+.pagehead p {
+  margin: var(--sp-1) 0 0; color: var(--ink-2);
+  font-size: var(--t-meta); max-width: 92ch;
 }
-/* Separa las paginas de negocio de las dos de metodo sin gastar una etiqueta. */
-.pages .pdiv { width: 1px; align-self: stretch; background: var(--hairline); margin: 2px var(--sp-2); }
-.pagehead { margin: 0 2px var(--sp-3); color: var(--ink-2); font-size: var(--t-meta); }
 
 /* --- rejilla y tarjetas ---
    `align-items: stretch` (el valor por defecto de grid, aqui explicito porque
@@ -220,11 +311,15 @@ header .spacer { flex: 1 1 auto; }
 .card.c5 { grid-column: span 5; } .card.c6 { grid-column: span 6; }
 .card.c7 { grid-column: span 7; } .card.c8 { grid-column: span 8; }
 .card.c9 { grid-column: span 9; } .card.c12 { grid-column: span 12; }
-@media (max-width: 1180px) {
+/* Los cortes van 250 px por encima de lo que pedirian a pantalla completa: la
+   columna de contenido ya no es el ancho de la ventana, le faltan el menu
+   lateral y su hueco. Con los valores de antes, una tarjeta de 4 columnas se
+   quedaba en 275 px justo donde antes tenia 360. */
+@media (max-width: 1432px) {
   .card.c3, .card.c4, .card.c5 { grid-column: span 6; }
   .card.c7, .card.c8, .card.c9 { grid-column: span 12; }
 }
-@media (max-width: 720px) { .card { grid-column: span 12 !important; } }
+@media (max-width: 900px) { .card { grid-column: span 12 !important; } }
 
 /* El titulo y su pregunta comparten linea; en panel estrecho la pregunta cae
    sola a la segunda sin necesidad de media query. El hueco de la derecha
@@ -260,6 +355,19 @@ header .spacer { flex: 1 1 auto; }
   background: var(--plane); font-size: var(--t-meta); color: var(--ink-2);
 }
 .insight b { color: var(--ink); font-weight: var(--w-bold); }
+/* Prosa dentro de una tarjeta: la pagina de metodo explica decisiones, y una
+   tabla no es el sitio para un porque. Misma voz que `.insight`, sin el filete. */
+.card .prose { font-size: var(--t-meta); color: var(--ink-2); margin: 0 0 var(--sp-3); }
+.card .prose:last-child { margin-bottom: 0; }
+.card .prose b { color: var(--ink); font-weight: var(--w-bold); }
+.card .prose code {
+  font-family: var(--f-num); font-size: var(--t-micro); color: var(--ink);
+  background: var(--plane); border: 1px solid var(--hairline);
+  border-radius: var(--r-1); padding: 0 4px;
+}
+.card ul.prose { padding-left: var(--sp-4); }
+.card ul.prose li { margin-bottom: var(--sp-1); }
+
 .tag {
   display: inline-block; font-size: var(--t-micro); padding: 1px var(--sp-2);
   border-radius: var(--r-pill); border: 1px solid var(--hairline);
@@ -270,9 +378,12 @@ header .spacer { flex: 1 1 auto; }
    Siete tarjetas independientes, todas del mismo tamano. La cifra manda y la
    unidad la acompana medio paso por detras: leer "12.111.837" y luego "EUR" es
    mas rapido que leerlo todo con el mismo peso. */
-.kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-3); }
-@media (max-width: 1180px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 720px)  { .kpis { grid-template-columns: repeat(2, 1fr); } }
+/* Siete columnas cuando caben y las que quepan cuando no. Va por `auto-fit` y no
+   por media queries porque lo que manda aqui es el ancho del CONTENEDOR, no el
+   de la ventana: con el menu lateral quitando 250 px, una regla por ventana
+   dejaba siete tarjetas de 118 px y la cifra de ingresos, que no parte linea,
+   se salia. El minimo de 148 px es lo que mide "12.111.837 €" a --t-figure. */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: var(--sp-3); }
 .kpi {
   background: var(--surface); border: 1px solid var(--hairline);
   border-radius: var(--r-2); padding: var(--sp-3) var(--sp-4);
@@ -308,19 +419,46 @@ table.dt th {
   border-bottom: 1px solid var(--hairline);
 }
 table.dt td { border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+/* Tabla de texto, no de cifras. Las tablas de datos alinean a la derecha porque
+   lo que se compara es la columna de numeros; en una tabla de prosa eso deja el
+   texto corto pegado al borde derecho y obliga a desplazarse para leerlo. Aqui
+   manda la izquierda y el texto envuelve en vez de estirar la fila. */
+.tablewrap.txt { max-height: none; }
+.tablewrap.txt table.dt th,
+.tablewrap.txt table.dt td {
+  text-align: left; white-space: normal; vertical-align: top;
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0; line-height: 1.5;
+}
+.tablewrap.txt table.dt td:first-child { padding-left: 0; }
+.tablewrap.txt table.dt td b { color: var(--ink); }
+.tablewrap.txt table.dt code {
+  font-family: var(--f-num); font-size: var(--t-micro); color: var(--ink);
+  background: var(--plane); border: 1px solid var(--hairline);
+  border-radius: var(--r-1); padding: 0 4px;
+}
 table.dt td:first-child { color: var(--ink); }
 table.dt tbody tr:hover td { background: var(--plane); }
 .sig { color: var(--good); font-weight: var(--w-bold); }
 .nosig { color: var(--muted); }
 
 /* --- graficos ---
-   El tamano base sale del token; los graficos que bajan a `--t-nano` lo hacen
-   desde las constantes FS_MICRO / FS_NANO de 04_charts.js. */
+   El tamano base sale del token. OJO: esta regla gana a cualquier atributo
+   `font-size` del SVG, asi que 04_charts.js fija los tamanos con `fs()`, que
+   escribe estilo en linea (FS_MICRO / FS_NANO y los tamanos sueltos del arco). */
 .chart { width: 100%; position: relative; }
 .chart svg { display: block; width: 100%; overflow: visible; }
-.chart text { font-family: var(--f-sans); font-size: var(--t-micro); fill: var(--muted); }
-.chart text.val { fill: var(--ink-2); font-variant-numeric: tabular-nums; }
-.chart text.lbl { fill: var(--ink); }
+/* El color por defecto solo se aplica al texto que NO trae el suyo.
+   Un atributo de presentacion del SVG pierde contra cualquier regla de CSS, asi
+   que sin el `:not([fill])` estas tres lineas pisaban el color calculado por
+   `readable()` y las etiquetas dentro de las marcas —treemap, mapa, heatmap—
+   salian siempre en gris apagado, justo el problema de contraste que ese
+   calculo existe para evitar. */
+.chart text { font-family: var(--f-sans); font-size: var(--t-micro); }
+.chart text:not([fill]) { fill: var(--muted); }
+.chart text.val { font-variant-numeric: tabular-nums; }
+.chart text.val:not([fill]) { fill: var(--ink-2); }
+.chart text.lbl:not([fill]) { fill: var(--ink); }
 .legend { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-2); font-size: var(--t-meta); color: var(--ink-2); }
 /* La muestra es cuadrada porque la marca que representa lo es. */
 .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }

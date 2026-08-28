@@ -1,15 +1,19 @@
-<div class="app">
-  <header>
-    <div>
-      <h1>Sports Rental · Informe de negocio</h1>
-      <div class="sub">Alquiler de material deportivo · 7 mercados europeos · datos sintéticos</div>
-    </div>
-    <div class="spacer"></div>
-    <span class="badge" id="badge-rows">—</span>
-    <span class="badge" id="badge-trust">—</span>
-    <button class="icon-btn" id="theme-toggle" type="button">Tema</button>
-  </header>
+<!-- El riel es hermano de `.app`, no hijo: va fijo al borde de la ventana y no
+     puede vivir dentro de un contenedor centrado con ancho maximo. Su marcado
+     es estatico salvo la lista y el pie, que los rellena `buildChrome()`; asi,
+     mientras se descomprime la tabla de hechos, el riel ya esta ahi con su
+     rotulo en vez de aparecer de golpe al terminar. -->
+<aside class="rail">
+  <div class="brand">
+    <h1 class="bname">Sports Rental</h1>
+    <div class="bsub">Informe de negocio</div>
+  </div>
+  <nav class="pages" role="tablist" aria-orientation="vertical"
+       aria-label="Páginas del informe" id="pages"></nav>
+  <div class="railfoot" id="rail-meta"></div>
+</aside>
 
+<div class="app">
   <div id="boot">Descomprimiendo la tabla de hechos…</div>
 
   <div id="ui" class="hidden">
@@ -29,9 +33,9 @@
       <div class="ms" id="f-segment"></div>
       <button class="icon-btn" id="f-reset" type="button">Limpiar</button>
       <span class="count" id="f-count"></span>
+      <button class="icon-btn" id="theme-toggle" type="button">Tema</button>
     </div>
 
-    <nav class="pages" role="tablist" aria-label="Paginas del informe" id="pages"></nav>
     <div class="pagehead" id="pagehead"></div>
     <main id="panels" role="tabpanel"></main>
 

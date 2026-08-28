@@ -2,93 +2,314 @@
    Paginas 1-4: resumen, calidad del dato, demanda y producto.
    =========================================================================== */
 
-/* --------------------------- 1 · Resumen ---------------------------------- */
+/* --------------------------- 1 · Resumen ----------------------------------
+
+   La portada responde, en este orden, las preguntas que se hace quien abre el
+   informe por primera vez:
+
+     como va         -> siete indicadores con su variacion contra el periodo anterior
+     hacia donde va  -> ingresos del mes contra el mismo mes del ano anterior
+     rinde el activo -> ocupacion de la flota, global y por categoria
+     donde esta      -> peso por deporte y reparto geografico
+     que sube y baja -> crecimiento por categoria contra los 12 meses anteriores
+
+   Antes eran cuatro tarjetas y tres de ellas eran barras horizontales. La forma
+   de cada una sale ahora de la naturaleza del dato: serie temporal -> area,
+   indice unico -> arco, composicion -> treemap, geografia -> mapa, variacion con
+   signo -> barras divergentes. Las dos tarjetas de reparto conservan la lectura
+   en barras detras de un conmutador: el treemap y el mapa cuentan mejor la
+   proporcion, pero para comparar dos valores parecidos nada gana a una barra.
+   -------------------------------------------------------------------------- */
+
+/* Vista elegida en las tarjetas conmutables. Fuera de la funcion porque
+   `render()` recrea las tarjetas enteras en cada cambio de filtro. */
+const catView = { mode: "treemap" };
+const geoResumenView = { mode: "map" };
+const growthView = { measure: "pct" };
+
 function pageResumen(grid) {
   kpiRow(grid);
 
-  const c1 = card("c8", "Evolución mensual de ingresos",
-    "¿Cómo se mueve el negocio y hacia dónde va la tendencia?");
+  /* -- Evolucion de ingresos ------------------------------------------------
+     La version anterior superponia la serie y su media movil de 3 meses: dos
+     trazos para una sola magnitud, y el segundo era un artefacto de calculo que
+     ademas aplanaba justo los picos que sostienen el negocio. La comparacion
+     util en un negocio estacional es contra el MISMO MES del ano anterior: dice
+     si el pico de esta temporada ha sido mejor que el de la anterior, que es la
+     pregunta real. Las dos series son euros sobre un unico eje, asi que no hay
+     doble eje ni escalas que insinuen correlaciones inexistentes. */
+  const c1 = card("c8", "Ingresos mensuales frente al año anterior",
+    "¿Cómo se mueve el negocio y va mejor que hace doce meses?");
   grid.appendChild(c1);
   const months = [], rev = [];
   for (let m = M0; m <= M1; m++) { months.push(D.months[m]); rev.push(A.month.rev[m]); }
-  const roll = rev.map((_, i) => {
-    const w = rev.slice(Math.max(0, i - 2), i + 1);
-    return w.reduce((a, b) => a + b, 0) / w.length;
+  // La serie del ano anterior cae fuera de la ventana filtrada, asi que necesita
+  // su propia agregacion sobre la ventana desplazada 12 meses (mismos filtros).
+  const hasYoY = M1 - 12 >= 0;
+  const AY = hasYoY ? revSlice(M0 - 12, M1 - 12) : null;
+  const yoy = months.map((_, i) => {
+    const m = M0 + i - 12;
+    return hasYoY && m >= 0 ? AY.month[m] : null;
   });
-  legend(c1, [{ name: "Ingresos del mes", color: SERIES(0) },
-              { name: "Media móvil 3 meses", color: SERIES(1), line: true, dash: true }]);
+  const series = [{ name: "Ingresos del mes", values: rev, color: SERIES(0), area: true }];
+  if (hasYoY) series.push({ name: "Mismo mes del año anterior", values: yoy,
+                            color: cssVar("--ink-2"), width: 1.4, dash: "4 4" });
+  legend(c1, [{ name: "Ingresos del mes", color: SERIES(0) }].concat(hasYoY
+    ? [{ name: "Mismo mes del año anterior", color: cssVar("--ink-2"), line: true, dash: true }]
+    : []));
   lineChart(c1._chart, {
-    height: 250, x: months.map(monthLabel), xTitle: i => monthLabel(months[i]),
-    series: [{ name: "Ingresos", values: rev, color: SERIES(0) },
-             { name: "Media móvil 3M", values: roll, color: SERIES(1), dash: "5 4" }],
+    height: 350, x: months.map(monthLabel), xTitle: i => monthLabel(months[i]),
+    series,
     fmtY: v => compact(v) + " €", fmtTip: v => eur(v),
-    extraTip: i => [["Alquileres", nf(A.month.n[M0 + i])],
-                    ["Ticket medio", eur(kpi.ticket(A.month, M0 + i), 2)]],
+    extraTip: i => {
+      const base = yoy[i], cur = rev[i];
+      const va = base ? (cur - base) / base : null;
+      return [["Alquileres", nf(A.month.n[M0 + i])],
+              ["Ticket medio", eur(kpi.ticket(A.month, M0 + i), 2)],
+              ["Variación interanual", va == null ? "—" :
+                (va >= 0 ? "+" : "−") + nf(Math.abs(va) * 100, 1) + " %"]];
+    },
   });
-  setTable(c1, ["Mes", "Ingresos", "Alquileres", "Ticket medio", "Cancelación", "Review"],
-    months.map((m, i) => [m, eur(A.month.rev[M0 + i]), nf(A.month.n[M0 + i]),
-      eur(kpi.ticket(A.month, M0 + i), 2), pct(kpi.cancel(A.month, M0 + i), 2),
-      nf(kpi.review(A.month, M0 + i), 2)]));
-  const base12 = rev.length > 12 ? rev.slice(0, 12).reduce((a, b) => a + b, 0) : 0;
-  const growth = base12 > 0 ? rev.slice(-12).reduce((a, b) => a + b, 0) / base12 - 1 : null;
-  insight(c1, growth != null
-    ? "Doble pico estacional sobre una tendencia de fondo positiva: los últimos 12 meses facturan un <b>" +
-      nf(growth * 100, 1) + " %</b> más que los 12 primeros. La compra de inventario y las campañas " +
-      "deben adelantarse uno o dos meses a cada pico."
-    : "La media móvil de 3 meses filtra el ruido y deja ver la tendencia de fondo de la selección.");
+  setTable(c1, ["Mes", "Ingresos", "Año anterior", "Var. interanual", "Alquileres", "Ticket medio", "Cancelación"],
+    months.map((m, i) => {
+      const base = yoy[i];
+      const va = base ? (rev[i] - base) / base : null;
+      return [m, eur(rev[i]), base == null ? "—" : eur(base),
+        va == null ? "—" : (va >= 0 ? "+" : "−") + nf(Math.abs(va) * 100, 1) + " %",
+        nf(A.month.n[M0 + i]), eur(kpi.ticket(A.month, M0 + i), 2),
+        pct(kpi.cancel(A.month, M0 + i), 2)];
+    }));
+  const paired = months.map((_, i) => i).filter(i => yoy[i] > 0);
+  const yoyAgg = paired.length
+    ? paired.reduce((a, i) => a + rev[i], 0) / paired.reduce((a, i) => a + yoy[i], 0) - 1
+    : null;
+  insight(c1, yoyAgg != null
+    ? "Doble pico estacional sobre una tendencia de fondo positiva: los meses con " +
+      "comparable facturan un <b>" + (yoyAgg >= 0 ? "+" : "−") + nf(Math.abs(yoyAgg) * 100, 1) +
+      " %</b> respecto al mismo mes del año anterior. Donde la línea gris queda por debajo del " +
+      "área, ese mes ha batido a su equivalente: la compra de inventario y las campañas deben " +
+      "adelantarse uno o dos meses a cada pico."
+    : "La selección no alcanza a cubrir doce meses previos, así que no hay comparable " +
+      "interanual: la serie se lee sola.");
 
-  const c2 = card("c4", "Data Trust Score", "¿Podemos fiarnos del dato?", "histórico completo");
+  /* -- Ocupacion de la flota ------------------------------------------------
+     En un negocio de alquiler el activo es el material, y su rendimiento es el
+     % del tiempo que esta fuera trabajando. Es el unico de los siete KPI de
+     arriba que no se entiende sin contexto —un 47 % no dice nada por si solo—,
+     asi que se le da el arco y el desglose por categoria: ahi es donde se ve
+     que el promedio esconde inventario parado en unas y saturado en otras. */
+  const c2 = card("c4", "Ocupación de la flota", "¿Está trabajando el material o parado?");
   grid.appendChild(c2);
-  chips(c2, [["Índice global", nf(DATA.quality.score, 2), "/ 100"]]);
-  barsH(c2._chart, {
-    items: DATA.quality.dims.map(d => ({
-      label: d.dim, value: d.valor,
-      rows: [["Cumplimiento", nf(d.valor, 2) + " %"], ["Peso en el índice", pct(d.peso, 0)]],
+  const occGlobal = occupancy(A);
+  const occCats = occupancyByCategory().sort((a, b) => b.occ - a.occ);
+  /* La escala del arco NO llega al 100 %. Con esta flota la ocupacion se mueve
+     entre el 2 % y el 9 %, y un arco de 0 a 100 dejaria todas las marcas
+     pegadas al origen: se veria que la cifra es baja y nada mas. Se recorta a la
+     siguiente marca redonda por encima del maximo, con los dos topes escritos
+     en el propio arco para que la escala no se lea como si fuese 0–100. La
+     magnitud absoluta la dice el numero grande y la remata el insight. */
+  const occVals = occCats.map(d => d.occ * 100).concat(isFinite(occGlobal) ? [occGlobal * 100] : []);
+  const gTicks = niceTicks(Math.max(...occVals, 1), 2);
+  const gMax = gTicks[gTicks.length - 1];
+  gauge(c2._chart, {
+    value: isFinite(occGlobal) ? occGlobal * 100 : 0, max: gMax, rowH: 22,
+    fmtValue: v => nf(v, 1) + " %", fmtEnd: v => nf(v, 0) + " %", fmtDim: v => nf(v, 1) + " %",
+    title: "Ocupación de la flota",
+    tipRows: [["Ocupación", pct(occGlobal)],
+              ["Días alquilados", nf(occCats.reduce((a, b) => a + b.days, 0))],
+              ["Unidades con actividad", nf(occCats.reduce((a, b) => a + b.units, 0))],
+              ["Días del periodo", nf(PDAYS)],
+              ["Escala del arco", "0 – " + nf(gMax, 0) + " %"]],
+    dims: occCats.map(d => ({
+      label: d.c, value: d.occ * 100,
+      rows: [["Ocupación", pct(d.occ)], ["Unidades", nf(d.units)],
+             ["Referencias", nf(d.refs)], ["Ingresos", eur(A.cat.rev[d.i])],
+             ["€ por unidad", eur(d.units ? A.cat.rev[d.i] / d.units : NaN)]],
     })),
-    rowH: 30, labelW: 106, valueW: 54, fmt: v => nf(v, 1) + " %",
   });
-  setTable(c2, ["Dimensión", "Cumplimiento", "Peso"],
-    DATA.quality.dims.map(d => [d.dim, nf(d.valor, 2) + " %", pct(d.peso, 0)]));
-  insight(c2, "Calculado sobre el dato <b>crudo</b>. La completitud y la consistencia son las que " +
-    "arrastran el índice; el detalle está en la página de calidad.");
+  setTable(c2, ["Categoría", "Ocupación", "Unidades", "Referencias", "Ingresos", "€ por unidad"],
+    occCats.slice().sort((a, b) => b.occ - a.occ).map(d => [d.c, pct(d.occ), nf(d.units),
+      nf(d.refs), eur(A.cat.rev[d.i]), eur(d.units ? A.cat.rev[d.i] / d.units : NaN)]));
+  /* Un solo bloque de texto, y escrito para alguien que no sabe que es una tasa
+     de ocupacion. Antes habia dos —una nota tecnica con la formula y un insight
+     con la lectura— y entre los dos estiraban la tarjeta muy por encima de la
+     grafica de al lado, ademas de repetirse. */
+  const best = occCats[0], worst = occCats[occCats.length - 1];
+  const per100 = isFinite(occGlobal) ? occGlobal * 100 : NaN;
+  note(c2, "<b>Qué mide:</b> de cada 100 días que una unidad del catálogo podría estar " +
+    "alquilada, lo está <b>" + nf(per100, 1) + "</b>. El resto del tiempo espera en la tienda." +
+    (occCats.length > 1
+      ? " Cada barra es lo mismo por deporte: <b>" + best.c + "</b> se alquila " +
+        nf(worst.occ ? best.occ / worst.occ : NaN, 1) + " veces más que <b>" + worst.c +
+        "</b>, así que hay margen para mover unidades de uno a otro sin comprar nada."
+      : "") +
+    " El arco llega al " + nf(gMax, 0) + " %, no al 100 %, para que se aprecien esas " +
+    "diferencias; al filtrar por país la cifra se queda corta.");
 
-  const c3 = card("c6", "Ingresos por categoría", "¿Qué deportes sostienen la cuenta?");
+  /* -- Composicion por categoria -------------------------------------------
+     El treemap dice la proporcion sin ejes; la barra compara mejor dos valores
+     parecidos. Ninguna de las dos gana siempre, asi que decide quien mira. */
+  const c3 = card("c5", "Peso de cada deporte", "¿Qué categorías sostienen la cuenta?");
   grid.appendChild(c3);
   const cats = D.categories.map((c, i) => ({ i, c })).filter(d => A.cat.rev[d.i] > 0)
     .sort((a, b) => A.cat.rev[b.i] - A.cat.rev[a.i]);
-  barsH(c3._chart, {
-    items: cats.map(d => ({
-      label: d.c, value: A.cat.rev[d.i],
-      rows: [["Ingresos", eur(A.cat.rev[d.i])], ["Alquileres", nf(A.cat.n[d.i])],
-             ["Ticket medio", eur(kpi.ticket(A.cat, d.i), 2)], ["Margen", pct(kpi.margin(A.cat, d.i))]],
-    })),
-    rowH: 24, labelW: 102, valueW: 66, fmt: v => compact(v) + " €", measure: "Ingresos",
-  });
-  setTable(c3, ["Categoría", "Ingresos", "Alquileres", "Ticket", "Margen", "Maint. ratio", "Review"],
-    cats.map(d => [d.c, eur(A.cat.rev[d.i]), nf(A.cat.n[d.i]), eur(kpi.ticket(A.cat, d.i), 2),
-      pct(kpi.margin(A.cat, d.i)), pct(kpi.maintR(A.cat, d.i)), nf(kpi.review(A.cat, d.i), 2)]));
+  const catRows = d => [["Ingresos", eur(A.cat.rev[d.i])],
+                        ["Peso del total", pct(A.cat.rev[d.i] / A.total.rev[0], 1)],
+                        ["Alquileres", nf(A.cat.n[d.i])],
+                        ["Ticket medio", eur(kpi.ticket(A.cat, d.i), 2)],
+                        ["Margen", pct(kpi.margin(A.cat, d.i))]];
+  const drawCats = () => {
+    if (catView.mode === "treemap") {
+      treemapFlat(c3._chart, {
+        height: 340, fmt: v => compact(v) + " €",
+        items: cats.map(d => ({ label: d.c, value: A.cat.rev[d.i], rows: catRows(d) })),
+      });
+    } else {
+      barsH(c3._chart, {
+        rowH: 26, labelW: 104, valueW: 68, fmt: v => compact(v) + " €", measure: "Ingresos",
+        items: cats.map(d => ({ label: d.c, value: A.cat.rev[d.i], rows: catRows(d) })),
+      });
+    }
+  };
+  segmented(c3, [{
+    label: "Ver como", store: catView, key: "mode",
+    options: [{ id: "treemap", label: "Treemap" }, { id: "bars", label: "Barras" }],
+  }], drawCats);
+  drawCats();
+  setTable(c3, ["Categoría", "Ingresos", "% del total", "Alquileres", "Ticket", "Margen", "Review"],
+    cats.map(d => [d.c, eur(A.cat.rev[d.i]), pct(A.cat.rev[d.i] / A.total.rev[0], 1),
+      nf(A.cat.n[d.i]), eur(kpi.ticket(A.cat, d.i), 2), pct(kpi.margin(A.cat, d.i)),
+      nf(kpi.review(A.cat, d.i), 2)]));
+  // Si la seleccion no deja ninguna categoria con ingreso (todo cancelado, por
+  // ejemplo) la nota no tiene nada que resumir y se calla en vez de romper.
+  note(c3, cats.length
+    ? "En treemap el área es el ingreso y la intensidad lo acompaña; en barras se comparan " +
+      "mejor dos categorías parecidas. Las dos primeras suman " +
+      pct((A.cat.rev[cats[0].i] + (cats[1] ? A.cat.rev[cats[1].i] : 0)) / A.total.rev[0], 1) +
+      " de la facturación de la selección."
+    : "Ninguna categoría registra ingreso en la selección: todos los alquileres están " +
+      "cancelados o llegan sin precio.");
 
-  const c4 = card("c6", "Ingresos por país", "¿Dónde está el negocio y con qué ticket?");
+  /* -- Reparto geografico --------------------------------------------------- */
+  const c4 = card("c7", "Reparto por mercado", "¿Dónde está el negocio sobre el terreno?");
   grid.appendChild(c4);
+  const cityList = cityRollup(storeMetrics());
   const countries = D.countries.map((c, i) => ({ b: i + 1, c }))
     .concat([{ b: 0, c: "Sin tienda asignada", muted: true }])
     .filter(d => A.country.rev[d.b] > 0)
     .sort((a, b) => A.country.rev[b.b] - A.country.rev[a.b]);
-  barsH(c4._chart, {
-    items: countries.map(d => ({
-      label: d.c, value: A.country.rev[d.b], muted: d.muted,
-      rows: [["Ingresos", eur(A.country.rev[d.b])], ["Alquileres", nf(A.country.n[d.b])],
-             ["Ticket medio", eur(kpi.ticket(A.country, d.b), 2)],
-             ["Cancelación", pct(kpi.cancel(A.country, d.b), 2)]],
-    })),
-    rowH: 24, labelW: 124, valueW: 66, fmt: v => compact(v) + " €", measure: "Ingresos",
-  });
+  const drawGeo = () => {
+    if (geoResumenView.mode === "map") {
+      geoMap(c4._chart, {
+        height: 380, level: "country", countries: geoCountryGroups(cityList, true),
+        fmt: v => compact(v) + " €", measureLabel: "Ingresos",
+      });
+    } else {
+      barsH(c4._chart, {
+        rowH: 30, labelW: 132, valueW: 74, fmt: v => compact(v) + " €", measure: "Ingresos",
+        items: countries.map(d => ({
+          label: d.c, value: A.country.rev[d.b], muted: d.muted,
+          rows: [["Ingresos", eur(A.country.rev[d.b])], ["Alquileres", nf(A.country.n[d.b])],
+                 ["Ticket medio", eur(kpi.ticket(A.country, d.b), 2)],
+                 ["Cancelación", pct(kpi.cancel(A.country, d.b), 2)]],
+        })),
+      });
+    }
+  };
+  segmented(c4, [{
+    label: "Ver como", store: geoResumenView, key: "mode",
+    options: [{ id: "map", label: "Mapa" }, { id: "bars", label: "Barras" }],
+  }], drawGeo);
+  drawGeo();
   setTable(c4, ["País", "Ingresos", "Alquileres", "Ticket", "Cancelación", "Review"],
     countries.map(d => [d.c, eur(A.country.rev[d.b]), nf(A.country.n[d.b]),
       eur(kpi.ticket(A.country, d.b), 2), pct(kpi.cancel(A.country, d.b), 2),
       nf(kpi.review(A.country, d.b), 2)]));
-  note(c4, "Un 2 % de los alquileres llega sin tienda asignada. No son huérfanos: el ingreso es real, " +
-    "así que se conservan en gris en lugar de descartarlos.");
+  note(c4, "El mapa da la lectura geográfica y las barras el orden exacto. Un " +
+    pct(A.country.rev[0] / A.total.rev[0], 1) + " de los ingresos llega sin tienda asignada: " +
+    "no es localizable, así que aparece en las barras y en la tabla, pero no en el mapa. " +
+    "La página de tiendas permite bajar a ciudad.");
+
+  /* -- Crecimiento por categoria --------------------------------------------
+     Sustituye al puente de variacion que habia aqui. El puente era correcto pero
+     exigia reconstruir una suma para leerlo; estas barras salen de una linea de
+     cero y el lado ya dice el sentido, sin ningun paso intermedio.
+
+     Se compara siempre contra los doce meses inmediatamente anteriores, esten
+     dentro o fuera de la seleccion: es la unica ventana comparable que existe
+     para cualquier periodo con dos anos de historia por detras. */
+  const c5 = card("c12", "Crecimiento por categoría",
+    "¿Qué deportes tiran del negocio y cuáles lo frenan?");
+  grid.appendChild(c5);
+  if (M1 - 23 < 0) {
+    c5._chart.innerHTML = "";
+    const msg = document.createElement("p");
+    msg.className = "prose";
+    msg.innerHTML = "La comparación necesita los <b>doce meses anteriores</b> a los últimos " +
+      "doce, y la selección no tiene veinticuatro meses de historia por detrás. Amplía el " +
+      "periodo para verla.";
+    c5._chart.appendChild(msg);
+    c5.querySelector(".tbtn").remove();
+  } else {
+    const AR = revSlice(M1 - 11, M1);
+    const AB = revSlice(M1 - 23, M1 - 12);
+    const all = D.categories.map((c, i) => ({
+      label: c, cur: AR.cat[i], prev: AB.cat[i],
+      abs: AR.cat[i] - AB.cat[i],
+      rel: AB.cat[i] > 0 ? (AR.cat[i] - AB.cat[i]) / AB.cat[i] * 100 : null,
+    })).filter(d => d.cur > 0 || d.prev > 0);
+    const net = AR.total - AB.total;
+    chips(c5, [
+      ["12 meses anteriores", eur(AB.total)],
+      ["Últimos 12 meses", eur(AR.total)],
+      ["Variación", (net >= 0 ? "+" : "−") + eur(Math.abs(net)),
+       AB.total ? (net >= 0 ? "+" : "−") + nf(Math.abs(net / AB.total) * 100, 1) + " %" : ""],
+    ]);
+    const drawGrowth = () => {
+      const byPct = growthView.measure === "pct";
+      // En porcentaje se excluye la categoria que partia de cero: su crecimiento
+      // no es un numero, y meterla como "infinito" desordenaria toda la escala.
+      const items = all.filter(d => !byPct || d.rel != null)
+        .map(d => ({
+          label: d.label, value: byPct ? d.rel : d.abs,
+          rows: [["12 meses anteriores", eur(d.prev)], ["Últimos 12 meses", eur(d.cur)],
+                 ["Variación", (d.abs >= 0 ? "+" : "−") + eur(Math.abs(d.abs))],
+                 ["Variación relativa", d.rel == null ? "sin base de comparación"
+                   : (d.rel >= 0 ? "+" : "−") + nf(Math.abs(d.rel), 1) + " %"]],
+        }))
+        .sort((a, b) => b.value - a.value);
+      barsDiverging(c5._chart, {
+        items, rowH: 27, labelW: 128, valueW: byPct ? 56 : 66,
+        fmt: byPct ? v => nf(v, 1) + " %" : v => compact(v) + " €",
+        xLabel: byPct ? "Variación sobre los mismos meses del año anterior"
+                      : "Euros ganados o perdidos frente a los mismos meses del año anterior",
+      });
+    };
+    segmented(c5, [{
+      label: "Medir en", store: growthView, key: "measure",
+      options: [{ id: "pct", label: "%" }, { id: "abs", label: "€" }],
+    }], drawGrowth);
+    drawGrowth();
+    setTable(c5, ["Categoría", "12 meses anteriores", "Últimos 12 meses", "Variación", "Variación %"],
+      all.slice().sort((a, b) => b.abs - a.abs).map(d => [d.label, eur(d.prev), eur(d.cur),
+        (d.abs >= 0 ? "+" : "−") + eur(Math.abs(d.abs)),
+        d.rel == null ? "—" : (d.rel >= 0 ? "+" : "−") + nf(Math.abs(d.rel), 1) + " %"])
+        .concat([["Total", eur(AB.total), eur(AR.total),
+          (net >= 0 ? "+" : "−") + eur(Math.abs(net)),
+          AB.total ? nf(net / AB.total * 100, 1) + " %" : "—"]]));
+    note(c5, "Ventanas comparadas: " + monthLabel(D.months[M1 - 23]) + " – " +
+      monthLabel(D.months[M1 - 12]) + " frente a " + monthLabel(D.months[M1 - 11]) + " – " +
+      monthLabel(D.months[M1]) + ". En <b>%</b> se ve qué categoría crece más deprisa; en " +
+      "<b>€</b>, cuál mueve de verdad la facturación. No suelen ser la misma.");
+    const sorted = all.slice().sort((a, b) => b.abs - a.abs);
+    const win = sorted[0], lose = sorted[sorted.length - 1];
+    insight(c5, win && lose && win !== lose
+      ? "<b>" + win.label + "</b> aporta <b>" + (win.abs >= 0 ? "+" : "−") +
+        eur(Math.abs(win.abs)) + "</b> y <b>" + lose.label + "</b> resta <b>" +
+        eur(lose.abs) + "</b>. Cuando el saldo neto es pequeño no significa que no pase nada: " +
+        "puede ser una recomposición, con categorías moviéndose fuerte en sentidos opuestos."
+      : "Todas las categorías con peso se mueven en el mismo sentido en esta selección.");
+  }
 }
 
 /* --------------------------- 2 · Calidad ---------------------------------- */
@@ -392,6 +613,15 @@ function pageDemanda(grid) {
     "ataca en la reserva (el lead time la predice), la segunda en el estado del material.");
 }
 
+/* Tramos de antiguedad del material. La escala no es lineal a proposito: los
+   primeros meses de vida de una bicicleta o unos esquis se comportan muy distinto
+   entre si, y a partir de los cinco anos ya da igual el ano exacto. */
+const AGE_BUCKETS = ["0–6 meses", "6–12 meses", "1–2 años", "2–5 años", "+5 años"];
+
+/* Vista elegida en la tarjeta de averias. Vive fuera de la funcion de pagina
+   porque `render()` recrea las tarjetas en cada filtro. */
+const ageView = { mode: "box" };
+
 /* --------------------------- 4 · Producto --------------------------------- */
 function pageProducto(grid) {
   const pm = productMetrics();
@@ -478,28 +708,96 @@ function pageProducto(grid) {
   note(c3, "Las líneas marcan la media de cada eje; el tamaño de la burbuja son los ingresos. " +
     "Arriba a la derecha es donde ampliar stock rinde de inmediato.");
 
-  const c4 = card("c6", "Antigüedad frente a averías",
+  /* -- Antiguedad frente a averias -----------------------------------------
+     DECISION (para poder revertirla con criterio): la version anterior era una
+     nube de ~250 burbujas de producto con TRES codificaciones a la vez —posicion,
+     tamano por unidades y color por maintenance ratio— sobre puntos que se
+     solapaban. Con esa densidad el patron "las averias suben con la edad" solo se
+     intuia, y no habia forma de acercarse a mirar.
+
+     Se sustituye por una CAJA Y BIGOTES sobre cinco tramos de antiguedad. Al
+     agregar en tramos, el patron se lee de un vistazo (medianas crecientes) y
+     ademas aparece algo que la nube escondia: cuanta dispersion hay DENTRO de
+     cada tramo, que es justo lo que decide si la edad basta como regla de retirada.
+     Agregado, el zoom deja de hacer falta.
+
+     La nube original no se tira: queda detras del conmutador "Dispersion", ahora
+     con zoom de rueda, arrastre y boton de reinicio. Para volver al comportamiento
+     anterior basta con cambiar el valor inicial de `ageView.mode` a "scatter".
+     -------------------------------------------------------------------------- */
+  const c4 = card("c6", "Averías por antigüedad del material",
     "¿A partir de qué edad deja de compensar mantener una unidad?");
   grid.appendChild(c4);
   const pts = pm.filter(p => p.age != null && isFinite(p.damage) && p.completed >= 5);
   const maxMaint = Math.max(...pts.map(p => isFinite(p.maintRatio) ? p.maintRatio : 0), 0.001);
-  scatter(c4._chart, {
-    height: 290, sizeBy: true, xLabel: "Antigüedad del producto (años)",
-    points: pts.map(p => ({ x: p.age, y: p.damage * 100, r: p.units, label: p.name,
-      color: ramp((isFinite(p.maintRatio) ? p.maintRatio : 0) / maxMaint),
-      rows: [["Categoría", D.categories[p.cat]], ["Antigüedad", nf(p.age, 1) + " años"],
-             ["Tasa de averías", pct(p.damage, 1)], ["Maintenance ratio", pct(p.maintRatio, 1)],
-             ["Unidades", nf(p.units)], ["Alquileres", nf(p.rentals)]] })),
-    fmtX: v => nf(v, 1), fmtY: v => nf(v, 0) + " %",
-  });
-  scaleLegend(c4, "maintenance ratio bajo", "alto · el tamaño son las unidades");
-  setTable(c4, ["Producto", "Categoría", "Años", "Averías", "Maint. ratio", "Unidades", "Alquileres"],
-    pts.slice().sort((a, b) => b.damage - a.damage).slice(0, 80).map(p =>
-      [p.name, D.categories[p.cat], nf(p.age, 1), pct(p.damage, 1), pct(p.maintRatio, 1),
-       nf(p.units), nf(p.rentals)]));
-  insight(c4, "La tasa de averías sube con la antigüedad y el color muestra que el coste de " +
-    "mantenimiento la acompaña. El cruce de ambas curvas marca la <b>edad umbral</b> a partir de la " +
-    "cual retirar la unidad sale más barato que mantenerla.");
+  const bucketOf = age => age < 0.5 ? 0 : age < 1 ? 1 : age < 2 ? 2 : age < 5 ? 3 : 4;
+  const buckets = AGE_BUCKETS.map((label, b) => {
+    const set = pts.filter(p => bucketOf(p.age) === b);
+    const rev = set.reduce((a, x) => a + x.revenue, 0);
+    return {
+      label, b, set,
+      box: boxStats(set.map(p => p.damage * 100)),
+      units: set.reduce((a, x) => a + x.units, 0),
+      rentals: set.reduce((a, x) => a + x.rentals, 0),
+      rev,
+      maint: rev ? set.reduce((a, x) => a + (isFinite(x.maintRatio) ? x.maintRatio * x.revenue : 0), 0) / rev : NaN,
+      damage: set.reduce((a, x) => a + x.completed, 0)
+        ? set.reduce((a, x) => a + x.damage * x.completed, 0) / set.reduce((a, x) => a + x.completed, 0)
+        : NaN,
+    };
+  }).filter(d => d.set.length);
+  const legendBox = document.createElement("div");
+  c4.appendChild(legendBox);
+
+  const drawAge = () => {
+    legendBox.innerHTML = "";
+    if (ageView.mode === "box") {
+      boxplot(c4._chart, {
+        rowH: 42, labelW: 108, fmt: v => nf(v, 1) + " %",
+        items: buckets.map(d => ({ label: d.label, box: d.box })),
+      });
+      const d = document.createElement("div");
+      d.className = "note";
+      d.textContent = "Cada caja resume las referencias de ese tramo: la línea es la mediana " +
+        "de su tasa de averías, la caja el recorrido intercuartílico y los bigotes 1,5·IQR. " +
+        "Las cifras exactas están en la tabla.";
+      legendBox.appendChild(d);
+      setTable(c4, ["Tramo de antigüedad", "Referencias", "Unidades", "Alquileres",
+                    "Avería mediana", "Tasa de avería del tramo", "Maint. ratio"],
+        buckets.map(d => [d.label, nf(d.set.length), nf(d.units), nf(d.rentals),
+          nf(d.box.med, 1) + " %", pct(d.damage, 1), pct(d.maint, 1)]));
+    } else {
+      scatter(c4._chart, {
+        height: 290, sizeBy: true, zoom: true, xLabel: "Antigüedad del producto (años)",
+        points: pts.map(p => ({ x: p.age, y: p.damage * 100, r: p.units, label: p.name,
+          color: ramp((isFinite(p.maintRatio) ? p.maintRatio : 0) / maxMaint),
+          rows: [["Categoría", D.categories[p.cat]], ["Antigüedad", nf(p.age, 1) + " años"],
+                 ["Tasa de averías", pct(p.damage, 1)], ["Maintenance ratio", pct(p.maintRatio, 1)],
+                 ["Unidades", nf(p.units)], ["Alquileres", nf(p.rentals)]] })),
+        fmtX: v => nf(v, 1), fmtY: v => nf(v, 0) + " %",
+      });
+      scaleLegend(legendBox, "maintenance ratio bajo", "alto · el tamaño son las unidades");
+      setTable(c4, ["Producto", "Categoría", "Años", "Averías", "Maint. ratio", "Unidades", "Alquileres"],
+        pts.slice().sort((a, b) => b.damage - a.damage).slice(0, 80).map(p =>
+          [p.name, D.categories[p.cat], nf(p.age, 1), pct(p.damage, 1), pct(p.maintRatio, 1),
+           nf(p.units), nf(p.rentals)]));
+    }
+  };
+  segmented(c4, [{
+    label: "Vista", store: ageView, key: "mode",
+    options: [{ id: "box", label: "Distribución" }, { id: "scatter", label: "Dispersión" }],
+  }], drawAge);
+  drawAge();
+  const first = buckets[0], last = buckets[buckets.length - 1];
+  insight(c4, buckets.length > 1
+    ? "La avería mediana pasa del <b>" + nf(first.box.med, 1) + " %</b> en " +
+      first.label.toLowerCase() + " al <b>" + nf(last.box.med, 1) + " %</b> en " +
+      last.label.toLowerCase() + ", y el coste de mantenimiento sobre ingreso sube del <b>" +
+      pct(first.maint, 1) + "</b> al <b>" + pct(last.maint, 1) + "</b>. El ancho de las cajas " +
+      "avisa de que la edad no basta por sí sola: dentro del mismo tramo hay referencias sanas " +
+      "y referencias que ya no compensan, así que la regla de retirada debe cruzar edad con " +
+      "maintenance ratio."
+    : "La selección deja un único tramo de antigüedad; amplíala para comparar.");
 
   const c5 = card("c6", "Referencias saturadas", "¿Dónde falta stock?");
   grid.appendChild(c5);
