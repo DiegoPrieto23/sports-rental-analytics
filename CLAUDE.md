@@ -188,6 +188,13 @@ Key invariants:
   for "darker blue" across the whole report. Worst in-mark contrast is now 5.4:1.
 - **`note()` renders HTML**, like `insight()`. It used `textContent`, so any `<b>` showed up as
   literal tag text on the page.
+- **The three detail tables are sortable, and their cells carry `{h, v}` for a reason.**
+  `sortableTable()` / `sortableOnly()` sort by `v` and render `h`. Passing a plain formatted
+  string for a numeric column silently sorts it as text, which puts `9 €` above `1.234 €`.
+  Numeric cells go through `numCell(value, formatted)`, which maps non-finite to `-Infinity`
+  so `—` clusters at one end instead of interleaving with real values. First click is
+  descending on a numeric column and ascending on a text one. A sentinel (not `Infinity`)
+  is what puts "nunca" at the top of a worst-first sort — see the fleet table's `payback`.
 - **Prose tables opt into `.tablewrap.txt`** via `textTable()`. The default `table.dt` aligns
   right and sets `white-space: nowrap`, which is correct for columns of figures and wrong for
   sentences — it pushes short cells to the far right and forces horizontal scrolling.

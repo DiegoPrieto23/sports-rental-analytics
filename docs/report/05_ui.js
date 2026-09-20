@@ -157,6 +157,12 @@ function setTable(el, headers, rows) {
    Los valores no finitos (un payback infinito, un dato que falta) se mandan al
    extremo "peor" con un centinela en quien construye la fila, no aqui: esta
    funcion no sabe si un infinito es bueno o malo. */
+/* Celda numerica para `sortableTable`: `h` es el texto ya formateado y `v` el
+   numero con el que se compara. Lo que no es finito —un margen sin ingreso, una
+   review sin votos— se manda al fondo del orden descendente, que es donde tiene
+   que estar: "—" no es un valor pequeno, es la ausencia de uno. */
+const numCell = (v, h) => ({ v: isFinite(v) ? v : -Infinity, h });
+
 function sortableTable(el, headers, rows, initial) {
   const val = c => (c && typeof c === "object" && "v" in c) ? c.v : c;
   const html = c => (c && typeof c === "object" && "h" in c) ? c.h : c;
@@ -200,6 +206,15 @@ function tableOnly(el, headers, rows) {
   el._table.classList.remove("hidden");
   const b = el.querySelector(".tbtn"); if (b) b.remove();
   setTable(el, headers, rows);
+}
+/* `tableOnly` con la tabla ordenable. Las tarjetas de detalle no tienen grafico
+   —son la tabla—, y ahi ordenar por columna es la unica forma de preguntarle algo
+   a 320 filas sin exportarlas a otro sitio. */
+function sortableOnly(el, headers, rows, initial) {
+  el._chart.remove();
+  el._table.classList.remove("hidden");
+  const b = el.querySelector(".tbtn"); if (b) b.remove();
+  sortableTable(el, headers, rows, initial);
 }
 function insight(el, html) {
   const d = document.createElement("div");

@@ -55,6 +55,9 @@ Seis filtros —periodo, país, categoría, canal, membresía y segmento— se a
 | **Estadística** | Matriz de correlación, correlaciones con significación, **regresión lineal del precio**, **logística de la cancelación**, intervalos de confianza y test A/B |
 | **Modelo y metodología** | Diagrama del pipeline `rental_raw → stg_* → int_* → mart_*` con los modelos dbt reales, **diagrama del modelo en estrella** con grano y cardinalidades, decisiones de modelado, supuestos del generador sintético y cómo se calcula el Data Trust Score |
 
+Las tres tablas de detalle —por referencia, por tienda y el plan de flota— son
+**ordenables por cualquier columna**, y ordenan por el valor, no por el texto ya formateado.
+
 Las regresiones **se recalculan sobre la selección**: no son tablas precocinadas. La lineal
 se resuelve por ecuaciones normales y la logística por IRLS, ambas escritas a mano en el
 propio informe.

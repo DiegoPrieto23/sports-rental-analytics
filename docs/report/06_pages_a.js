@@ -840,15 +840,29 @@ function pageProducto(grid) {
   insight(c6, "Ordenadas por <b>capital inmovilizado</b> (unidades × precio de compra), no por número " +
     "de unidades: liberar caja es el objetivo, y no todas las referencias cuestan lo mismo.");
 
+  /* Ordenable por cualquier columna. Las celdas numericas van como {h, v} porque
+     lo que se pinta ya esta formateado ("1.234 €", "12,3 %") y ordenar eso como
+     texto pondria el 9 por encima del 1.234. Arranca por ingresos, que era el
+     orden fijo que tenia antes. */
   const c7 = card("c12", "Detalle por referencia",
-    nf(pm.length) + " referencias con actividad en la selección.");
+    nf(pm.length) + " referencias con actividad. Pulsa una cabecera para ordenar.");
   grid.appendChild(c7);
-  tableOnly(c7, ["Producto", "Categoría", "Rotación", "Uds.", "Alquileres", "Ocupación",
-                 "Utilización", "Ingresos", "€/unidad", "Margen", "Maint. ratio", "Averías", "Review"],
-    pm.slice().sort((a, b) => b.revenue - a.revenue).map(p => [
-      p.name, D.categories[p.cat], p.rotation, nf(p.units), nf(p.rentals), pct(p.occupancy),
-      nf(p.utilization, 1), eur(p.revenue), eur(p.revPerUnit), pct(p.margin), pct(p.maintRatio),
-      pct(p.damage), nf(p.review, 2)]));
+  sortableOnly(c7, ["Producto", "Categoría", "Rotación", "Uds.", "Alquileres", "Ocupación",
+                    "Utilización", "Ingresos", "€/unidad", "Margen", "Maint. ratio", "Averías",
+                    "Review"],
+    pm.map(p => [
+      p.name, D.categories[p.cat], p.rotation,
+      numCell(p.units, nf(p.units)),
+      numCell(p.rentals, nf(p.rentals)),
+      numCell(p.occupancy, pct(p.occupancy)),
+      numCell(p.utilization, nf(p.utilization, 1)),
+      numCell(p.revenue, eur(p.revenue)),
+      numCell(p.revPerUnit, eur(p.revPerUnit)),
+      numCell(p.margin, pct(p.margin)),
+      numCell(p.maintRatio, pct(p.maintRatio)),
+      numCell(p.damage, pct(p.damage)),
+      numCell(p.review, nf(p.review, 2))]),
+    { col: 7, dir: -1 });
 
   recoBlock(grid, "producto");
 }

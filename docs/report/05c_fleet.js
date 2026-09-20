@@ -472,28 +472,24 @@ function pageFlota(grid) {
   const c4 = card("c12", "Las " + nf(rows.length) + " referencias",
     "Pulsa una cabecera para ordenar. Arranca por el euro anual que mueve la acción.", tag);
   grid.appendChild(c4);
-  c4._chart.remove();
-  c4.querySelector(".tbtn").remove();
-  c4._table.classList.remove("hidden");
   const drawDetail = () => {
     const m = fleetView.mode;
-    const num = (v, h) => ({ v: isFinite(v) ? v : -Infinity, h });
-    sortableTable(c4, DETAIL_COLS, rows.map(d => {
+    sortableOnly(c4, DETAIL_COLS, rows.map(d => {
       const pk = fleetPick(d, m);
       return [
         d.name, D.categories[d.cat],
         { v: fleetLabel(pk.action),
           h: '<b style="color:' + fleetColor(pk.action) + '">' + fleetLabel(pk.action) + "</b>" },
         pk.why,
-        num(d.units, nf(d.units)),
-        num(d.occ, pct(d.occ, 2)),
-        num(d.contribU, eur(d.contribU, 2)),
-        num(d.amortU, eur(d.amortU, 2)),
-        num(d.netU, eur(d.netU, 2)),
+        numCell(d.units, nf(d.units)),
+        numCell(d.occ, pct(d.occ, 2)),
+        numCell(d.contribU, eur(d.contribU, 2)),
+        numCell(d.amortU, eur(d.amortU, 2)),
+        numCell(d.netU, eur(d.netU, 2)),
         { v: isFinite(d.payback) ? d.payback : 1e9,
           h: isFinite(d.payback) ? nf(d.payback, 1) + " a" : "nunca" },
-        num(pk.gain, e(pk.gain)),
-        num(d.capital, e(d.capital)),
+        numCell(pk.gain, e(pk.gain)),
+        numCell(d.capital, e(d.capital)),
       ];
     }), { col: 10, dir: -1 });
   };

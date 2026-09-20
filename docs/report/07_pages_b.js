@@ -128,12 +128,24 @@ function pageTiendas(grid) {
   note(c5, "Solo tiendas con 100 o más alquileres en la selección, para que la tasa sea estable. " +
     "Media de la selección: " + pct(media, 2) + ".");
 
-  const c7 = card("c12", "Detalle por tienda", nf(rows.length) + " tiendas con actividad en la selección.");
+  /* Misma mecanica que el detalle de producto: {h, v} en lo numerico y arranque
+     por ingresos, que es el orden que tenia fijo. Aqui ordenar por € por visitante
+     es lo que de verdad se quiere mirar, y antes obligaba a irse a otra tarjeta. */
+  const c7 = card("c12", "Detalle por tienda",
+    nf(rows.length) + " tiendas con actividad. Pulsa una cabecera para ordenar.");
   grid.appendChild(c7);
-  tableOnly(c7, ["Tienda", "Ciudad", "País", "Formato", "Visitantes", "Alquileres", "Ingresos",
-                 "€/visitante", "Cancelación", "Averías", "Tardías", "Review"],
-    byRev.map(d => [d.name, d.city, d.country, d.size, nf(d.visitors), nf(d.n), eur(d.rev),
-      nf(d.revPerVisitor, 3), pct(d.cancel, 2), pct(d.damage, 2), pct(d.late, 2), nf(d.review, 2)]));
+  sortableOnly(c7, ["Tienda", "Ciudad", "País", "Formato", "Visitantes", "Alquileres", "Ingresos",
+                    "€/visitante", "Cancelación", "Averías", "Tardías", "Review"],
+    rows.map(d => [d.name, d.city, d.country, d.size,
+      numCell(d.visitors, nf(d.visitors)),
+      numCell(d.n, nf(d.n)),
+      numCell(d.rev, eur(d.rev)),
+      numCell(d.revPerVisitor, nf(d.revPerVisitor, 3)),
+      numCell(d.cancel, pct(d.cancel, 2)),
+      numCell(d.damage, pct(d.damage, 2)),
+      numCell(d.late, pct(d.late, 2)),
+      numCell(d.review, nf(d.review, 2))]),
+    { col: 6, dir: -1 });
 
   recoBlock(grid, "tiendas");
 }
