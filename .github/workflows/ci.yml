@@ -1,7 +1,7 @@
 # Verifica de punta a punta las tres promesas del proyecto:
 #   1. el generador es reproducible byte a byte y el dataset commiteado sale de el;
 #   2. el notebook ejecuta entero sin una sola celda en error;
-#   3. las cifras del informe cuadran con pandas/scipy/statsmodels y sus 8 paginas
+#   3. las cifras del informe cuadran con pandas/scipy/statsmodels y sus 10 paginas
 #      renderizan bajo cualquier filtro.
 #
 # No hay framework de tests: "pasar" significa exactamente lo de arriba, que es lo
@@ -154,5 +154,5 @@ jobs:
       - name: Contrastar las cifras con pandas, scipy y statsmodels
         run: python docs/verify_report.py
 
-      - name: Renderizar las 8 paginas bajo 4 escenarios de filtro
+      - name: Renderizar las 10 paginas bajo 4 escenarios de filtro
         run: node docs/test_render.js

@@ -11,7 +11,7 @@ material deportivo (Rental)** de un retailer europeo. Consta de tres piezas:
    de principio a fin (calidad del dato → KPIs → SQL → EDA → estadística → recomendaciones),
    pensado para Databricks y ejecutable localmente en VSCode.
 3. **Informe interactivo** (`docs/informe.html`) — el análisis convertido en una herramienta
-   de exploración: seis filtros cruzados, nueve páginas y detalle hasta la referencia
+   de exploración: seis filtros cruzados, diez páginas y detalle hasta la referencia
    concreta, en un único fichero HTML que se abre con doble clic.
 
 > Todos los datos son **100 % sintéticos**. No contienen información real de clientes,
@@ -40,7 +40,7 @@ El **mapa de negocio** alterna entre **países y ciudades** y entre **importe y 
 panel lateral da la cifra exacta que el color solo insinúa.
 
 Seis filtros —periodo, país, categoría, canal, membresía y segmento— se aplican a la vez a
-**nueve páginas**:
+**diez páginas**:
 
 | Página | Qué responde |
 |--------|--------------|
@@ -48,6 +48,7 @@ Seis filtros —periodo, país, categoría, canal, membresía y segmento— se a
 | **Calidad del dato** | Data Trust Score, nulos por columna, reglas de negocio incumplidas, duplicados y outliers por la regla de Tukey |
 | **Demanda y estacionalidad** | Heatmap categoría × mes, serie semanal con **detección de anomalías** (z robusto sobre MAD), día de la semana, duración, antelación de reserva y un **Sankey del ciclo de vida** del alquiler (reservado → cancelado / a tiempo / tardío / con avería) |
 | **Producto e inventario** | Curva de Pareto ABC, rotación por cuartiles, ocupación frente a margen, antigüedad frente a averías, saturados e infrautilizados por capital inmovilizado |
+| **Plan de flota** | Una acción por referencia —retirar, no reponer, renovar, ampliar, revisar o mantener— con el euro anual que mueve, el capital implicado y el porqué fila a fila, más un conmutador **antes/después de imputar el material** que enseña cuántas decisiones cambian |
 | **Tiendas y geografía** | **Mapa coroplético** con conmutador país / ciudad e importe / alquileres, ranking de tiendas, ingreso por visitante, **treemap** país › categoría, formato de tienda y fricción operativa |
 | **Clientes y fidelización** | Segmentos, distribución de review por nivel de socio, cancelación por membresía, concentración de CLRV y **cohortes de retención** |
 | **Pricing y canal** | Precio/día por categoría y temporada, recorrido de pricing dinámico, **caja y bigotes** del precio, mix y fricción por canal |
@@ -82,6 +83,35 @@ comprobará. Y cuando un hallazgo no lleva a ninguna acción se queda como conte
 todas las letras: la página de pricing explica, con las cifras, que los cuatro canales son
 indistinguibles y que **no hay ninguna acción de canal** que estos datos sostengan.
 
+### Next Best Action, sobre la flota
+
+La página **Plan de flota** lleva las recomendaciones un paso más allá: en vez de una política
+escrita en prosa, aplica la política a **las 320 referencias** y devuelve una acción por cada
+una, con el euro anual que mueve y el motivo que la dispara. Es un motor de **reglas
+deterministas**, no un modelo, y esa elección es deliberada.
+
+**Por qué sobre la flota y no sobre el cliente.** Un NBA de cliente necesita pares *(acción
+tomada, resultado)* para estimar incrementalidad, y en las 36 columnas del dataset no hay ni
+una que registre una acción hacia nadie: ni campaña, ni contacto, ni oferta. Además la
+dimensión de cliente es una foto del último día, así que cualquier modelo de propensión
+entrenado con ella tendría fuga de futuro, y membresía y segmento son casi la misma variable.
+Montarlo ahí sería inventarse la mitad del problema. La unidad de decisión de este negocio no
+es el cliente: es la **unidad de inventario**, y ahí el dato sí llega.
+
+Todo cuelga de una sola magnitud derivada, el **payback** —cuántos años tarda la contribución
+anual de una unidad en devolver lo que costó comprarla—, elegida porque compara una bici de
+815 € con unas raquetas de 40 € sin que el tamaño del ticket decida por ti.
+
+Dos detalles que hacen que el plan se sostenga:
+
+- **Retirar no es lo mismo que no reponer.** Una referencia que cubre su mantenimiento pero no
+  devuelve su compra **no se retira**: la compra ya está pagada y es dinero hundido, así que
+  sacarla de circulación mientras genere caja cuesta dinero en vez de ahorrarlo. Lo que se
+  decide sobre ella es no volver a comprarla. *Retirar* se reserva a la que pierde caja hoy.
+- **El conmutador es el argumento.** Sin imputar el coste del material, el plan sólo ve 8
+  referencias malas; imputándolo, **116 de las 320 decisiones cambian**. Es la primera
+  recomendación del informe enseñada en vez de contada.
+
 Cada gráfico tiene su tabla equivalente detrás del botón **Tabla**, así que ningún dato
 depende solo del color o del tooltip.
 
@@ -90,7 +120,7 @@ depende solo del color o del tooltip.
 ```bash
 python docs/build_report.py     # regenera docs/informe.html desde output/*.csv
 python docs/verify_report.py    # contrasta sus cifras con pandas, scipy y statsmodels
-node    docs/test_render.js     # renderiza las 9 páginas × 4 filtros contra un DOM simulado
+node    docs/test_render.js     # renderiza las 10 páginas × 4 filtros contra un DOM simulado
 ```
 
 La verificación no es cosmética. `verify_report.py` decodifica el payload igual que el
@@ -119,7 +149,7 @@ falla si alguna de sus tres promesas deja de cumplirse:
 | El notebook ejecuta limpio | `nbconvert --execute` y recuento de celdas con `output_type == "error"` |
 | El informe publicado está al día | Se reconstruye y se compara con el commiteado (Pages sirve el fichero versionado, no el recién construido) |
 | Las cifras siguen cuadrando | `verify_report.py` contra pandas, scipy y statsmodels |
-| Las 9 páginas renderizan | `test_render.js` sobre 4 escenarios de filtro |
+| Las 10 páginas renderizan | `test_render.js` sobre 4 escenarios de filtro |
 
 La reproducibilidad byte a byte solo se sostiene **dentro de las mismas versiones** de
 numpy, pandas y faker, así que el CI instala con `-c constraints.txt`, que las clava a las
@@ -196,7 +226,7 @@ sports-rental-analytics/
 │   ├── build_report.py                  # Ensambla el informe desde los CSV y report/
 │   ├── verify_report.py                 # Contrasta sus cifras con pandas y statsmodels
 │   ├── test_report.js                   # Ejecuta el motor del informe en Node
-│   ├── test_render.js                   # Renderiza las 9 páginas contra un DOM simulado
+│   ├── test_render.js                   # Renderiza las 10 páginas contra un DOM simulado
 │   ├── make_geo.py                      # Extrae las fronteras del mapa (Natural Earth)
 │   ├── report/                          # Piezas del informe (estilos, motor, geo, gráficos, páginas, recomendaciones)
 │   ├── modelo_relacional.drawio         # Diagrama editable del modelo de datos

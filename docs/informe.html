@@ -2501,6 +2501,11 @@ const PAGE_ICON = {
            '<path d="M14 16.5v-6.5"/>',
   // onda sobre la linea del ano: la demanda sube y baja con la temporada
   demanda: '<path d="M2.5 16.8h15"/><path d="M3 11c2-5 4.4-5 6.4 0s4.4 5 6.4 0"/>',
+  // cola priorizada: tres renglones de menos a mas corto, con la flecha en el
+  // primero. Dice "lista de decisiones ordenada", que es exactamente la pagina,
+  // y no choca con ninguno de los otros nueve a 16 px.
+  flota: '<path d="M3 5.5h10"/><path d="M10.5 3 13 5.5 10.5 8"/>' +
+         '<path d="M3 10.5h7.5"/><path d="M3 15.5h5"/>',
   // caja de material
   producto: '<path d="M10 2.9 3.2 6.2v7.6L10 17.1l6.8-3.3V6.2z"/><path d="M3.2 6.2 10 9.5l6.8-3.3"/>' +
             '<path d="M10 9.5v7.6"/>',
@@ -3529,6 +3534,10 @@ function lnGamma(z) {
 function buildRecos() {
   const R = recoFacts();
   const e = v => eur(v, 0);
+  /* Una accion puede quedarse sin referencias si cambian los umbrales del plan
+     de flota, y entonces `find` devuelve undefined. Leer `.gain` ahi tumbaria la
+     pagina entera por una frase. */
+  const fleetGain = id => (fleetSummary("neto").find(d => d.id === id) || { gain: 0 }).gain;
   const y = v => eur(v, 0) + "/año";
   const L = AMORT_LIVES[0], L2 = AMORT_LIVES[1];
   const negCats = R.fleet["neg" + L];
@@ -3751,9 +3760,37 @@ function buildRecos() {
       eurosLabel: "de techo, no de promesa",
     },
 
-    /* ---- 9 · la dimensión de cliente no tiene historia -------------------- */
+    /* ---- 9 · el plan de flota descansa en un supuesto sin dueño --------- */
     {
-      prio: 9, page: "clientes", tipo: "medición",
+      prio: 9, page: "flota", tipo: "medición",
+      accion: "Fijar con Finanzas la <b>vida útil por categoría</b> y el retorno mínimo que se " +
+        "le exige a una unidad, y meterlos en la definición del plan de flota.",
+      porque: "El plan entero cuelga de dos números que hoy los pone el análisis, no el negocio: " +
+        "una vida útil de " + nf(FLEET_LIFE) + " años y un umbral de holgura en la mitad de esa " +
+        "vida. Y no son inocuos: <b>" + nf(fleetPlan().sens.refs) + " de las " +
+        nf(fleetPlan().rows.length) + " referencias</b> —" + e(fleetPlan().sens.capital) + " de " +
+        "capital— cruzan un umbral si la vida útil resulta ser " + nf(AMORT_LIVES[1]) +
+        " años en lugar de " + nf(AMORT_LIVES[0]) + ".",
+      impacto: "No es un ajuste fino: es qué material sale del catálogo. Con " + nf(AMORT_LIVES[0]) +
+        " años el plan manda retirar, no reponer o renovar " +
+        nf(fleetSummary("neto").filter(d => ["retirar", "noreponer", "renovar"].includes(d.id))
+           .reduce((a, d) => a + d.refs, 0)) + " referencias; " + nf(fleetPlan().sens.refs) +
+        " decisiones más están a un supuesto de distancia de cambiar de bando. Mientras el número " +
+        "lo ponga el análisis, el plan es una propuesta; en cuanto lo ponga Finanzas, es una " +
+        "política que se puede auditar.",
+      quien: "Finanzas · Operaciones",
+      esfuerzo: "bajo",
+      nota: "Va detrás de imputar el coste del material: sin esa imputación no hay nada que " +
+        "amortizar y estos dos umbrales no se pueden ni plantear.",
+      mide: "% del capital de flota cubierto por una vida útil acordada por categoría, y fecha de " +
+        "la última revisión. Hoy es <b>0 %</b>: no existe el documento.",
+      euros: null,
+      eurosLabel: e(fleetPlan().sens.capital) + " de capital a un supuesto de distancia",
+    },
+
+    /* ---- 10 · la dimensión de cliente no tiene historia -------------------- */
+    {
+      prio: 10, page: "clientes", tipo: "medición",
       accion: "Historificar la dimensión de cliente con una SCD tipo 2: una fila por nivel de socio " +
         "y segmento, con validez desde–hasta.",
       porque: "<code>membership_level</code> y <code>customer_segment</code> valen lo que valían el " +
@@ -3774,9 +3811,9 @@ function buildRecos() {
       eurosLabel: "desbloquea medir la fidelización",
     },
 
-    /* ---- 10 · el ranking de fricción ordena ruido ------------------------- */
+    /* ---- 11 · el ranking de fricción ordena ruido ------------------------- */
     {
-      prio: 10, page: "tiendas", tipo: "medición",
+      prio: 11, page: "tiendas", tipo: "medición",
       accion: "Sacar el ranking de cancelación por tienda del seguimiento operativo y sustituirlo por " +
         "un control con intervalo: sólo se audita la tienda cuyo intervalo no toca la media.",
       porque: "Las " + nf(R.stores.n) + " tiendas cancelan estadísticamente igual. El contraste de " +
@@ -3798,9 +3835,9 @@ function buildRecos() {
       eurosLabel: "evita perseguir ruido",
     },
 
-    /* ---- 11 · 2 % del ingreso sin dueño ---------------------------------- */
+    /* ---- 12 · 2 % del ingreso sin dueño ---------------------------------- */
     {
-      prio: 11, page: "calidad", tipo: "medición",
+      prio: 12, page: "calidad", tipo: "medición",
       accion: "Resolver el <code>store_id</code> nulo en el sistema de reservas, no en el pipeline, " +
         "y bloquear el cierre del alquiler sin tienda asignada.",
       porque: "<b>" + nf(R.missing.noStoreN) + " alquileres</b> llegan sin <code>store_id</code> y " +
@@ -3821,9 +3858,9 @@ function buildRecos() {
       eurosLabel: "de ingreso sin dueño",
     },
 
-    /* ---- 12 · el detector de anomalías detecta la temporada --------------- */
+    /* ---- 13 · el detector de anomalías detecta la temporada --------------- */
     {
-      prio: 12, page: "estadistica", tipo: "medición",
+      prio: 13, page: "estadistica", tipo: "medición",
       accion: "Desestacionalizar la serie semanal antes de aplicar el umbral: comparar cada semana " +
         "con la misma semana del año anterior, no con su mediana móvil.",
       porque: "Las <b>" + nf(R.anom.flagged) + " semanas</b> que superan el umbral de |z| &gt; 5 sobre " +
@@ -3843,9 +3880,9 @@ function buildRecos() {
       eurosLabel: "vigilancia que hoy no sirve",
     },
 
-    /* ---- 13 · la única palanca de cancelación que sostienen los datos ----- */
+    /* ---- 14 · la única palanca de cancelación que sostienen los datos ----- */
     {
-      prio: 13, page: "demanda", tipo: "negocio",
+      prio: 14, page: "demanda", tipo: "negocio",
       accion: "Montar una confirmación escalonada para las reservas de más de " + nf(R.lead.cut) +
         " días —aviso a T−7, a T−2 y opción de cambiar fecha en un clic— en vez de esperar a la " +
         "cancelación.",
@@ -3868,9 +3905,9 @@ function buildRecos() {
       eurosLabel: "recuperables",
     },
 
-    /* ---- 14 · nunca se registra lo que no se pudo servir ------------------ */
+    /* ---- 15 · nunca se registra lo que no se pudo servir ------------------ */
     {
-      prio: 14, page: "producto", tipo: "medición",
+      prio: 15, page: "producto", tipo: "medición",
       accion: "Registrar la demanda no servida: un evento por cada búsqueda o reserva que no se pudo " +
         "cerrar por falta de unidades, con referencia, tienda y fecha.",
       porque: "Toda la página mide lo que se alquiló y nunca lo que se pidió. La ocupación de la " +
@@ -3893,9 +3930,33 @@ function buildRecos() {
       eurosLabel: "convierte la ocupación en demanda",
     },
 
-    /* ---- 15 · el índice compuesto esconde su dimensión más débil ---------- */
+    /* ---- 16 · el plan no aprende porque nadie registra que se hizo ------ */
     {
-      prio: 15, page: "modelo", tipo: "medición",
+      prio: 16, page: "flota", tipo: "medición",
+      accion: "Registrar la acción ejecutada sobre cada referencia —qué, cuándo y cuántas " +
+        "unidades— y comparar a doce meses el neto por unidad contra el que el plan predijo.",
+      porque: "El plan propone una acción sobre <b>" +
+        nf(fleetSummary("neto").filter(d => d.id !== "mantener").reduce((a, d) => a + d.refs, 0)) +
+        " referencias</b>, pero nada en el pipeline guarda que se haya tomado. La temporada que " +
+        "viene el mismo motor volverá a derivar la misma lista sin saber si la anterior funcionó: " +
+        "es exactamente el hueco que impide hacer esto mismo sobre el cliente, en pequeño.",
+      impacto: "Es lo que separa una lista de una <i>next best action</i>. Hoy el plan promete " +
+        e(fleetGain("ampliar")) + "/año por ampliar y " +
+        e(fleetGain("noreponer")) + "/año de capital por no reponer, y no hay " +
+        "forma de comprobar ninguna de las dos cifras. Con el registro, cada temporada corrige los " +
+        "umbrales de la anterior en vez de repetirlos.",
+      quien: "Operaciones · Datos",
+      esfuerzo: "bajo",
+      mide: "Error del plan: diferencia entre el neto por unidad y año previsto y el observado a " +
+        "doce meses, sobre las referencias en las que se actuó. Hoy no se puede calcular porque " +
+        "no se sabe en cuáles se actuó.",
+      euros: null,
+      eurosLabel: "convierte la lista en un bucle que aprende",
+    },
+
+    /* ---- 17 · el índice compuesto esconde su dimensión más débil ---------- */
+    {
+      prio: 17, page: "modelo", tipo: "medición",
       accion: "Poner el umbral de la puerta de calidad en <b>cada dimensión</b>, no sólo en el índice " +
         "compuesto, y fijar el de " + R.quality.weak.dim.toLowerCase() + " en su nivel actual.",
       porque: "El índice está en <b>" + nf(R.quality.score, 2) + "</b>, pero sus cuatro dimensiones no " +
@@ -3917,9 +3978,9 @@ function buildRecos() {
       eurosLabel: "cierra un hueco del control",
     },
 
-    /* ---- 16 · la colisión de identificadores se resuelve en el sitio malo -- */
+    /* ---- 18 · la colisión de identificadores se resuelve en el sitio malo -- */
     {
-      prio: 16, page: "calidad", tipo: "medición",
+      prio: 18, page: "calidad", tipo: "medición",
       accion: "Escalar la colisión de <code>rental_id</code> al sistema de reservas y devolver ahí la " +
         "regla de desempate, en vez de resolverla en la capa analítica.",
       porque: "<b>" + nf(R.quality.dupIds) + " claves primarias repetidas</b>, de las que " +
@@ -3939,9 +4000,9 @@ function buildRecos() {
       eurosLabel: "hace auditable la cifra",
     },
 
-    /* ---- 17 · la retención no es mensual, es de temporada ----------------- */
+    /* ---- 19 · la retención no es mensual, es de temporada ----------------- */
     {
-      prio: 17, page: "clientes", tipo: "negocio",
+      prio: 19, page: "clientes", tipo: "negocio",
       accion: "Mover el calendario de recompra al mes anterior al pico de la categoría que el cliente " +
         "alquiló, en vez de al mes siguiente a su alquiler.",
       porque: "La retención cae al <b>" + nf(R.cohort.m1Range[0], 1) + "–" + nf(R.cohort.m1Range[1], 1) +
@@ -3960,9 +4021,9 @@ function buildRecos() {
       eurosLabel: "cambia el calendario, no el gasto",
     },
 
-    /* ---- 18 · el capital inmovilizado no tiene umbral --------------------- */
+    /* ---- 20 · el capital inmovilizado no tiene umbral --------------------- */
     {
-      prio: 18, page: "producto", tipo: "negocio",
+      prio: 20, page: "producto", tipo: "negocio",
       accion: "Fijar un rendimiento mínimo por unidad y año y aplicarlo al cuartil de peor rotación " +
         "en la revisión de flota de cada temporada.",
       porque: "Las <b>" + nf(R.under.refs) + " referencias infrautilizadas</b> inmovilizan <b>" +
@@ -3986,9 +4047,9 @@ function buildRecos() {
       eurosLabel: e(R.under.capital) + " de capital sin criterio",
     },
 
-    /* ---- 19 · con este n, todo sale significativo ------------------------- */
+    /* ---- 21 · con este n, todo sale significativo ------------------------- */
     {
-      prio: 19, page: "estadistica", tipo: "medición",
+      prio: 21, page: "estadistica", tipo: "medición",
       accion: "Acordar un tamaño de efecto mínimo por decisión antes de mirar ningún p-valor, y " +
         "publicar el intervalo junto al contraste.",
       porque: "Con " + nf(R.logit.n) + " observaciones, el logit da p " + pval(R.logit.p) +
@@ -4010,9 +4071,9 @@ function buildRecos() {
       eurosLabel: "evita decidir por el p-valor",
     },
 
-    /* ---- 20 · el turno se dimensiona por semana, la demanda no ------------ */
+    /* ---- 22 · el turno se dimensiona por semana, la demanda no ------------ */
     {
-      prio: 20, page: "demanda", tipo: "negocio",
+      prio: 22, page: "demanda", tipo: "negocio",
       accion: "Dimensionar el turno de tienda por día de la semana, con refuerzo de sábado y domingo, " +
         "en vez de por plantilla semanal constante.",
       porque: "Sábado y domingo concentran el <b>" + pct(R.dow.share, 1) + "</b> de los alquileres " +
@@ -4167,6 +4228,442 @@ function recoTop(grid) {
     "accidente del orden: son las que menos cuestan y las que más desbloquean, y son justo las que " +
     "no aparecen cuando se mira sólo el negocio. Las " + nf(n - 5) + " restantes están al final de " +
     "su página.");
+}
+
+/* ===========================================================================
+   Plan de flota: una "next best action" por referencia.
+
+   POR QUE SOBRE LA FLOTA Y NO SOBRE EL CLIENTE. Un NBA de cliente necesita
+   pares (accion tomada, resultado) para estimar incrementalidad, y en las 36
+   columnas del dataset no hay NI UNA que registre una accion hacia nadie: ni
+   campana, ni contacto, ni oferta, ni descuento aplicado como intervencion.
+   Solo hay hechos de alquiler y atributos. Encima la dimension de cliente es una
+   foto del ultimo dia (sin SCD2), asi que cualquier modelo de propension
+   entrenado con ella tendria fuga de futuro, y membresia y segmento son casi la
+   misma variable (el 48,7 % de los VIP son Gold, el 0 % de los Occasional).
+   Montar ahi un NBA seria inventarse la mitad del problema, y ademas
+   contradiria la recomendacion de la pagina de clientes, que dice justo lo
+   contrario: que eso no esta identificado y hay que aleatorizar para saberlo.
+
+   La unidad de decision de este negocio no es el cliente, es la UNIDAD DE
+   INVENTARIO. Y ahi el dato si llega, porque la accion no consiste en persuadir
+   a nadie: es economia deterministica sobre cifras que ya estan en el hecho.
+   Por eso esto es un motor de REGLAS y no un modelo. No hay nada que ajustar:
+   hay una funcion de valor y un orden de precedencia.
+
+   LA FUNCION DE VALOR. Todo cuelga de una sola magnitud derivada, el PAYBACK:
+   cuantos anos tarda la contribucion anual de una unidad en devolver lo que
+   costo comprarla.
+
+       contribucion/ud/ano = ingreso/ud/ano - mantenimiento/ud/ano
+       payback             = precio de compra / contribucion/ud/ano
+
+   Se eligio el payback y no el margen porque es la unica forma de comparar una
+   bici de 815 EUR con unas raquetas de 40 EUR sin que el tamano del ticket
+   decida por ti, y porque es el numero que un financiero acepta sin traduccion.
+
+   LOS DOS MODOS son el nucleo de la pagina, no un adorno:
+
+     "sin imputar"  el cuadro de mando de hoy. El material no cuesta nada, asi
+                    que una referencia solo es mala si el mantenimiento se come
+                    el ingreso. Salen 8 de 320.
+     "imputado"     se carga la amortizacion del material. Una referencia que no
+                    devuelve su compra dentro de su vida util no se paga, por
+                    mucho que su contribucion sea positiva.
+
+   La diferencia entre los dos no es cosmetica: cambia mas de un tercio de las 320
+   decisiones. Ese numero es el argumento entero de la primera recomendacion del
+   informe (imputar el coste del material), ensenado en vez de contado.
+
+   RETIRAR NO ES LO MISMO QUE NO REPONER, y separarlas es lo que evita el error
+   clasico de este analisis. Una referencia que cubre su mantenimiento pero no
+   devuelve su compra NO se retira: la compra ya esta pagada y es dinero hundido,
+   asi que sacarla de circulacion mientras genere caja cuesta dinero en vez de
+   ahorrarlo. Lo que se decide sobre ella es no volver a comprarla. "Retirar" se
+   reserva a la que pierde caja hoy, que es la unica que justifica actuar ya.
+
+   SOBRE LOS UMBRALES: la vida util sale de `AMORT_LIVES` (05b_reco.js, supuesto
+   declarado, no dato) y el corte de "holgado" es la mitad de esa vida. No son
+   verdades del negocio, son los valores con los que se puede razonar hasta que
+   Finanzas fije los suyos, y la pagina termina recomendando exactamente eso.
+
+   El plan se calcula sobre el HISTORICO COMPLETO, como las cohortes y las
+   recomendaciones: las unidades de inventario son globales por referencia, no
+   estan repartidas por tienda, asi que filtrar por pais daria una ocupacion que
+   es cota inferior y decisiones que cambiarian al marcar una casilla.
+   =========================================================================== */
+
+/* Vida util del material. Misma constante que usa el bloque de recomendaciones
+   para amortizar: si se cambia alli, cambia aqui, y es lo que se quiere. */
+const FLEET_LIFE = AMORT_LIVES[0];
+/* Una referencia que devuelve su compra en menos de media vida util va holgada.
+   Entre media vida y la vida entera se paga, pero justo: es la banda de revision. */
+const FLEET_FAST = FLEET_LIFE / 2;
+/* Cuanto se amplia una referencia saturada. Un 10 % es un piloto: suficiente
+   para medir si la unidad nueva alquila como las de al lado, pequeno para que
+   equivocarse no cueste una temporada. */
+const EXPAND_SHARE = 0.10;
+/* El payback se recorta al dibujarlo: la peor referencia tardaria siglos y sin
+   recortar aplasta a todas las demas contra el eje. Dos vidas utiles es de sobra:
+   a partir de ahi la decision ya esta tomada. */
+const PAYBACK_CAP = FLEET_LIFE * 2;
+
+/* Las seis acciones. El orden es el de precedencia de las reglas y tambien el
+   del resumen: primero lo que sale del catalogo, luego lo que se invierte, y al
+   final lo que no toca. Seis tonos bien separados de la paleta del informe: rojo
+   sale ya, morado sale al final de su vida, verde se repone, azul se amplia,
+   ambar se revisa y gris no se toca. Rojo y morado no comparten familia a
+   proposito, porque son justo las dos que no hay que confundir. */
+const FLEET_ACTIONS = [
+  { id: "retirar",   label: "Retirar",     s: 7 },
+  { id: "noreponer", label: "No reponer",  s: 6 },
+  { id: "renovar",   label: "Renovar",     s: 2 },
+  { id: "ampliar",   label: "Ampliar",     s: 0 },
+  { id: "revisar",   label: "Revisar",     s: 3 },
+  { id: "mantener",  label: "Mantener",    s: -1 },
+];
+const fleetColor = id => {
+  const a = FLEET_ACTIONS.find(x => x.id === id);
+  return a && a.s >= 0 ? SERIES(a.s) : cssVar("--neutral-mark");
+};
+const fleetLabel = id => (FLEET_ACTIONS.find(x => x.id === id) || {}).label || id;
+
+/* Modo activo. Vive a nivel de modulo porque `render()` recrea las tarjetas en
+   cada cambio de filtro y el conmutador tiene que sobrevivir a eso. */
+const fleetView = { mode: "neto" };
+
+let FLEET_CACHE = null;
+
+/* --------------------------------------------------------------------------
+   El motor
+   Devuelve, para cada referencia y cada modo, la accion elegida, por que, y el
+   euro anual que mueve tomarla. Memoizado: no depende de los filtros.
+   -------------------------------------------------------------------------- */
+function fleetPlan() {
+  if (FLEET_CACHE) return FLEET_CACHE;
+  const R = recoFacts();
+  const years = R.years;
+
+  /* Ratio de mantenimiento del material mas nuevo del catalogo. Es lo que se
+     supone que costaria mantener una referencia recien repuesta, y es lo unico
+     que hace calculable la accion "renovar" sin inventarse nada. */
+  const newR = R.age.length ? R.age[0].maintR : NaN;
+
+  /* Ojo al construir la fila: `recoFacts().pm` ya trae un campo `contrib` que es
+     un NUMERO (ingreso menos mantenimiento del periodo). Las decisiones van en
+     `planContrib` / `planNeto` para no pisarlo. */
+  const rows = R.pm.filter(p => p.units > 0 && p.purchase > 0).map(p => {
+    const revY = p.rev / years, maintY = p.maint / years;
+    const contribU = (revY - maintY) / p.units;
+    const amortU = p.purchase / FLEET_LIFE;
+    const netU = contribU - amortU;
+    const payback = contribU > 0 ? p.purchase / contribU : Infinity;
+    /* Reponer baja el mantenimiento al del material nuevo. Si ese ahorro no
+       devuelve el coste de reposicion, renovar no es una opcion: es gastar. */
+    const savingY = maintY - revY * newR;
+    const replPayback = savingY > 0 ? (p.units * p.replacement) / savingY : Infinity;
+    return Object.assign({}, p, {
+      revY, maintY, contribU, amortU, netU, payback, savingY, replPayback,
+      add: Math.max(1, Math.round(p.units * EXPAND_SHARE)),
+      capital: p.units * p.purchase,
+    });
+  });
+
+  const occs = rows.map(d => d.occ).filter(isFinite).sort((a, b) => a - b);
+  const q3 = occs[Math.min(occs.length - 1, Math.floor(0.75 * (occs.length - 1)))];
+  const nets = Float64Array.from(rows.map(d => d.netU).filter(isFinite)).sort();
+  const medNet = nets.length ? quantileSorted(nets, 0.5) : 0;
+
+  /* --- las reglas ------------------------------------------------------- */
+  const decideNeto = d => {
+    /* Reponer va antes que nada: si el ahorro de mantenimiento paga la reposicion,
+       la referencia no es mala, es vieja. */
+    if (d.payback > FLEET_LIFE && d.replPayback <= FLEET_LIFE) {
+      return { action: "renovar", gain: d.savingY,
+               why: "No devuelve su compra en " + nf(FLEET_LIFE) + " años, pero reponerla se " +
+                    "paga en " + nf(d.replPayback, 1) };
+    }
+    /* RETIRAR se reserva a la que quema caja HOY. Mandar retirar una referencia
+       con contribucion positiva porque no devuelve su compra seria razonar sobre
+       coste hundido: la compra ya esta pagada, y mientras genere caja, sacarla de
+       circulacion cuesta dinero en vez de ahorrarlo. */
+    if (d.contribU <= 0) {
+      return { action: "retirar", gain: -d.contribU * d.units,
+               why: "El mantenimiento supera al ingreso: cada unidad pierde " +
+                    eur(-d.contribU, 0) + " al año" };
+    }
+    /* La que paga su mantenimiento pero no devuelve su capital no se retira: se
+       deja morir y NO SE VUELVE A COMPRAR. Lo que se ahorra no es P&L de este
+       año, es el capital que se deja de comprometer cada vez que tocaria reponer. */
+    if (d.payback > FLEET_LIFE) {
+      return { action: "noreponer", gain: d.amortU * d.units,
+               why: "Cubre su mantenimiento pero tardaría " + nf(d.payback, 1) + " años en " +
+                    "devolver su compra: no compensa volver a comprarla" };
+    }
+    if (d.payback <= FLEET_FAST && d.occ >= q3) {
+      return { action: "ampliar", gain: d.netU * d.add,
+               why: "Devuelve su compra en " + nf(d.payback, 1) + " años y está en el cuartil " +
+                    "alto de ocupación (" + pct(d.occ, 2) + ")" };
+    }
+    if (d.payback > FLEET_FAST) {
+      return { action: "revisar", gain: Math.max(0, (medNet - d.netU) * d.units),
+               why: "Se paga, pero tarda " + nf(d.payback, 1) + " años: más de la mitad de " +
+                    "su vida útil" };
+    }
+    return { action: "mantener", gain: 0,
+             why: "Devuelve su compra en " + nf(d.payback, 1) + " años con ocupación normal" };
+  };
+
+  /* Modo "sin imputar": el material no cuesta nada, asi que no hay umbral de
+     capital que cruzar. Solo quedan dos senales, y por eso este modo manda
+     mantener referencias que no se pagan. */
+  const decideContrib = d => {
+    if (d.contribU <= 0) {
+      return { action: "retirar", gain: -d.contribU * d.units,
+               why: "El mantenimiento supera al ingreso" };
+    }
+    if (d.occ >= q3) {
+      return { action: "ampliar", gain: d.contribU * d.add,
+               why: "Cuartil alto de ocupación (" + pct(d.occ, 2) + ")" };
+    }
+    return { action: "mantener", gain: 0,
+             why: "Contribución positiva y ocupación normal" };
+  };
+
+  rows.forEach(d => { d.planNeto = decideNeto(d); d.planContrib = decideContrib(d); });
+
+  /* Cuantas decisiones cambian al imputar el material, y el flujo de una a otra
+     para el diagrama. */
+  const flow = {};
+  let changed = 0;
+  rows.forEach(d => {
+    const k = d.planContrib.action + "|" + d.planNeto.action;
+    flow[k] = (flow[k] || 0) + 1;
+    if (d.planContrib.action !== d.planNeto.action) changed++;
+  });
+
+  /* Sensibilidad al supuesto de vida util. Si la vida pasa del primer valor de
+     `AMORT_LIVES` al segundo, las referencias que cambian de decision son
+     exactamente las que tienen el payback entre las dos vidas (cruzan el umbral
+     de retirada) o entre sus mitades (cruzan el de ampliacion). No hace falta
+     re-ejecutar el motor para contarlas: es el mismo payback leido con otra
+     regla. Es la cifra que justifica pedirle a Finanzas la vida util de verdad. */
+  const [L1, L2] = AMORT_LIVES;
+  const sens = rows.filter(d => (d.payback > L1 && d.payback <= L2) ||
+                                (d.payback > L1 / 2 && d.payback <= L2 / 2));
+
+  FLEET_CACHE = { rows, q3, medNet, newR, changed, flow, years,
+                  lives: [L1, L2],
+                  sens: { refs: sens.length, capital: sens.reduce((a, d) => a + d.capital, 0) },
+                  worstPayback: Math.max(...rows.map(d => isFinite(d.payback) ? d.payback : 0)) };
+  return FLEET_CACHE;
+}
+
+/* La decision de una fila en el modo pedido. Un solo sitio donde se traduce
+   "neto"/"contrib" al campo, para que no se escape una cadena mal escrita. */
+const fleetPick = (d, mode) => mode === "neto" ? d.planNeto : d.planContrib;
+
+/* Resumen por accion en el modo pedido. */
+function fleetSummary(mode) {
+  const P = fleetPlan();
+  return FLEET_ACTIONS.map(a => {
+    const set = P.rows.filter(d => fleetPick(d, mode).action === a.id);
+    return {
+      id: a.id, label: a.label, color: fleetColor(a.id),
+      refs: set.length,
+      units: set.reduce((x, d) => x + d.units, 0),
+      capital: set.reduce((x, d) => x + d.capital, 0),
+      gain: set.reduce((x, d) => x + (isFinite(fleetPick(d, mode).gain)
+                                      ? fleetPick(d, mode).gain : 0), 0),
+      addUnits: a.id === "ampliar" ? set.reduce((x, d) => x + d.add, 0) : 0,
+    };
+  }).filter(d => d.refs);
+}
+
+/* --------------------------------------------------------------------------
+   La pagina
+   -------------------------------------------------------------------------- */
+function pageFlota(grid) {
+  const P = fleetPlan();
+  const e = v => eur(v, 0);
+  /* Todas las tarjetas que siguen al conmutador se repintan juntas. Se registran
+     aqui segun se van creando porque el conmutador vive en la primera y tiene que
+     poder alcanzar a las de mas abajo, que aun no existen cuando se construye. */
+  const redraw = [];
+
+  /* -- 1. El plan --------------------------------------------------------- */
+  const c1 = card("c12", "El plan", "¿Qué toca hacer con cada referencia, y cuánto mueve?",
+    "histórico completo");
+  grid.appendChild(c1);
+  segmented(c1, [{
+    label: "Coste del material", store: fleetView, key: "mode",
+    options: [{ id: "contrib", label: "Sin imputar" },
+              { id: "neto", label: "Imputado · " + nf(FLEET_LIFE) + " años" }],
+  }], () => redraw.forEach(f => f()));
+
+  const drawPlan = () => {
+    const sum = fleetSummary(fleetView.mode);
+    const acting = sum.filter(d => d.id !== "mantener");
+    const old = c1.querySelector(".chips");
+    if (old) old.remove();
+    chips(c1, [
+      ["Referencias con acción", nf(acting.reduce((a, d) => a + d.refs, 0)),
+       "de " + nf(P.rows.length)],
+      ["€/año en juego", compact(sum.reduce((a, d) => a + d.gain, 0)) + " €"],
+      ["Capital implicado", compact(acting.reduce((a, d) => a + d.capital, 0)) + " €"],
+    ]);
+    barsH(c1._chart, {
+      rowH: 34, labelW: 96, valueW: 74, fmt: v => compact(v) + " €", measure: "€/año en juego",
+      items: sum.map(d => ({
+        label: d.label, value: d.gain, color: d.color, muted: d.id === "mantener",
+        rows: [["Referencias", nf(d.refs)], ["Unidades", nf(d.units)],
+               ["Capital", e(d.capital)], ["€/año en juego", e(d.gain)]]
+          .concat(d.addUnits ? [["Unidades a añadir", nf(d.addUnits)]] : []),
+      })),
+    });
+    setTable(c1, ["Acción", "Referencias", "Unidades", "Capital", "€/año en juego"],
+      sum.map(d => [d.label, nf(d.refs), nf(d.units), e(d.capital), e(d.gain)]));
+  };
+  redraw.push(drawPlan);
+  drawPlan();
+  note(c1, "<b>€/año en juego</b> es el efecto anual de tomar la acción, y significa algo " +
+    "distinto en cada una: en <i>retirar</i> es la pérdida de caja que se detiene, en " +
+    "<i>renovar</i> el mantenimiento que se ahorra, en <i>ampliar</i> lo que aportan las unidades " +
+    "nuevas y en <i>revisar</i> lo que ese capital rendiría en una referencia mediana. En " +
+    "<b>no reponer</b> no es P&amp;L: es el capital que se deja de comprometer cada año al no " +
+    "volver a comprar ese material. La columna <i>Por qué</i> de la tabla lo dice fila a fila.");
+
+  /* -- 2. Lo que cambia al imputar el material ----------------------------
+     Esta tarjeta NO sigue al conmutador a proposito: es la comparacion entre los
+     dos modos, asi que enseña los dos a la vez. */
+  const c2 = card("c6", "Qué cambia al imputar el material",
+    "¿Cuántas decisiones dependen de un coste que hoy no se descuenta?", "histórico completo");
+  grid.appendChild(c2);
+  const before = fleetSummary("contrib"), after = fleetSummary("neto");
+  const nodes = [], links = [];
+  const nodeOf = (d, col, prefix) => ({
+    id: prefix + d.id, col, label: d.label, value: d.refs, color: d.color,
+    sub: compact(d.capital) + " €",
+    tipRows: () => [["Referencias", nf(d.refs)], ["Unidades", nf(d.units)],
+                    ["Capital", e(d.capital)], ["€/año en juego", e(d.gain)]],
+  });
+  before.forEach(d => nodes.push(nodeOf(d, 0, "a_")));
+  after.forEach(d => nodes.push(nodeOf(d, 1, "b_")));
+  Object.entries(P.flow).forEach(([k, v]) => {
+    const [from, to] = k.split("|");
+    links.push({
+      s: "a_" + from, t: "b_" + to, value: v, color: fleetColor(to),
+      tipRows: () => [["Referencias", nf(v)],
+                      ["Decisión", from === to ? "no cambia"
+                        : fleetLabel(from) + " → " + fleetLabel(to)]],
+    });
+  });
+  sankey(c2._chart, { height: 360, fmt: v => nf(v) + " ref.", nodes, links });
+  note(c2, "A la izquierda, el plan que sale <b>sin descontar lo que cuesta el material</b> —lo " +
+    "que enseña hoy el cuadro de mando—. A la derecha, el mismo plan con la amortización " +
+    "cargada. Cada cinta es un grupo de referencias; las que cruzan de un nombre a otro son las " +
+    "que cambian de decisión.");
+  setTable(c2, ["Sin imputar", "Imputado", "Referencias"],
+    Object.entries(P.flow).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
+      const [from, to] = k.split("|");
+      return [fleetLabel(from), fleetLabel(to),
+              nf(v) + (from === to ? "" : ' <span class="sig">cambia</span>')];
+    }));
+  const movedCapital = P.rows.filter(d => d.planContrib.action !== d.planNeto.action)
+    .reduce((a, d) => a + d.capital, 0);
+  const keptButUnpaid = P.rows.filter(d => d.planContrib.action === "mantener" &&
+                                           d.planNeto.action !== "mantener").length;
+  insight(c2, "<b>" + nf(P.changed) + " de " + nf(P.rows.length) + " decisiones cambian</b> (" +
+    pct(P.changed / P.rows.length, 0) + " del catálogo, " + e(movedCapital) + " de capital) sólo " +
+    "por descontar lo que cuesta el material. Sin imputarlo el plan manda <b>mantener</b> " +
+    nf(before.find(d => d.id === "mantener").refs) + " referencias, y <b>" + nf(keptButUnpaid) +
+    "</b> de ellas no devuelven su compra en " + nf(FLEET_LIFE) + " años. No es que el plan de la " +
+    "izquierda sea distinto: es que no puede ver la mitad del problema.");
+
+  /* -- 3. La regla, de un vistazo ----------------------------------------- */
+  const c3 = card("c6", "La regla, de un vistazo",
+    "¿Por qué le toca a cada referencia lo que le toca?", "histórico completo");
+  grid.appendChild(c3);
+  const legendBox = document.createElement("div");
+  c3.appendChild(legendBox);
+  const drawRule = () => {
+    const m = fleetView.mode;
+    scatter(c3._chart, {
+      height: 300, sizeBy: true, zoom: true,
+      xLabel: "Ocupación media de la referencia",
+      hline: FLEET_LIFE, vline: P.q3 * 100,
+      fmtX: v => nf(v, 1) + " %", fmtY: v => nf(v, 0) + " a",
+      points: P.rows.map(d => ({
+        x: d.occ * 100,
+        y: Math.min(isFinite(d.payback) ? d.payback : PAYBACK_CAP, PAYBACK_CAP),
+        r: d.capital, label: d.name, color: fleetColor(fleetPick(d, m).action),
+        rows: [["Categoría", D.categories[d.cat]], ["Acción", fleetLabel(fleetPick(d, m).action)],
+               ["Por qué", fleetPick(d, m).why], ["Unidades", nf(d.units)],
+               ["Ocupación", pct(d.occ, 2)],
+               ["Payback", isFinite(d.payback) ? nf(d.payback, 1) + " años" : "nunca"],
+               ["Contribución/ud·año", eur(d.contribU, 2)],
+               ["Amortización/ud·año", eur(d.amortU, 2)],
+               ["Neto/ud·año", eur(d.netU, 2)], ["Capital", e(d.capital)]],
+      })),
+    });
+    legendBox.innerHTML = "";
+    const lg = document.createElement("div");
+    lg.className = "legend";
+    lg.innerHTML = FLEET_ACTIONS.filter(a => P.rows.some(d => fleetPick(d, m).action === a.id))
+      .map(a => '<span><i style="background:' + fleetColor(a.id) + '"></i>' + a.label + "</span>")
+      .join("");
+    legendBox.appendChild(lg);
+    const nt = document.createElement("div");
+    nt.className = "note";
+    nt.innerHTML = "La línea horizontal es la vida útil (" + nf(FLEET_LIFE) + " años): por " +
+      "encima, la referencia no devuelve lo que costó. La vertical es el cuartil alto de " +
+      "ocupación (" + pct(P.q3, 2) + "). El tamaño de la burbuja es el capital. El payback se " +
+      "recorta a " + nf(PAYBACK_CAP) + " años —la peor tardaría " + nf(P.worstPayback, 0) +
+      "— porque a partir de ahí la decisión ya está tomada.";
+    legendBox.appendChild(nt);
+  };
+  redraw.push(drawRule);
+  drawRule();
+  setTable(c3, ["Acción", "Regla"], [
+    ["<b>Renovar</b>", "El payback pasa de la vida útil (" + nf(FLEET_LIFE) + " años), pero el " +
+     "ahorro de mantenimiento devuelve el coste de reposición dentro de ella"],
+    ["<b>Retirar</b>", "El mantenimiento se come el ingreso: pierde caja hoy. Es lo <i>único</i> " +
+     "que justifica sacarla de circulación ya; lo demás sería razonar sobre coste hundido"],
+    ["<b>No reponer</b>", "Cubre su mantenimiento pero el payback pasa de la vida útil: se deja " +
+     "morir y no se vuelve a comprar"],
+    ["<b>Ampliar</b>", "Payback por debajo de " + nf(FLEET_FAST) + " años y ocupación en el " +
+     "cuartil alto: +" + nf(EXPAND_SHARE * 100, 0) + " % de unidades"],
+    ["<b>Revisar</b>", "Se paga, pero tarda más de " + nf(FLEET_FAST) + " años"],
+    ["<b>Mantener</b>", "Todo lo demás"],
+  ]);
+  textTable(c3);
+
+  /* -- 4. El detalle, referencia a referencia ----------------------------- */
+  const c4 = card("c12", "Las " + nf(P.rows.length) + " referencias",
+    "Ordenadas por el euro anual que mueve su acción.", "histórico completo");
+  grid.appendChild(c4);
+  tableOnly(c4, ["Producto", "Categoría", "Acción", "Por qué", "Uds.", "Ocupación",
+                 "Contrib./ud·año", "Amort./ud·año", "Neto/ud·año", "Payback",
+                 "€/año en juego", "Capital"], []);
+  const drawDetail = () => {
+    const m = fleetView.mode;
+    setTable(c4, ["Producto", "Categoría", "Acción", "Por qué", "Uds.", "Ocupación",
+                  "Contrib./ud·año", "Amort./ud·año", "Neto/ud·año", "Payback",
+                  "€/año en juego", "Capital"],
+      P.rows.slice()
+        .sort((a, b) => (fleetPick(b, m).gain || 0) - (fleetPick(a, m).gain || 0))
+        .map(d => [d.name, D.categories[d.cat],
+          '<b style="color:' + fleetColor(fleetPick(d, m).action) + '">' +
+            fleetLabel(fleetPick(d, m).action) + "</b>",
+          fleetPick(d, m).why, nf(d.units), pct(d.occ, 2),
+          eur(d.contribU, 2), eur(d.amortU, 2), eur(d.netU, 2),
+          isFinite(d.payback) ? nf(d.payback, 1) + " a" : "nunca",
+          e(fleetPick(d, m).gain), e(d.capital)]));
+  };
+  redraw.push(drawDetail);
+  drawDetail();
+
+  recoBlock(grid, "flota");
 }
 
 /* ===========================================================================
@@ -5990,7 +6487,7 @@ function pageModelo(grid) {
     ["marts", "<code>accepted_values</code> en las clasificaciones ABC y de rotación; " +
      "<code>unique</code> en el grano de cada mart"],
     ["informe", "<code>verify_report.py</code> contrasta las cifras de esta página contra pandas, " +
-     "scipy y statsmodels; <code>test_render.js</code> renderiza las nueve páginas × cuatro " +
+     "scipy y statsmodels; <code>test_render.js</code> renderiza las diez páginas × cuatro " +
      "escenarios de filtro"],
   ]);
   insight(c7, "Los tests <b>fallan el pipeline</b> (severidad <i>error</i>) salvo los marcados " +
@@ -6011,6 +6508,8 @@ const PAGES = [
     intro: "Cuándo se alquila, cuánto dura y qué semanas se salen del patrón." },
   { id: "producto", label: "Producto e inventario", group: "negocio", render: pageProducto,
     intro: "Qué referencias sostienen el negocio, cuáles no rotan y cuándo toca renovar la flota." },
+  { id: "flota", label: "Plan de flota", group: "negocio", render: pageFlota,
+    intro: "Una acción por referencia, con el euro que mueve: la economía de la página anterior convertida en cola de decisiones." },
   { id: "tiendas", label: "Tiendas y geografía", group: "negocio", render: pageTiendas,
     intro: "Dónde se vende, qué tiendas convierten mejor su tráfico y dónde hay fricción operativa." },
   { id: "clientes", label: "Clientes y fidelización", group: "negocio", render: pageClientes,

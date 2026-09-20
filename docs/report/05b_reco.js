@@ -483,6 +483,10 @@ function lnGamma(z) {
 function buildRecos() {
   const R = recoFacts();
   const e = v => eur(v, 0);
+  /* Una accion puede quedarse sin referencias si cambian los umbrales del plan
+     de flota, y entonces `find` devuelve undefined. Leer `.gain` ahi tumbaria la
+     pagina entera por una frase. */
+  const fleetGain = id => (fleetSummary("neto").find(d => d.id === id) || { gain: 0 }).gain;
   const y = v => eur(v, 0) + "/año";
   const L = AMORT_LIVES[0], L2 = AMORT_LIVES[1];
   const negCats = R.fleet["neg" + L];
@@ -705,9 +709,37 @@ function buildRecos() {
       eurosLabel: "de techo, no de promesa",
     },
 
-    /* ---- 9 · la dimensión de cliente no tiene historia -------------------- */
+    /* ---- 9 · el plan de flota descansa en un supuesto sin dueño --------- */
     {
-      prio: 9, page: "clientes", tipo: "medición",
+      prio: 9, page: "flota", tipo: "medición",
+      accion: "Fijar con Finanzas la <b>vida útil por categoría</b> y el retorno mínimo que se " +
+        "le exige a una unidad, y meterlos en la definición del plan de flota.",
+      porque: "El plan entero cuelga de dos números que hoy los pone el análisis, no el negocio: " +
+        "una vida útil de " + nf(FLEET_LIFE) + " años y un umbral de holgura en la mitad de esa " +
+        "vida. Y no son inocuos: <b>" + nf(fleetPlan().sens.refs) + " de las " +
+        nf(fleetPlan().rows.length) + " referencias</b> —" + e(fleetPlan().sens.capital) + " de " +
+        "capital— cruzan un umbral si la vida útil resulta ser " + nf(AMORT_LIVES[1]) +
+        " años en lugar de " + nf(AMORT_LIVES[0]) + ".",
+      impacto: "No es un ajuste fino: es qué material sale del catálogo. Con " + nf(AMORT_LIVES[0]) +
+        " años el plan manda retirar, no reponer o renovar " +
+        nf(fleetSummary("neto").filter(d => ["retirar", "noreponer", "renovar"].includes(d.id))
+           .reduce((a, d) => a + d.refs, 0)) + " referencias; " + nf(fleetPlan().sens.refs) +
+        " decisiones más están a un supuesto de distancia de cambiar de bando. Mientras el número " +
+        "lo ponga el análisis, el plan es una propuesta; en cuanto lo ponga Finanzas, es una " +
+        "política que se puede auditar.",
+      quien: "Finanzas · Operaciones",
+      esfuerzo: "bajo",
+      nota: "Va detrás de imputar el coste del material: sin esa imputación no hay nada que " +
+        "amortizar y estos dos umbrales no se pueden ni plantear.",
+      mide: "% del capital de flota cubierto por una vida útil acordada por categoría, y fecha de " +
+        "la última revisión. Hoy es <b>0 %</b>: no existe el documento.",
+      euros: null,
+      eurosLabel: e(fleetPlan().sens.capital) + " de capital a un supuesto de distancia",
+    },
+
+    /* ---- 10 · la dimensión de cliente no tiene historia -------------------- */
+    {
+      prio: 10, page: "clientes", tipo: "medición",
       accion: "Historificar la dimensión de cliente con una SCD tipo 2: una fila por nivel de socio " +
         "y segmento, con validez desde–hasta.",
       porque: "<code>membership_level</code> y <code>customer_segment</code> valen lo que valían el " +
@@ -728,9 +760,9 @@ function buildRecos() {
       eurosLabel: "desbloquea medir la fidelización",
     },
 
-    /* ---- 10 · el ranking de fricción ordena ruido ------------------------- */
+    /* ---- 11 · el ranking de fricción ordena ruido ------------------------- */
     {
-      prio: 10, page: "tiendas", tipo: "medición",
+      prio: 11, page: "tiendas", tipo: "medición",
       accion: "Sacar el ranking de cancelación por tienda del seguimiento operativo y sustituirlo por " +
         "un control con intervalo: sólo se audita la tienda cuyo intervalo no toca la media.",
       porque: "Las " + nf(R.stores.n) + " tiendas cancelan estadísticamente igual. El contraste de " +
@@ -752,9 +784,9 @@ function buildRecos() {
       eurosLabel: "evita perseguir ruido",
     },
 
-    /* ---- 11 · 2 % del ingreso sin dueño ---------------------------------- */
+    /* ---- 12 · 2 % del ingreso sin dueño ---------------------------------- */
     {
-      prio: 11, page: "calidad", tipo: "medición",
+      prio: 12, page: "calidad", tipo: "medición",
       accion: "Resolver el <code>store_id</code> nulo en el sistema de reservas, no en el pipeline, " +
         "y bloquear el cierre del alquiler sin tienda asignada.",
       porque: "<b>" + nf(R.missing.noStoreN) + " alquileres</b> llegan sin <code>store_id</code> y " +
@@ -775,9 +807,9 @@ function buildRecos() {
       eurosLabel: "de ingreso sin dueño",
     },
 
-    /* ---- 12 · el detector de anomalías detecta la temporada --------------- */
+    /* ---- 13 · el detector de anomalías detecta la temporada --------------- */
     {
-      prio: 12, page: "estadistica", tipo: "medición",
+      prio: 13, page: "estadistica", tipo: "medición",
       accion: "Desestacionalizar la serie semanal antes de aplicar el umbral: comparar cada semana " +
         "con la misma semana del año anterior, no con su mediana móvil.",
       porque: "Las <b>" + nf(R.anom.flagged) + " semanas</b> que superan el umbral de |z| &gt; 5 sobre " +
@@ -797,9 +829,9 @@ function buildRecos() {
       eurosLabel: "vigilancia que hoy no sirve",
     },
 
-    /* ---- 13 · la única palanca de cancelación que sostienen los datos ----- */
+    /* ---- 14 · la única palanca de cancelación que sostienen los datos ----- */
     {
-      prio: 13, page: "demanda", tipo: "negocio",
+      prio: 14, page: "demanda", tipo: "negocio",
       accion: "Montar una confirmación escalonada para las reservas de más de " + nf(R.lead.cut) +
         " días —aviso a T−7, a T−2 y opción de cambiar fecha en un clic— en vez de esperar a la " +
         "cancelación.",
@@ -822,9 +854,9 @@ function buildRecos() {
       eurosLabel: "recuperables",
     },
 
-    /* ---- 14 · nunca se registra lo que no se pudo servir ------------------ */
+    /* ---- 15 · nunca se registra lo que no se pudo servir ------------------ */
     {
-      prio: 14, page: "producto", tipo: "medición",
+      prio: 15, page: "producto", tipo: "medición",
       accion: "Registrar la demanda no servida: un evento por cada búsqueda o reserva que no se pudo " +
         "cerrar por falta de unidades, con referencia, tienda y fecha.",
       porque: "Toda la página mide lo que se alquiló y nunca lo que se pidió. La ocupación de la " +
@@ -847,9 +879,33 @@ function buildRecos() {
       eurosLabel: "convierte la ocupación en demanda",
     },
 
-    /* ---- 15 · el índice compuesto esconde su dimensión más débil ---------- */
+    /* ---- 16 · el plan no aprende porque nadie registra que se hizo ------ */
     {
-      prio: 15, page: "modelo", tipo: "medición",
+      prio: 16, page: "flota", tipo: "medición",
+      accion: "Registrar la acción ejecutada sobre cada referencia —qué, cuándo y cuántas " +
+        "unidades— y comparar a doce meses el neto por unidad contra el que el plan predijo.",
+      porque: "El plan propone una acción sobre <b>" +
+        nf(fleetSummary("neto").filter(d => d.id !== "mantener").reduce((a, d) => a + d.refs, 0)) +
+        " referencias</b>, pero nada en el pipeline guarda que se haya tomado. La temporada que " +
+        "viene el mismo motor volverá a derivar la misma lista sin saber si la anterior funcionó: " +
+        "es exactamente el hueco que impide hacer esto mismo sobre el cliente, en pequeño.",
+      impacto: "Es lo que separa una lista de una <i>next best action</i>. Hoy el plan promete " +
+        e(fleetGain("ampliar")) + "/año por ampliar y " +
+        e(fleetGain("noreponer")) + "/año de capital por no reponer, y no hay " +
+        "forma de comprobar ninguna de las dos cifras. Con el registro, cada temporada corrige los " +
+        "umbrales de la anterior en vez de repetirlos.",
+      quien: "Operaciones · Datos",
+      esfuerzo: "bajo",
+      mide: "Error del plan: diferencia entre el neto por unidad y año previsto y el observado a " +
+        "doce meses, sobre las referencias en las que se actuó. Hoy no se puede calcular porque " +
+        "no se sabe en cuáles se actuó.",
+      euros: null,
+      eurosLabel: "convierte la lista en un bucle que aprende",
+    },
+
+    /* ---- 17 · el índice compuesto esconde su dimensión más débil ---------- */
+    {
+      prio: 17, page: "modelo", tipo: "medición",
       accion: "Poner el umbral de la puerta de calidad en <b>cada dimensión</b>, no sólo en el índice " +
         "compuesto, y fijar el de " + R.quality.weak.dim.toLowerCase() + " en su nivel actual.",
       porque: "El índice está en <b>" + nf(R.quality.score, 2) + "</b>, pero sus cuatro dimensiones no " +
@@ -871,9 +927,9 @@ function buildRecos() {
       eurosLabel: "cierra un hueco del control",
     },
 
-    /* ---- 16 · la colisión de identificadores se resuelve en el sitio malo -- */
+    /* ---- 18 · la colisión de identificadores se resuelve en el sitio malo -- */
     {
-      prio: 16, page: "calidad", tipo: "medición",
+      prio: 18, page: "calidad", tipo: "medición",
       accion: "Escalar la colisión de <code>rental_id</code> al sistema de reservas y devolver ahí la " +
         "regla de desempate, en vez de resolverla en la capa analítica.",
       porque: "<b>" + nf(R.quality.dupIds) + " claves primarias repetidas</b>, de las que " +
@@ -893,9 +949,9 @@ function buildRecos() {
       eurosLabel: "hace auditable la cifra",
     },
 
-    /* ---- 17 · la retención no es mensual, es de temporada ----------------- */
+    /* ---- 19 · la retención no es mensual, es de temporada ----------------- */
     {
-      prio: 17, page: "clientes", tipo: "negocio",
+      prio: 19, page: "clientes", tipo: "negocio",
       accion: "Mover el calendario de recompra al mes anterior al pico de la categoría que el cliente " +
         "alquiló, en vez de al mes siguiente a su alquiler.",
       porque: "La retención cae al <b>" + nf(R.cohort.m1Range[0], 1) + "–" + nf(R.cohort.m1Range[1], 1) +
@@ -914,9 +970,9 @@ function buildRecos() {
       eurosLabel: "cambia el calendario, no el gasto",
     },
 
-    /* ---- 18 · el capital inmovilizado no tiene umbral --------------------- */
+    /* ---- 20 · el capital inmovilizado no tiene umbral --------------------- */
     {
-      prio: 18, page: "producto", tipo: "negocio",
+      prio: 20, page: "producto", tipo: "negocio",
       accion: "Fijar un rendimiento mínimo por unidad y año y aplicarlo al cuartil de peor rotación " +
         "en la revisión de flota de cada temporada.",
       porque: "Las <b>" + nf(R.under.refs) + " referencias infrautilizadas</b> inmovilizan <b>" +
@@ -940,9 +996,9 @@ function buildRecos() {
       eurosLabel: e(R.under.capital) + " de capital sin criterio",
     },
 
-    /* ---- 19 · con este n, todo sale significativo ------------------------- */
+    /* ---- 21 · con este n, todo sale significativo ------------------------- */
     {
-      prio: 19, page: "estadistica", tipo: "medición",
+      prio: 21, page: "estadistica", tipo: "medición",
       accion: "Acordar un tamaño de efecto mínimo por decisión antes de mirar ningún p-valor, y " +
         "publicar el intervalo junto al contraste.",
       porque: "Con " + nf(R.logit.n) + " observaciones, el logit da p " + pval(R.logit.p) +
@@ -964,9 +1020,9 @@ function buildRecos() {
       eurosLabel: "evita decidir por el p-valor",
     },
 
-    /* ---- 20 · el turno se dimensiona por semana, la demanda no ------------ */
+    /* ---- 22 · el turno se dimensiona por semana, la demanda no ------------ */
     {
-      prio: 20, page: "demanda", tipo: "negocio",
+      prio: 22, page: "demanda", tipo: "negocio",
       accion: "Dimensionar el turno de tienda por día de la semana, con refuerzo de sábado y domingo, " +
         "en vez de por plantilla semanal constante.",
       porque: "Sábado y domingo concentran el <b>" + pct(R.dow.share, 1) + "</b> de los alquileres " +

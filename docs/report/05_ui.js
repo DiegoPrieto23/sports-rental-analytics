@@ -68,6 +68,11 @@ const PAGE_ICON = {
            '<path d="M14 16.5v-6.5"/>',
   // onda sobre la linea del ano: la demanda sube y baja con la temporada
   demanda: '<path d="M2.5 16.8h15"/><path d="M3 11c2-5 4.4-5 6.4 0s4.4 5 6.4 0"/>',
+  // cola priorizada: tres renglones de menos a mas corto, con la flecha en el
+  // primero. Dice "lista de decisiones ordenada", que es exactamente la pagina,
+  // y no choca con ninguno de los otros nueve a 16 px.
+  flota: '<path d="M3 5.5h10"/><path d="M10.5 3 13 5.5 10.5 8"/>' +
+         '<path d="M3 10.5h7.5"/><path d="M3 15.5h5"/>',
   // caja de material
   producto: '<path d="M10 2.9 3.2 6.2v7.6L10 17.1l6.8-3.3V6.2z"/><path d="M3.2 6.2 10 9.5l6.8-3.3"/>' +
             '<path d="M10 9.5v7.6"/>',

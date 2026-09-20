@@ -37,7 +37,7 @@ python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.time
 # Rebuild the interactive HTML report and run its two test suites
 python docs/build_report.py
 python docs/verify_report.py    # numbers: vs pandas/scipy/statsmodels (runs Node internally)
-node    docs/test_render.js     # pages: 9 pages x 4 filter scenarios, must not throw
+node    docs/test_render.js     # pages: 10 pages x 4 filter scenarios, must not throw
 ```
 
 There is **no lint config and no test framework**. "Passing" means: the generator runs
@@ -120,15 +120,15 @@ orchestrated by `main()`. Numbered section banners (`# 1.` … `# 8.`) mark the 
 ## Interactive report (`docs/`)
 
 `docs/build_report.py` concatenates the pieces in `docs/report/` into
-`docs/informe.html`: a self-contained 9-page dashboard (no CDN, no server, no build
+`docs/informe.html`: a self-contained 10-page dashboard (no CDN, no server, no build
 tooling, ~2.3 MB). **Edit the pieces, never `informe.html`** — it is generated.
 
 ```
 report/01_head.html   tokens + CSS          report/05b_reco.js    recommendations engine
-report/02_body.html   markup shell          report/06_pages_a.js  pages 1-4
-report/03_core.js     engine (no DOM)       report/07_pages_b.js  pages 5-8
-report/03b_geo.js     country outlines      report/08_pages_c.js  page 9 + PAGES index
-report/04_charts.js   SVG chart library
+report/02_body.html   markup shell          report/05c_fleet.js   fleet NBA: rules + page
+report/03_core.js     engine (no DOM)       report/06_pages_a.js  pages 1-4
+report/03b_geo.js     country outlines      report/07_pages_b.js  pages 6-9
+report/04_charts.js   SVG chart library     report/08_pages_c.js  page 10 + PAGES index
 report/05_ui.js       nav, cards, filters, render
 ```
 
@@ -222,6 +222,28 @@ Key invariants:
   rail and by the cover's recommendation links. It keeps `state.page`, the buttons'
   `aria-selected` and the panel's `aria-labelledby` in step; setting `state.page` directly
   and calling `render()` leaves the rail lying about which page is open.
+- **The fleet plan (`05c_fleet.js`) is a rule engine, not a model, and that is the point.** A
+  next-best-action on *customers* would need (treatment, outcome) pairs, and not one of the
+  dataset's 36 columns records an action taken toward anyone — no campaign, no contact, no
+  offer. The decision unit here is the inventory unit, where the action is deterministic
+  economics. If someone later adds a customer NBA, it needs the four data-debt
+  recommendations first (cancellation reason, SCD2, unserved demand, a price test); without
+  them it is fabricated, and it would contradict the clientes page, which says exactly that.
+- **`retirar` and `noreponer` are different actions on purpose.** A reference that covers its
+  maintenance but never returns its purchase price is NOT retired: the purchase is sunk, so
+  pulling a cash-positive asset costs money instead of saving it. The decision on it is to not
+  buy it again. `retirar` is reserved for references losing cash *today* (`contribU <= 0`).
+  Collapsing the two back into one is the classic sunk-cost error this page exists to avoid.
+- **The fleet plan's whole ladder hangs off one derived quantity, `payback`** (purchase price ÷
+  contribution per unit-year). Thresholds are `FLEET_LIFE` (= `AMORT_LIVES[0]`, a stated
+  assumption) and half of it. `fleetPlan()` also reports how many decisions are *sensitive* to
+  that assumption — the references whose payback falls between the two lives — which is what
+  the page's first recommendation is built on. Change the life and the plan changes: that is
+  intended, and it is why the page recommends Finance fix it.
+- **`fleetPlan()` builds on `recoFacts().pm`, so there is one source for per-reference
+  economics.** Watch the field names: `pm` already carries a numeric `contrib`, so the
+  decisions live in `planNeto` / `planContrib`. `fleetPick(d, mode)` is the only place that
+  translates the mode string to a field.
 - **A finding that leads nowhere stays as context.** `recoBlock()` takes an optional third
   argument that renders a "sin recomendación, a propósito" note — the pricing page uses it to
   say, with the numbers, that the four channels are indistinguishable. Padding a page with a
@@ -254,7 +276,7 @@ Key invariants:
   like a thin band of bubbles. Cross-check with `cities inside their own country polygon`,
   never by re-deriving the same formula in the test.
 - No browser is available in this environment, so `test_render.js` stubs a minimal DOM and
-  renders all 9 pages under 4 filter scenarios. It proves nothing about *looks* — only that
+  renders all 10 pages under 4 filter scenarios. It proves nothing about *looks* — only that
   the page code runs. Visual regressions still need a human to open the file.
 
 ## Data model

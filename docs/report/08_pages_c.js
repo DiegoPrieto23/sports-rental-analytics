@@ -328,7 +328,7 @@ function pageModelo(grid) {
     ["marts", "<code>accepted_values</code> en las clasificaciones ABC y de rotación; " +
      "<code>unique</code> en el grano de cada mart"],
     ["informe", "<code>verify_report.py</code> contrasta las cifras de esta página contra pandas, " +
-     "scipy y statsmodels; <code>test_render.js</code> renderiza las nueve páginas × cuatro " +
+     "scipy y statsmodels; <code>test_render.js</code> renderiza las diez páginas × cuatro " +
      "escenarios de filtro"],
   ]);
   insight(c7, "Los tests <b>fallan el pipeline</b> (severidad <i>error</i>) salvo los marcados " +
@@ -349,6 +349,8 @@ const PAGES = [
     intro: "Cuándo se alquila, cuánto dura y qué semanas se salen del patrón." },
   { id: "producto", label: "Producto e inventario", group: "negocio", render: pageProducto,
     intro: "Qué referencias sostienen el negocio, cuáles no rotan y cuándo toca renovar la flota." },
+  { id: "flota", label: "Plan de flota", group: "negocio", render: pageFlota,
+    intro: "Una acción por referencia, con el euro que mueve: la economía de la página anterior convertida en cola de decisiones." },
   { id: "tiendas", label: "Tiendas y geografía", group: "negocio", render: pageTiendas,
     intro: "Dónde se vende, qué tiendas convierten mejor su tráfico y dónde hay fricción operativa." },
   { id: "clientes", label: "Clientes y fidelización", group: "negocio", render: pageClientes,
