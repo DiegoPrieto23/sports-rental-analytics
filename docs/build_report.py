@@ -9,8 +9,8 @@ Aplica el mismo pipeline de limpieza y las mismas definiciones de metricas que
 `rental_analysis.ipynb`, de modo que los KPIs del informe y los del notebook
 coinciden cifra a cifra.
 
-La tabla de hechos limpia (77.231 filas) viaja dentro del HTML codificada en
-columnas binarias -> deflate -> base64 (~690 KB), asi que todos los filtros se
+La tabla de hechos limpia (171.785 filas) viaja dentro del HTML codificada en
+columnas binarias -> deflate -> base64 (~2,1 MB), asi que todos los filtros se
 cruzan de forma exacta en el navegador: no hay preagregados que limiten los
 cortes posibles. Las filas se ordenan por producto y mes antes de comprimir,
 porque la localidad mejora la compresion en ~200 KB.

@@ -143,6 +143,58 @@ function setTable(el, headers, rows) {
     rows.map(r => "<tr>" + r.map(c => "<td>" + c + "</td>").join("") + "</tr>").join("") +
     "</tbody></table>";
 }
+/* Tabla ordenable por columna.
+
+   Una celda puede venir como cadena (se ordena como texto) o como `{h, v}`: `h`
+   es lo que se pinta y `v` lo que se compara. Esa segunda forma es la que hace
+   falta de verdad, porque la celda llega ya formateada —"1.234 €", "12,3 %",
+   "3,4 a"— y ordenar eso como texto pone el 9 por encima del 1.234.
+
+   El primer clic sobre una columna numerica ordena DESCENDENTE y sobre una de
+   texto ASCENDENTE, que es lo que espera quien pulsa: en una columna de euros se
+   busca el mayor y en una de nombres, la A. El segundo clic invierte.
+
+   Los valores no finitos (un payback infinito, un dato que falta) se mandan al
+   extremo "peor" con un centinela en quien construye la fila, no aqui: esta
+   funcion no sabe si un infinito es bueno o malo. */
+function sortableTable(el, headers, rows, initial) {
+  const val = c => (c && typeof c === "object" && "v" in c) ? c.v : c;
+  const html = c => (c && typeof c === "object" && "h" in c) ? c.h : c;
+  const numeric = col => rows.some(r => typeof val(r[col]) === "number");
+  const st = { col: (initial && initial.col) || 0,
+               dir: (initial && initial.dir) || (numeric((initial && initial.col) || 0) ? -1 : 1) };
+
+  const draw = () => {
+    const num = numeric(st.col);
+    const sorted = rows.slice().sort((a, b) => {
+      const x = val(a[st.col]), y = val(b[st.col]);
+      if (num) return ((typeof x === "number" ? x : -Infinity) -
+                       (typeof y === "number" ? y : -Infinity)) * st.dir;
+      return String(x).localeCompare(String(y), "es") * st.dir;
+    });
+    el._table.innerHTML =
+      "<table class='dt sortable'><thead><tr>" +
+      headers.map((h, i) => '<th tabindex="0" role="button" aria-sort="' +
+        (i === st.col ? (st.dir === 1 ? "ascending" : "descending") : "none") + '">' + h +
+        '<span class="sarrow">' + (i === st.col ? (st.dir === 1 ? "▲" : "▼") : "") +
+        "</span></th>").join("") +
+      "</tr></thead><tbody>" +
+      sorted.map(r => "<tr>" + r.map(c => "<td>" + html(c) + "</td>").join("") + "</tr>").join("") +
+      "</tbody></table>";
+    el._table.querySelectorAll("th").forEach((th, i) => {
+      const go = () => {
+        if (st.col === i) st.dir = -st.dir;
+        else { st.col = i; st.dir = numeric(i) ? -1 : 1; }
+        draw();
+      };
+      th.addEventListener("click", go);
+      th.addEventListener("keydown", ev => {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); }
+      });
+    });
+  };
+  draw();
+}
 function tableOnly(el, headers, rows) {
   el._chart.remove();
   el._table.classList.remove("hidden");

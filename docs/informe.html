@@ -563,6 +563,15 @@ table.dt th {
   font-weight: var(--w-med); font-size: var(--t-micro);
   border-bottom: 1px solid var(--hairline);
 }
+/* Cabecera ordenable. La flecha reserva su hueco siempre (`width` fijo) para que
+   ordenar por otra columna no desplace media fila de cabecera. */
+table.dt.sortable th { cursor: pointer; user-select: none; }
+table.dt.sortable th:hover { color: var(--ink); }
+table.dt.sortable th:focus-visible { outline: var(--focus); outline-offset: -2px; }
+table.dt.sortable th .sarrow {
+  display: inline-block; width: 9px; margin-left: 3px; color: var(--s1);
+  font-size: 8px; vertical-align: 1px;
+}
 table.dt td { border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; color: var(--ink-2); }
 
 /* Tabla de texto, no de cifras. Las tablas de datos alinean a la derecha porque
@@ -2576,6 +2585,58 @@ function setTable(el, headers, rows) {
     rows.map(r => "<tr>" + r.map(c => "<td>" + c + "</td>").join("") + "</tr>").join("") +
     "</tbody></table>";
 }
+/* Tabla ordenable por columna.
+
+   Una celda puede venir como cadena (se ordena como texto) o como `{h, v}`: `h`
+   es lo que se pinta y `v` lo que se compara. Esa segunda forma es la que hace
+   falta de verdad, porque la celda llega ya formateada —"1.234 €", "12,3 %",
+   "3,4 a"— y ordenar eso como texto pone el 9 por encima del 1.234.
+
+   El primer clic sobre una columna numerica ordena DESCENDENTE y sobre una de
+   texto ASCENDENTE, que es lo que espera quien pulsa: en una columna de euros se
+   busca el mayor y en una de nombres, la A. El segundo clic invierte.
+
+   Los valores no finitos (un payback infinito, un dato que falta) se mandan al
+   extremo "peor" con un centinela en quien construye la fila, no aqui: esta
+   funcion no sabe si un infinito es bueno o malo. */
+function sortableTable(el, headers, rows, initial) {
+  const val = c => (c && typeof c === "object" && "v" in c) ? c.v : c;
+  const html = c => (c && typeof c === "object" && "h" in c) ? c.h : c;
+  const numeric = col => rows.some(r => typeof val(r[col]) === "number");
+  const st = { col: (initial && initial.col) || 0,
+               dir: (initial && initial.dir) || (numeric((initial && initial.col) || 0) ? -1 : 1) };
+
+  const draw = () => {
+    const num = numeric(st.col);
+    const sorted = rows.slice().sort((a, b) => {
+      const x = val(a[st.col]), y = val(b[st.col]);
+      if (num) return ((typeof x === "number" ? x : -Infinity) -
+                       (typeof y === "number" ? y : -Infinity)) * st.dir;
+      return String(x).localeCompare(String(y), "es") * st.dir;
+    });
+    el._table.innerHTML =
+      "<table class='dt sortable'><thead><tr>" +
+      headers.map((h, i) => '<th tabindex="0" role="button" aria-sort="' +
+        (i === st.col ? (st.dir === 1 ? "ascending" : "descending") : "none") + '">' + h +
+        '<span class="sarrow">' + (i === st.col ? (st.dir === 1 ? "▲" : "▼") : "") +
+        "</span></th>").join("") +
+      "</tr></thead><tbody>" +
+      sorted.map(r => "<tr>" + r.map(c => "<td>" + html(c) + "</td>").join("") + "</tr>").join("") +
+      "</tbody></table>";
+    el._table.querySelectorAll("th").forEach((th, i) => {
+      const go = () => {
+        if (st.col === i) st.dir = -st.dir;
+        else { st.col = i; st.dir = numeric(i) ? -1 : 1; }
+        draw();
+      };
+      th.addEventListener("click", go);
+      th.addEventListener("keydown", ev => {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); }
+      });
+    });
+  };
+  draw();
+}
 function tableOnly(el, headers, rows) {
   el._chart.remove();
   el._table.classList.remove("hidden");
@@ -4287,10 +4348,22 @@ function recoTop(grid) {
    verdades del negocio, son los valores con los que se puede razonar hasta que
    Finanzas fije los suyos, y la pagina termina recomendando exactamente eso.
 
-   El plan se calcula sobre el HISTORICO COMPLETO, como las cohortes y las
-   recomendaciones: las unidades de inventario son globales por referencia, no
-   estan repartidas por tienda, asi que filtrar por pais daria una ocupacion que
-   es cota inferior y decisiones que cambiarian al marcar una casilla.
+QUE FILTROS APLICAN Y POR QUE. La economia de cada referencia se calcula
+   siempre sobre el HISTORICO COMPLETO, pero la pagina SI responde al filtro de
+   CATEGORIA: una referencia pertenece a una sola, asi que seleccionar Bicicletas
+   no cambia la economia de ninguna, solo que filas se miran. Los de pais, canal,
+   membresia y segmento NO aplican, y no es pereza: filtran ALQUILERES, no
+   productos, asi que el ingreso de la referencia bajaria pero su
+   `inventory_units` seguiria siendo global, el denominador de la ocupacion no se
+   moveria y el payback dejaria de significar nada. El de periodo tampoco: esto
+   es una decision de capital a anos vista, no de un trimestre, y un payback
+   calculado sobre tres meses anualizados es ruido con pinta de cifra.
+
+   Los UMBRALES (cuartil alto de ocupacion y neto mediano) se calculan siempre
+   sobre el catalogo entero, tambien con el filtro puesto. Si se recalcularan
+   dentro de la seleccion, "saturada" significaria una cosa distinta en cada
+   filtro y el cuartil alto de una categoria mala seguiria saliendo como algo que
+   ampliar.
    =========================================================================== */
 
 /* Vida util del material. Misma constante que usa el bloque de recomendaciones
@@ -4463,11 +4536,21 @@ function fleetPlan() {
    "neto"/"contrib" al campo, para que no se escape una cadena mal escrita. */
 const fleetPick = (d, mode) => mode === "neto" ? d.planNeto : d.planContrib;
 
-/* Resumen por accion en el modo pedido. */
-function fleetSummary(mode) {
+/* Filas del plan que caen dentro del filtro de categoria activo. El resto de
+   filtros no tocan esta pagina (ver la cabecera). */
+function fleetRows() {
   const P = fleetPlan();
+  return state.cat.size ? P.rows.filter(d => state.cat.has(d.cat)) : P.rows;
+}
+
+/* Resumen por accion en el modo pedido. `rows` por defecto es el catalogo
+   entero: el bloque de recomendaciones lo llama sin argumento a proposito,
+   porque sus cifras son del historico completo y no deben moverse al filtrar. */
+function fleetSummary(mode, rows) {
+  const P = fleetPlan();
+  const base = rows || P.rows;
   return FLEET_ACTIONS.map(a => {
-    const set = P.rows.filter(d => fleetPick(d, mode).action === a.id);
+    const set = base.filter(d => fleetPick(d, mode).action === a.id);
     return {
       id: a.id, label: a.label, color: fleetColor(a.id),
       refs: set.length,
@@ -4485,15 +4568,29 @@ function fleetSummary(mode) {
    -------------------------------------------------------------------------- */
 function pageFlota(grid) {
   const P = fleetPlan();
+  const rows = fleetRows();
   const e = v => eur(v, 0);
+  /* La etiqueta dice a la vez que la economia es del historico completo y que la
+     seleccion de categoria si esta aplicada, que es justo la duda que provoca ver
+     una tabla que no responde a un filtro de la barra. */
+  const tag = "histórico completo" + (state.cat.size
+    ? " · " + nf(state.cat.size) + (state.cat.size === 1 ? " categoría" : " categorías") : "");
+
+  if (!rows.length) {
+    const empty = card("c12", "Plan de flota", null, tag);
+    empty._chart.innerHTML = '<p class="prose">Ninguna referencia del catálogo cae dentro de ' +
+      'la categoría seleccionada.</p>';
+    empty.querySelector(".tbtn").remove();
+    grid.appendChild(empty);
+    return;
+  }
   /* Todas las tarjetas que siguen al conmutador se repintan juntas. Se registran
      aqui segun se van creando porque el conmutador vive en la primera y tiene que
      poder alcanzar a las de mas abajo, que aun no existen cuando se construye. */
   const redraw = [];
 
   /* -- 1. El plan --------------------------------------------------------- */
-  const c1 = card("c12", "El plan", "¿Qué toca hacer con cada referencia, y cuánto mueve?",
-    "histórico completo");
+  const c1 = card("c12", "El plan", "¿Qué toca hacer con cada referencia, y cuánto mueve?", tag);
   grid.appendChild(c1);
   segmented(c1, [{
     label: "Coste del material", store: fleetView, key: "mode",
@@ -4502,13 +4599,13 @@ function pageFlota(grid) {
   }], () => redraw.forEach(f => f()));
 
   const drawPlan = () => {
-    const sum = fleetSummary(fleetView.mode);
+    const sum = fleetSummary(fleetView.mode, rows);
     const acting = sum.filter(d => d.id !== "mantener");
     const old = c1.querySelector(".chips");
     if (old) old.remove();
     chips(c1, [
       ["Referencias con acción", nf(acting.reduce((a, d) => a + d.refs, 0)),
-       "de " + nf(P.rows.length)],
+       "de " + nf(rows.length)],
       ["€/año en juego", compact(sum.reduce((a, d) => a + d.gain, 0)) + " €"],
       ["Capital implicado", compact(acting.reduce((a, d) => a + d.capital, 0)) + " €"],
     ]);
@@ -4532,14 +4629,31 @@ function pageFlota(grid) {
     "nuevas y en <i>revisar</i> lo que ese capital rendiría en una referencia mediana. En " +
     "<b>no reponer</b> no es P&amp;L: es el capital que se deja de comprometer cada año al no " +
     "volver a comprar ese material. La columna <i>Por qué</i> de la tabla lo dice fila a fila.");
+  note(c1, "<b>Filtros:</b> esta página responde al de <b>categoría</b> —una referencia " +
+    "pertenece a una sola, así que seleccionarla no cambia la economía de ninguna, sólo qué " +
+    "filas se miran—. No responde a los de país, canal, membresía ni segmento: ésos filtran " +
+    "<i>alquileres</i>, no productos, y las unidades de inventario son globales por referencia, " +
+    "así que el ingreso bajaría pero el denominador de la ocupación no, y el payback dejaría de " +
+    "significar nada. Tampoco al de periodo: es una decisión de capital a años vista. Los " +
+    "umbrales se calculan siempre sobre el catálogo entero, para que «saturada» signifique lo " +
+    "mismo dentro y fuera del filtro.");
 
   /* -- 2. Lo que cambia al imputar el material ----------------------------
      Esta tarjeta NO sigue al conmutador a proposito: es la comparacion entre los
      dos modos, asi que enseña los dos a la vez. */
   const c2 = card("c6", "Qué cambia al imputar el material",
-    "¿Cuántas decisiones dependen de un coste que hoy no se descuenta?", "histórico completo");
+    "¿Cuántas decisiones dependen de un coste que hoy no se descuenta?", tag);
   grid.appendChild(c2);
-  const before = fleetSummary("contrib"), after = fleetSummary("neto");
+  const before = fleetSummary("contrib", rows), after = fleetSummary("neto", rows);
+  /* El flujo se recuenta sobre la seleccion: con Bicicletas puesto, la pregunta
+     es cuantas decisiones de bicicleta cambian, no cuantas del catalogo. */
+  const flow = {};
+  let changed = 0;
+  rows.forEach(d => {
+    const k = d.planContrib.action + "|" + d.planNeto.action;
+    flow[k] = (flow[k] || 0) + 1;
+    if (d.planContrib.action !== d.planNeto.action) changed++;
+  });
   const nodes = [], links = [];
   const nodeOf = (d, col, prefix) => ({
     id: prefix + d.id, col, label: d.label, value: d.refs, color: d.color,
@@ -4549,7 +4663,7 @@ function pageFlota(grid) {
   });
   before.forEach(d => nodes.push(nodeOf(d, 0, "a_")));
   after.forEach(d => nodes.push(nodeOf(d, 1, "b_")));
-  Object.entries(P.flow).forEach(([k, v]) => {
+  Object.entries(flow).forEach(([k, v]) => {
     const [from, to] = k.split("|");
     links.push({
       s: "a_" + from, t: "b_" + to, value: v, color: fleetColor(to),
@@ -4564,25 +4678,26 @@ function pageFlota(grid) {
     "cargada. Cada cinta es un grupo de referencias; las que cruzan de un nombre a otro son las " +
     "que cambian de decisión.");
   setTable(c2, ["Sin imputar", "Imputado", "Referencias"],
-    Object.entries(P.flow).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
+    Object.entries(flow).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
       const [from, to] = k.split("|");
       return [fleetLabel(from), fleetLabel(to),
               nf(v) + (from === to ? "" : ' <span class="sig">cambia</span>')];
     }));
-  const movedCapital = P.rows.filter(d => d.planContrib.action !== d.planNeto.action)
+  const movedCapital = rows.filter(d => d.planContrib.action !== d.planNeto.action)
     .reduce((a, d) => a + d.capital, 0);
-  const keptButUnpaid = P.rows.filter(d => d.planContrib.action === "mantener" &&
-                                           d.planNeto.action !== "mantener").length;
-  insight(c2, "<b>" + nf(P.changed) + " de " + nf(P.rows.length) + " decisiones cambian</b> (" +
-    pct(P.changed / P.rows.length, 0) + " del catálogo, " + e(movedCapital) + " de capital) sólo " +
+  const keptButUnpaid = rows.filter(d => d.planContrib.action === "mantener" &&
+                                         d.planNeto.action !== "mantener").length;
+  const keptBefore = before.find(d => d.id === "mantener");
+  insight(c2, "<b>" + nf(changed) + " de " + nf(rows.length) + " decisiones cambian</b> (" +
+    pct(changed / rows.length, 0) + " de la selección, " + e(movedCapital) + " de capital) sólo " +
     "por descontar lo que cuesta el material. Sin imputarlo el plan manda <b>mantener</b> " +
-    nf(before.find(d => d.id === "mantener").refs) + " referencias, y <b>" + nf(keptButUnpaid) +
+    nf(keptBefore ? keptBefore.refs : 0) + " referencias, y <b>" + nf(keptButUnpaid) +
     "</b> de ellas no devuelven su compra en " + nf(FLEET_LIFE) + " años. No es que el plan de la " +
     "izquierda sea distinto: es que no puede ver la mitad del problema.");
 
   /* -- 3. La regla, de un vistazo ----------------------------------------- */
   const c3 = card("c6", "La regla, de un vistazo",
-    "¿Por qué le toca a cada referencia lo que le toca?", "histórico completo");
+    "¿Por qué le toca a cada referencia lo que le toca?", tag);
   grid.appendChild(c3);
   const legendBox = document.createElement("div");
   c3.appendChild(legendBox);
@@ -4593,7 +4708,7 @@ function pageFlota(grid) {
       xLabel: "Ocupación media de la referencia",
       hline: FLEET_LIFE, vline: P.q3 * 100,
       fmtX: v => nf(v, 1) + " %", fmtY: v => nf(v, 0) + " a",
-      points: P.rows.map(d => ({
+      points: rows.map(d => ({
         x: d.occ * 100,
         y: Math.min(isFinite(d.payback) ? d.payback : PAYBACK_CAP, PAYBACK_CAP),
         r: d.capital, label: d.name, color: fleetColor(fleetPick(d, m).action),
@@ -4609,7 +4724,7 @@ function pageFlota(grid) {
     legendBox.innerHTML = "";
     const lg = document.createElement("div");
     lg.className = "legend";
-    lg.innerHTML = FLEET_ACTIONS.filter(a => P.rows.some(d => fleetPick(d, m).action === a.id))
+    lg.innerHTML = FLEET_ACTIONS.filter(a => rows.some(d => fleetPick(d, m).action === a.id))
       .map(a => '<span><i style="background:' + fleetColor(a.id) + '"></i>' + a.label + "</span>")
       .join("");
     legendBox.appendChild(lg);
@@ -4638,27 +4753,42 @@ function pageFlota(grid) {
   ]);
   textTable(c3);
 
-  /* -- 4. El detalle, referencia a referencia ----------------------------- */
-  const c4 = card("c12", "Las " + nf(P.rows.length) + " referencias",
-    "Ordenadas por el euro anual que mueve su acción.", "histórico completo");
+  /* -- 4. El detalle, referencia a referencia -----------------------------
+     Ordenable por cualquier columna. Las celdas numericas viajan como {h, v}
+     porque lo que se pinta ya esta formateado ("1.234 €", "12,3 %") y ordenar
+     eso como texto pondria el 9 por encima del 1.234. El payback infinito —la
+     referencia que no devuelve su compra nunca— lleva un centinela enorme para
+     que caiga arriba al ordenar de peor a mejor, que es donde tiene que estar. */
+  const DETAIL_COLS = ["Producto", "Categoría", "Acción", "Por qué", "Uds.", "Ocupación",
+                       "Contrib./ud·año", "Amort./ud·año", "Neto/ud·año", "Payback",
+                       "€/año en juego", "Capital"];
+  const c4 = card("c12", "Las " + nf(rows.length) + " referencias",
+    "Pulsa una cabecera para ordenar. Arranca por el euro anual que mueve la acción.", tag);
   grid.appendChild(c4);
-  tableOnly(c4, ["Producto", "Categoría", "Acción", "Por qué", "Uds.", "Ocupación",
-                 "Contrib./ud·año", "Amort./ud·año", "Neto/ud·año", "Payback",
-                 "€/año en juego", "Capital"], []);
+  c4._chart.remove();
+  c4.querySelector(".tbtn").remove();
+  c4._table.classList.remove("hidden");
   const drawDetail = () => {
     const m = fleetView.mode;
-    setTable(c4, ["Producto", "Categoría", "Acción", "Por qué", "Uds.", "Ocupación",
-                  "Contrib./ud·año", "Amort./ud·año", "Neto/ud·año", "Payback",
-                  "€/año en juego", "Capital"],
-      P.rows.slice()
-        .sort((a, b) => (fleetPick(b, m).gain || 0) - (fleetPick(a, m).gain || 0))
-        .map(d => [d.name, D.categories[d.cat],
-          '<b style="color:' + fleetColor(fleetPick(d, m).action) + '">' +
-            fleetLabel(fleetPick(d, m).action) + "</b>",
-          fleetPick(d, m).why, nf(d.units), pct(d.occ, 2),
-          eur(d.contribU, 2), eur(d.amortU, 2), eur(d.netU, 2),
-          isFinite(d.payback) ? nf(d.payback, 1) + " a" : "nunca",
-          e(fleetPick(d, m).gain), e(d.capital)]));
+    const num = (v, h) => ({ v: isFinite(v) ? v : -Infinity, h });
+    sortableTable(c4, DETAIL_COLS, rows.map(d => {
+      const pk = fleetPick(d, m);
+      return [
+        d.name, D.categories[d.cat],
+        { v: fleetLabel(pk.action),
+          h: '<b style="color:' + fleetColor(pk.action) + '">' + fleetLabel(pk.action) + "</b>" },
+        pk.why,
+        num(d.units, nf(d.units)),
+        num(d.occ, pct(d.occ, 2)),
+        num(d.contribU, eur(d.contribU, 2)),
+        num(d.amortU, eur(d.amortU, 2)),
+        num(d.netU, eur(d.netU, 2)),
+        { v: isFinite(d.payback) ? d.payback : 1e9,
+          h: isFinite(d.payback) ? nf(d.payback, 1) + " a" : "nunca" },
+        num(pk.gain, e(pk.gain)),
+        num(d.capital, e(d.capital)),
+      ];
+    }), { col: 10, dir: -1 });
   };
   redraw.push(drawDetail);
   drawDetail();

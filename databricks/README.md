@@ -121,8 +121,9 @@ con `02_intermediate`, `02b_quality_gate`, `03_marts` y `04_tests`, en ese orden
 La última celda de cada notebook de capa imprime la volumetría, así ves de un vistazo
 si algo se quedó a cero.
 
-Valores esperados tras `02_intermediate`: **77.231** filas (de 78.003 crudas; se van
-772 duplicados) y `rental_id` ya único.
+Valores esperados tras `02_intermediate`: **171.785** filas (de 173.502 crudas; se van
+1.717 duplicados) y `rental_id` ya único. *(Las cifras de la sección «Contraste con el
+notebook local» son de una corrida anterior, con la ventana antigua del generador.)*
 
 ### A.3 · Encadenar las capas en un Job
 
@@ -340,6 +341,14 @@ devuelve filas, la celda lanza un error y el Job se detiene.
 
 `dbt build` sobre Databricks termina en `PASS=63 WARN=0 ERROR=0`. Sus resultados frente a
 los que calcula la lógica pandas del notebook:
+
+> **Ojo a la volumetría.** Esta tabla recoge una ejecución real contra el dataset de
+> entonces (78.003 filas crudas). La ventana del generador se amplió después a
+> 2022-01 → 2026-07, y hoy son **173.502 crudas → 171.785 tras limpieza**. Las cifras de
+> abajo no se han actualizado a propósito: son el resultado de una corrida que sí ocurrió,
+> y reescribirlas con los números de hoy sería inventar un contraste que no se ha vuelto a
+> ejecutar. Lo que sigue siendo válido es **lo que demuestran**: que las dos
+> implementaciones cuadran, y por qué difieren en 68 €.
 
 | KPI | Notebook (pandas) | Pipeline en Databricks |
 |-----|------------------:|-----------------------:|

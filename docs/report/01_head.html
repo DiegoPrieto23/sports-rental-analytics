@@ -556,6 +556,15 @@ table.dt th {
   font-weight: var(--w-med); font-size: var(--t-micro);
   border-bottom: 1px solid var(--hairline);
 }
+/* Cabecera ordenable. La flecha reserva su hueco siempre (`width` fijo) para que
+   ordenar por otra columna no desplace media fila de cabecera. */
+table.dt.sortable th { cursor: pointer; user-select: none; }
+table.dt.sortable th:hover { color: var(--ink); }
+table.dt.sortable th:focus-visible { outline: var(--focus); outline-offset: -2px; }
+table.dt.sortable th .sarrow {
+  display: inline-block; width: 9px; margin-left: 3px; color: var(--s1);
+  font-size: 8px; vertical-align: 1px;
+}
 table.dt td { border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; color: var(--ink-2); }
 
 /* Tabla de texto, no de cifras. Las tablas de datos alinean a la derecha porque
