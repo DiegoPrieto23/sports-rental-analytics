@@ -316,6 +316,28 @@ def quality_report(rentals_raw, products_raw, fact, customers_raw):
     }
 
 
+#: Granularidad a la que se redondea un coeficiente ajustado antes de meterlo en
+#: el payload. NO es cosmetica. El paso de CI "el informe commiteado esta al dia"
+#: compara BYTE A BYTE el HTML que construye el runner contra el commiteado, asi
+#: que cualquier float del payload tiene que salir igual en Windows y en Ubuntu.
+#: Un coeficiente de LAPACK con sus 17 digitos no lo hace: las dos ultimas cifras
+#: dependen del BLAS. Medido sobre este modelo, el metodo por defecto (newton)
+#: converge al mismo punto fijo con un margen de ~1e-14 aunque la tolerancia
+#: cambie seis ordenes de magnitud, asi que redondear a 1e-6 deja ocho ordenes de
+#: holgura, y sigue siendo mil veces mas fino que lo que el informe llega a
+#: enseñar (un odds ratio con cuatro decimales).
+#:
+#: Cambiar el METODO del ajuste si mueve el sexto decimal (bfgs y nelder-mead se
+#: separan en 1e-6 y 1e-5). Eso es un cambio de codigo, no ruido de plataforma, y
+#: lo caza el mismo paso de CI. Si se anade otro modelo al payload, sus floats
+#: tienen que pasar por aqui.
+FIT_DECIMALS = 6
+
+
+def _stable(v):
+    return round(float(v), FIT_DECIMALS)
+
+
 def cancel_model(fact):
     """Logit de cancelacion sobre el HISTORICO COMPLETO, precalculado aqui.
 
@@ -338,11 +360,13 @@ def cancel_model(fact):
     fit = smf.logit("cancelled ~ reservation_lead_time + rental_days", data=ld).fit(disp=0)
     return {
         "n": int(fit.nobs),
-        "intercept": float(fit.params["Intercept"]),
-        "lead": float(fit.params["reservation_lead_time"]),
-        "days": float(fit.params["rental_days"]),
-        "se_lead": float(fit.bse["reservation_lead_time"]),
-        "p_lead": float(fit.pvalues["reservation_lead_time"]),
+        "intercept": _stable(fit.params["Intercept"]),
+        "lead": _stable(fit.params["reservation_lead_time"]),
+        "days": _stable(fit.params["rental_days"]),
+        "se_lead": _stable(fit.bse["reservation_lead_time"]),
+        # El p-valor cae en 1e-50: redondearlo a 6 decimales lo volveria 0. Va a
+        # tres cifras significativas, que con z ~ 15 tambien es estable.
+        "p_lead": float(f"{float(fit.pvalues['reservation_lead_time']):.3g}"),
     }
 
 

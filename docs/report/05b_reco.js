@@ -945,7 +945,8 @@ function buildRecos() {
       prio: 19, page: "estadistica", tipo: "medición",
       accion: "Acordar un tamaño de efecto mínimo por decisión antes de mirar ningún p-valor, y " +
         "publicar el intervalo junto al contraste.",
-      porque: "Con " + nf(R.logit.n) + " observaciones, el logit da p &lt; 0,0001 para un odds ratio de " +
+      porque: "Con " + nf(R.logit.n) + " observaciones, el logit da p " + pval(R.logit.p) +
+        " para un odds ratio de " +
         nf(R.logit.or, 4) + " por día —<b>" + nf(R.logit.or7, 3) + "× a siete días</b>— y el contraste " +
         "de membresía da z = " + nf(R.member.z, 1) + ". La propia página ya avisa de que con decenas " +
         "de miles de observaciones casi todo sale significativo; el problema es que el umbral de p " +
