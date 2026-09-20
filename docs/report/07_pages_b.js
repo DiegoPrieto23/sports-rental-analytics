@@ -134,6 +134,8 @@ function pageTiendas(grid) {
                  "€/visitante", "Cancelación", "Averías", "Tardías", "Review"],
     byRev.map(d => [d.name, d.city, d.country, d.size, nf(d.visitors), nf(d.n), eur(d.rev),
       nf(d.revPerVisitor, 3), pct(d.cancel, 2), pct(d.damage, 2), pct(d.late, 2), nf(d.review, 2)]));
+
+  recoBlock(grid, "tiendas");
 }
 
 /* --------------------------- 6 · Clientes --------------------------------- */
@@ -226,6 +228,8 @@ function pageClientes(grid) {
     "sino <b>volver la temporada siguiente</b>, y eso cambia el diseño de la campaña.");
   note(c5, "La cohorte se define por el primer alquiler del cliente en todo el histórico, así que esta " +
     "tarjeta no responde a los filtros.");
+
+  recoBlock(grid, "clientes");
 }
 
 /* --------------------------- 7 · Pricing ---------------------------------- */
@@ -354,6 +358,8 @@ function pagePricing(grid) {
   setTable(c6, ["Canal", "Ticket medio", "Duración media", "Ingresos"],
     chans.map(d => [d.label, eur(kpi.ticket(A.channel, d.b), 2),
       nf(kpi.avgDays(A.channel, d.b), 2) + " días", eur(A.channel.rev[d.b])]));
+
+  recoBlock(grid, "pricing", recoCtxCanal());
 }
 
 /* --------------------------- 8 · Estadistica ------------------------------ */
@@ -614,6 +620,8 @@ function pageEstadistica(grid) {
   } else {
     c6._chart.innerHTML = '<p class="note">Muestra insuficiente en la selección.</p>';
   }
+
+  recoBlock(grid, "estadistica");
 }
 
 /* --------------------------- indice de paginas ----------------------------

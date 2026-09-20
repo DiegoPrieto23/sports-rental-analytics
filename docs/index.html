@@ -10,7 +10,7 @@
      absolutas: un enlace relativo no se resuelve en el previsualizador. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sports Rental · Analytics Engineering">
-<meta property="og:description" content="77.231 alquileres sintéticos, de la generación del dato al informe interactivo. Nueve páginas, seis filtros cruzados y regresiones que se recalculan sobre la selección.">
+<meta property="og:description" content="Alquileres sintéticos, de la generación del dato al informe interactivo. Nueve páginas, seis filtros cruzados, regresiones que se recalculan sobre la selección y un plan de acción con dueño y métrica en cada página.">
 <meta property="og:url" content="https://diegoprieto23.github.io/sports-rental-analytics/">
 <meta property="og:image" content="https://diegoprieto23.github.io/sports-rental-analytics/img/informe.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -92,7 +92,7 @@ h1 { margin: 0; font-size: var(--t-display); font-weight: var(--w-bold); letter-
 /* Mismas cajas que los paneles del informe: superficie sobre plano, filete y
    sombra minima. `align-items: stretch` iguala el alto de las tres. */
 .grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(2, 1fr);
   gap: var(--sp-3); align-items: stretch;
 }
 @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
@@ -160,12 +160,20 @@ footer a { color: var(--ink-2); }
       <p>17 modelos en capas staging → intermediate → marts, con 46 tests y los jobs
          encadenados sobre Databricks.</p>
     </div>
+    <div class="card">
+      <h2>De hallazgo a plan de acción</h2>
+      <p>Cada página del informe termina en recomendaciones y la portada lleva las cinco
+         de más retorno. Cada una trae acción, el hallazgo que la justifica <em>con su
+         cifra</em>, impacto derivado, dueño, esfuerzo y la métrica con la que se
+         comprobará. Cuando un hallazgo no lleva a ninguna acción, se dice.</p>
+    </div>
   </div>
 
   <div class="facts">
     <div class="fact"><div class="k">77.231</div><div class="v">alquileres analizados</div></div>
     <div class="fact"><div class="k">9</div><div class="v">páginas del informe</div></div>
     <div class="fact"><div class="k">6</div><div class="v">filtros cruzados</div></div>
+    <div class="fact"><div class="k">20</div><div class="v">recomendaciones con dueño y métrica</div></div>
     <div class="fact"><div class="k">1</div><div class="v">fichero, sin servidor ni CDN</div></div>
   </div>
 

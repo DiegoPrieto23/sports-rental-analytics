@@ -333,6 +333,8 @@ function pageModelo(grid) {
   ]);
   insight(c7, "Los tests <b>fallan el pipeline</b> (severidad <i>error</i>) salvo los marcados " +
     "como aviso. Un test que solo avisa no es un control: es una nota que nadie lee.");
+
+  recoBlock(grid, "modelo");
 }
 
 /* --------------------------------------------------------------------------

@@ -374,6 +374,144 @@ body {
   color: var(--muted); vertical-align: 2px;
 }
 
+/* --- recomendaciones ---
+   El bloque que cierra cada pagina y la lista de portada. Dos decisiones que
+   parecen de estilo y no lo son:
+
+   - La escala de esfuerzo NO va codificada en color. Bajo / medio / alto es un
+     orden, no un semaforo: pintar "alto" de rojo insinua que una recomendacion
+     cara es una mala recomendacion, y la de mas capital en juego de este informe
+     es justamente de esfuerzo alto. El orden lo lleva el numero de la izquierda,
+     que es lo unico que ordena de verdad, y el esfuerzo va escrito con palabras.
+   - La cifra de la portada usa `--f-num` y tabular para que las cinco lineas se
+     comparen en vertical sin leerlas. La etiqueta de debajo dice QUE es esa
+     cifra, porque no todas son lo mismo: una es ingreso recuperable y otra es el
+     tamano del agujero que se vuelve diagnosticable. Sin la etiqueta, ponerlas
+     en columna las igualaria y seria mentira.
+
+   La tarjeta que las contiene es una `.card` normal (mismo fondo, mismo filete,
+   misma rejilla de 12): es una conclusion, no un aviso, y un tratamiento distinto
+   la sacaria del documento. */
+.reco-card .head { margin-bottom: var(--sp-2); }
+.reco-disclaimer {
+  margin: 0 0 var(--sp-3); font-size: var(--t-micro); color: var(--muted);
+  max-width: 78ch;
+}
+.reco { display: grid; gap: var(--sp-3); }
+.reco-item {
+  border: 1px solid var(--hairline); border-radius: var(--r-2);
+  padding: var(--sp-3) var(--sp-4); background: var(--plane);
+}
+.reco-top { display: flex; align-items: baseline; gap: var(--sp-3); }
+.reco-n {
+  flex: none; width: 22px; text-align: right;
+  font-family: var(--f-num); font-size: var(--t-body); font-weight: var(--w-bold);
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+}
+.reco-item h4 {
+  margin: 0; font-size: var(--t-title); font-weight: var(--w-bold);
+  line-height: 1.35; color: var(--ink); letter-spacing: -.005em;
+}
+.reco-item h4 code, .reco-fields code, .reco-ctx code {
+  font-family: var(--f-num); font-size: var(--t-micro); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-1); padding: 0 4px;
+}
+.reco-meta {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  margin: var(--sp-2) 0 var(--sp-3) calc(22px + var(--sp-3));
+}
+.reco-meta span, .t5-meta span {
+  font-size: var(--t-micro); color: var(--muted);
+  border: 1px solid var(--hairline); border-radius: var(--r-pill);
+  padding: 1px var(--sp-2); white-space: nowrap;
+}
+.reco-meta .who, .t5-meta .who { color: var(--ink-2); }
+/* `.eff-bajo` / `.eff-medio` / `.eff-alto` se emiten desde el JS y comparten
+   regla a proposito: son un asidero para quien quiera distinguirlos algun dia,
+   no un semaforo. Ver la nota de arriba sobre por que no van en color. */
+.reco-meta .eff, .t5-meta .eff { color: var(--ink-2); }
+.reco-meta .kind, .t5-meta .kind { font-style: italic; }
+/* Dos columnas: la etiqueta del campo a la izquierda, siempre en el mismo sitio,
+   para poder recorrer las tres lineas de todas las recomendaciones en vertical.
+   Por debajo de 620 px la etiqueta se pone encima: a dos columnas estrechas el
+   texto se parte cada cuatro palabras. */
+.reco-fields {
+  display: grid; grid-template-columns: 92px 1fr;
+  column-gap: var(--sp-4); row-gap: var(--sp-2); margin: 0;
+  padding-left: calc(22px + var(--sp-3));
+}
+.reco-fields dt {
+  font-size: var(--t-micro); color: var(--muted); text-align: right;
+  padding-top: 1px;
+}
+.reco-fields dd {
+  margin: 0; font-size: var(--t-meta); color: var(--ink-2); line-height: 1.5;
+  max-width: 88ch;
+}
+.reco-fields dd b { color: var(--ink); font-weight: var(--w-bold); }
+.reco-note {
+  margin: var(--sp-2) 0 0 calc(22px + var(--sp-3) + 92px + var(--sp-4));
+  font-size: var(--t-micro); color: var(--muted);
+}
+.reco-ctx {
+  margin-top: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--neutral-mark); border-radius: var(--r-1);
+  background: var(--plane); font-size: var(--t-meta); color: var(--ink-2);
+  max-width: 92ch;
+}
+.reco-ctx b { color: var(--ink); font-weight: var(--w-bold); }
+@media (max-width: 620px) {
+  .reco-fields { grid-template-columns: 1fr; padding-left: 0; row-gap: 2px; }
+  .reco-fields dt { text-align: left; margin-top: var(--sp-2); }
+  .reco-meta { margin-left: 0; }
+  .reco-note { margin-left: 0; }
+}
+
+/* --- portada: las cinco de mas retorno --- */
+.reco-top5 { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+.reco-top5 li {
+  display: grid; grid-template-columns: 26px 1fr 168px;
+  gap: var(--sp-3); align-items: start;
+  border: 1px solid var(--hairline); border-radius: var(--r-2);
+  padding: var(--sp-3) var(--sp-4); background: var(--plane);
+}
+.t5-rank {
+  font-family: var(--f-num); font-size: var(--t-figure); font-weight: var(--w-bold);
+  color: var(--s1); line-height: 1.1; font-variant-numeric: tabular-nums;
+}
+.t5-do {
+  font-size: var(--t-title); font-weight: var(--w-bold); color: var(--ink);
+  line-height: 1.35; letter-spacing: -.005em;
+}
+.t5-do code {
+  font-family: var(--f-num); font-size: var(--t-micro);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-1); padding: 0 4px;
+}
+.t5-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+.t5-val { text-align: right; }
+.t5-val b {
+  display: block; font-family: var(--f-num); font-size: var(--t-title);
+  font-weight: var(--w-bold); color: var(--ink); font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+.t5-val small { display: block; font-size: var(--t-micro); color: var(--muted); margin-top: 2px; }
+.t5-go {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: var(--sp-2);
+  border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2);
+  border-radius: var(--r-1); font: inherit; font-size: var(--t-micro);
+  padding: 2px var(--sp-2); cursor: pointer;
+}
+.t5-go:hover { color: var(--ink); border-color: var(--axis); }
+.t5-go .pico { opacity: .75; }
+@media (max-width: 780px) {
+  .reco-top5 li { grid-template-columns: 26px 1fr; }
+  .t5-val { grid-column: 2; text-align: left; margin-top: var(--sp-2); }
+  .t5-val b { display: inline; }
+  .t5-val small { display: inline; margin-left: var(--sp-2); }
+}
+
 /* --- indicadores ---
    Siete tarjetas independientes, todas del mismo tamano. La cifra manda y la
    unidad la acompana medio paso por detras: leer "12.111.837" y luego "EUR" es

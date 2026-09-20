@@ -316,6 +316,36 @@ def quality_report(rentals_raw, products_raw, fact, customers_raw):
     }
 
 
+def cancel_model(fact):
+    """Logit de cancelacion sobre el HISTORICO COMPLETO, precalculado aqui.
+
+    La pagina de estadistica ajusta este mismo modelo en el navegador, pero sobre
+    la SELECCION: responde a los filtros, y esa es su gracia. El bloque de
+    recomendaciones necesita la version no filtrada —una recomendacion no puede
+    cambiar de sentido al marcar una casilla de pais— y ajustarla en el navegador
+    cuesta ~1,2 s sobre las 171k filas, justo en la primera pantalla que se ve.
+
+    Se precalcula aqui por la misma razon que `customer_lifecycle` y
+    `quality_report`: caro y ajeno al filtro. Y no duplica logica de negocio, que
+    es lo que si habria que evitar: es el mismo ajuste que `verify_report.py`
+    contrasta contra el motor JS, asi que las dos cifras no pueden divergir sin
+    que salte la prueba.
+    """
+    import statsmodels.formula.api as smf   # import local: encarece el arranque
+
+    ld = fact[fact["reservation_lead_time"].notna() & fact["rental_days"].notna()].copy()
+    ld["cancelled"] = ld["cancelled"].astype(int)   # patsy trataria el bool como categorica
+    fit = smf.logit("cancelled ~ reservation_lead_time + rental_days", data=ld).fit(disp=0)
+    return {
+        "n": int(fit.nobs),
+        "intercept": float(fit.params["Intercept"]),
+        "lead": float(fit.params["reservation_lead_time"]),
+        "days": float(fit.params["rental_days"]),
+        "se_lead": float(fit.bse["reservation_lead_time"]),
+        "p_lead": float(fit.pvalues["reservation_lead_time"]),
+    }
+
+
 # ---------------------------------------------------------------------------
 # 6. Ensamblado del payload
 # ---------------------------------------------------------------------------
@@ -395,6 +425,9 @@ def build_payload():
         "stores": stores_dim,
         "lifecycle": customer_lifecycle(fact),
         "quality": quality_report(rentals, products, fact, customers),
+        # Modelos ajustados sobre el historico entero, para el bloque de
+        # recomendaciones. Ver `cancel_model`.
+        "models": {"cancel_logit": cancel_model(fact)},
         "facts": {"schema": schema, "n": n_rows, "b64": b64},
     }
     return payload, fact
@@ -408,7 +441,7 @@ def build_payload():
 #: un unico <script>, asi que comparten ambito global.
 PARTS_DIR = DOCS_DIR / "report"
 HTML_PARTS = ["01_head.html", "02_body.html"]
-JS_PARTS = ["03_core.js", "03b_geo.js", "04_charts.js", "05_ui.js",
+JS_PARTS = ["03_core.js", "03b_geo.js", "04_charts.js", "05_ui.js", "05b_reco.js",
             "06_pages_a.js", "07_pages_b.js", "08_pages_c.js"]
 
 BOOT = """

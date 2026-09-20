@@ -58,6 +58,30 @@ Las regresiones **se recalculan sobre la selección**: no son tablas precocinada
 se resuelve por ecuaciones normales y la logística por IRLS, ambas escritas a mano en el
 propio informe.
 
+### De hallazgo a plan de acción
+
+Cada página **termina en recomendaciones** y la portada lleva **las cinco de más retorno** de
+todo el informe, ordenadas por lo que devuelven frente a lo que cuestan y enlazando a la
+página donde se desarrollan. Cada recomendación es un objeto con seis campos obligatorios:
+
+| Campo | Qué exige |
+|-------|-----------|
+| **Acción** | Un imperativo que alguien puede empezar el lunes, no un objetivo |
+| **Por qué** | El hallazgo que la justifica, citado **con su cifra**. Si no se puede escribir citando un número del análisis, la recomendación no sale de los datos y no entra |
+| **Impacto** | Cuantificado y **derivado**, nunca estimado a ojo. Si sale de una cadena de supuestos, la cadena está escrita; si no se puede poner en euros, se dice qué desbloquea |
+| **Quién** | El área que lo ejecuta. Sin dueño plausible, es un deseo |
+| **Esfuerzo** | Bajo / medio / alto, para poder ordenar por retorno frente a coste |
+| **Se mide con** | La métrica que dirá si funcionó **y que hoy no se está mirando** |
+
+Ninguna cifra de esas recomendaciones está escrita a mano: todas salen del mismo motor que
+el resto del informe, así que regenerar el dataset las mueve solas. Tres de las cinco de
+portada son **deuda de dato**, no acciones de negocio —imputar el coste del material,
+registrar el motivo de cancelación, recuperar los importes que no llegan al hecho—, que es
+lo que suele salir cuando se exige que cada recomendación traiga la métrica con la que se
+comprobará. Y cuando un hallazgo no lleva a ninguna acción se queda como contexto, dicho con
+todas las letras: la página de pricing explica, con las cifras, que los cuatro canales son
+indistinguibles y que **no hay ninguna acción de canal** que estos datos sostengan.
+
 Cada gráfico tiene su tabla equivalente detrás del botón **Tabla**, así que ningún dato
 depende solo del color o del tooltip.
 
@@ -174,7 +198,7 @@ sports-rental-analytics/
 │   ├── test_report.js                   # Ejecuta el motor del informe en Node
 │   ├── test_render.js                   # Renderiza las 9 páginas contra un DOM simulado
 │   ├── make_geo.py                      # Extrae las fronteras del mapa (Natural Earth)
-│   ├── report/                          # Piezas del informe (estilos, motor, geo, gráficos, páginas)
+│   ├── report/                          # Piezas del informe (estilos, motor, geo, gráficos, páginas, recomendaciones)
 │   ├── modelo_relacional.drawio         # Diagrama editable del modelo de datos
 │   └── img/                             # Capturas del análisis
 │

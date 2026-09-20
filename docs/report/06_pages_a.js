@@ -310,6 +310,11 @@ function pageResumen(grid) {
         "puede ser una recomposición, con categorías moviéndose fuerte en sentidos opuestos."
       : "Todas las categorías con peso se mueven en el mismo sentido en esta selección.");
   }
+
+  /* La portada cierra con la decision, no con el ultimo grafico: las cinco
+     recomendaciones de mas retorno del informe entero, cada una enlazando a la
+     pagina donde se desarrolla. */
+  recoTop(grid);
 }
 
 /* --------------------------- 2 · Calidad ---------------------------------- */
@@ -388,6 +393,8 @@ function pageCalidad(grid) {
   insight(c5, "Calculado sobre el dato <b>ya limpio</b>: los outliers técnicos (precios inflados ×50, " +
     "duraciones de 999 días) han desaparecido, así que lo que queda es <b>dispersión legítima del " +
     "negocio</b> —alquileres largos de esquí, material caro— y no debe recortarse.");
+
+  recoBlock(grid, "calidad");
 }
 
 /* --------------------------- 3 · Demanda ---------------------------------- */
@@ -611,6 +618,8 @@ function pageDemanda(grid) {
     eur(f.cancRev) + " que nunca se facturan), y la avería añade <b>" + eur(maintDmg) +
     "</b> de mantenimiento sobre los que sí se cobran. Son dos palancas distintas: la primera se " +
     "ataca en la reserva (el lead time la predice), la segunda en el estado del material.");
+
+  recoBlock(grid, "demanda");
 }
 
 /* Tramos de antiguedad del material. La escala no es lineal a proposito: los
@@ -840,4 +849,6 @@ function pageProducto(grid) {
       p.name, D.categories[p.cat], p.rotation, nf(p.units), nf(p.rentals), pct(p.occupancy),
       nf(p.utilization, 1), eur(p.revenue), eur(p.revPerUnit), pct(p.margin), pct(p.maintRatio),
       pct(p.damage), nf(p.review, 2)]));
+
+  recoBlock(grid, "producto");
 }

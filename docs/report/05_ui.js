@@ -314,13 +314,7 @@ function buildChrome() {
     b.setAttribute("id", "tab-" + p.id);
     b.setAttribute("aria-controls", "panels");
     b.setAttribute("aria-selected", i === 0);
-    b.addEventListener("click", () => {
-      state.page = i;
-      nav.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === b));
-      panels.setAttribute("aria-labelledby", "tab-" + p.id);
-      render();
-      scrollTo({ top: 0, behavior: "smooth" });
-    });
+    b.addEventListener("click", () => goToPage(p.id));
     nav.appendChild(b);
   });
   panels.setAttribute("aria-labelledby", "tab-" + PAGES[0].id);
@@ -350,6 +344,24 @@ function buildChrome() {
     nf(DATA.quality.score, 1) + "/100.";
 
   addEventListener("resize", debounce(render, 200));
+}
+
+/* Navegar a una pagina por su `id` del array PAGES. Vive fuera de `buildChrome`
+   porque ya no lo usa solo el menu lateral: cada recomendacion de la portada
+   enlaza a la pagina donde se desarrolla, y ese bloque se construye en otra
+   pieza que no alcanza el cierre del manejador del menu. Mantiene sincronizados
+   los tres sitios donde vive el estado de pestana: `state.page`, el
+   `aria-selected` de los botones y el `aria-labelledby` del panel. */
+function goToPage(id) {
+  const i = PAGES.findIndex(p => p.id === id);
+  if (i < 0 || i === state.page) return;
+  state.page = i;
+  const nav = document.getElementById("pages");
+  const btn = nav.querySelector("#tab-" + PAGES[i].id);
+  nav.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === btn));
+  document.getElementById("panels").setAttribute("aria-labelledby", "tab-" + PAGES[i].id);
+  render();
+  scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* --------------------------------------------------------------------------

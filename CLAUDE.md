@@ -124,11 +124,12 @@ orchestrated by `main()`. Numbered section banners (`# 1.` … `# 8.`) mark the 
 tooling, ~2.3 MB). **Edit the pieces, never `informe.html`** — it is generated.
 
 ```
-report/01_head.html   tokens + CSS          report/05_ui.js       nav, cards, filters, render
+report/01_head.html   tokens + CSS          report/05b_reco.js    recommendations engine
 report/02_body.html   markup shell          report/06_pages_a.js  pages 1-4
 report/03_core.js     engine (no DOM)       report/07_pages_b.js  pages 5-8
 report/03b_geo.js     country outlines      report/08_pages_c.js  page 9 + PAGES index
 report/04_charts.js   SVG chart library
+report/05_ui.js       nav, cards, filters, render
 ```
 
 Key invariants:
@@ -196,6 +197,35 @@ Key invariants:
 - **`03_core.js` must stay DOM-free.** `docs/test_report.js` loads that exact file in Node
   to check the engine against pandas/scipy/statsmodels. One `document.` reference there
   and the whole numeric test suite stops running.
+- **Every page ends in a recommendation block and page 1 carries the global top 5**
+  (`05b_reco.js`). A recommendation is an object with six mandatory fields — `accion`,
+  `porque`, `impacto`, `quien`, `esfuerzo`, `mide` — and the rules that govern them are in
+  that file's header comment, not here. Two hold-fast rules: **no number in that file is
+  written by hand** (everything comes from `recoFacts()`, which aggregates through the same
+  engine as the rest of the report, so a generator change moves the recommendations too),
+  and `prio` is an **explicit hand-ranked field**, not a formula — half the impacts are not
+  in euros and a formula mixing them would only hide the judgement. The one non-derived
+  number is `AMORT_LIVES` (useful life in years), which is a stated assumption the text
+  names as such.
+- **Recommendations are computed over the full history, never the filtered slice**, like the
+  cohort and quality cards, and they carry the same `histórico completo` tag. A
+  recommendation that flipped sign when you tick a country box would not be a recommendation.
+  `recoFacts()` reuses `A` only when the view is unfiltered (the landing state), which is why
+  it costs ~50 ms there instead of ~450 ms; the guard is load-bearing, not an optimisation to
+  simplify away.
+- **`DATA.models.cancel_logit` is precomputed in Python** (`cancel_model` in
+  `build_report.py`) for the same reason `lifecycle` and `quality` are: expensive and
+  filter-independent. Refitting it in the browser cost 1.2 s on the first screen. Page 8
+  still fits its own logit because that one *must* follow the filters. `verify_report.py`
+  checks both against the same statsmodels fit, so they cannot drift apart.
+- **`goToPage(id)` in `05_ui.js` is the single entry point for switching page**, used by the
+  rail and by the cover's recommendation links. It keeps `state.page`, the buttons'
+  `aria-selected` and the panel's `aria-labelledby` in step; setting `state.page` directly
+  and calling `render()` leaves the rail lying about which page is open.
+- **A finding that leads nowhere stays as context.** `recoBlock()` takes an optional third
+  argument that renders a "sin recomendación, a propósito" note — the pricing page uses it to
+  say, with the numbers, that the four channels are indistinguishable. Padding a page with a
+  filler recommendation is what makes a report unusable; leave the block short instead.
 - The builder **re-implements the notebook's cleaning pipeline and KPI definitions**
   (`clean_rentals`, `dedupe_rental_ids`, `data_trust_score`). Change a metric in the
   notebook and it must change here too; `verify_report.py` is what catches the drift.

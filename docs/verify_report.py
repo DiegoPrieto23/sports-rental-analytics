@@ -162,7 +162,7 @@ def slice_pandas(fact, **flt):
     return d
 
 
-def check_engine(fact):
+def check_engine(fact, payload):
     print("\nEjecutando el motor del informe en Node…")
     res = subprocess.run([("node"), str(HARNESS)], capture_output=True, text=True,
                          encoding="utf-8", cwd=str(ROOT))
@@ -237,6 +237,16 @@ def check_engine(fact):
     check("Logit · se lead", float(js["logit"]["se_lead"]),
           float(lfit.bse["reservation_lead_time"]), TOL_FIT)
     check("Logit · log-verosimilitud", float(js["logit"]["ll"]), float(lfit.llf), TOL_FIT)
+    # El MISMO modelo, pero el que viaja precalculado en el payload y alimenta el
+    # bloque de recomendaciones. Va contra el mismo ajuste de statsmodels que el
+    # del motor: si alguien toca uno de los dos, esto lo separa del otro.
+    pm = payload["models"]["cancel_logit"]
+    check("Logit payload · n", int(pm["n"]), int(lfit.nobs))
+    check("Logit payload · coef lead", float(pm["lead"]),
+          float(lfit.params["reservation_lead_time"]), TOL_FIT)
+    check("Logit payload · coef días", float(pm["days"]), float(lfit.params["rental_days"]), TOL_FIT)
+    check("Logit payload · se lead", float(pm["se_lead"]),
+          float(lfit.bse["reservation_lead_time"]), TOL_FIT)
     bad += report("5 · MOTOR · regresión logística frente a statsmodels")
 
     # --- proporciones y cuantiles ---
@@ -271,7 +281,7 @@ def main():
     fact, *_ = build_fact(*load())
 
     bad = check_encoding(payload, cols, fact)
-    bad += check_engine(fact)
+    bad += check_engine(fact, payload)
 
     print()
     if bad:
